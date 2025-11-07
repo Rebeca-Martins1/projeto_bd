@@ -21,7 +21,7 @@ export default function Cadastro() {
       console.error(err);
     }
   };
-//rebeca
+
   return (
     <div>
       <input placeholder="CPF" value={cpf} onChange={(e) => setCpf(e.target.value)} />
