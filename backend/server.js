@@ -3,13 +3,13 @@ import cors from "cors";
 import pkg from "pg";
 const { Pool } = pkg;
 
-const app = express();
+const app = express(); // 👈 define o app primeiro
 app.use(cors());
-app.use(express.json()); // para receber JSON no corpo das requisições
+app.use(express.json());
 
 // Conexão com o PostgreSQL
 const pool = new Pool({
-  user: "postgres",    
+  user: "postgres",
   host: "localhost",
   database: "projeto_bd",
   password: "rebecamg",
@@ -21,20 +21,48 @@ pool.connect()
   .then(() => console.log("✅ Conectado ao PostgreSQL"))
   .catch(err => console.error("Erro de conexão:", err));
 
-// Rota para cadastrar usuário
+// 👇 A PARTIR DAQUI entram as rotas
 app.post("/paciente", async (req, res) => {
-  const { cpf, nome, telefone, email } = req.body;
+  console.log("📦 Dados recebidos do frontend:", req.body);
+
+  const { nome, email, sexo, cpf, data_nascimento, telefone, R_telefone, R_cpf, senha } = req.body;
+  const client = await pool.connect();
 
   try {
-    await pool.query(
-      'INSERT INTO public."PACIENTE" (cpf, nome, telefone, email) VALUES ($1, $2, $3, $4)',
-      [cpf, nome, telefone, email]
+    await client.query("BEGIN");
+
+    const existing = await client.query(
+      'SELECT 1 FROM public."PESSOA" WHERE cpf = $1',
+      [cpf]
     );
+
+    if (existing.rows.length > 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).send("CPF já cadastrado.");
+    }
+
+    await client.query(
+      `INSERT INTO public."PESSOA" (cpf, nome, telefone, email, senha, sexo)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [cpf, nome, telefone, email, senha, sexo]
+    );
+
+    await client.query(
+      `INSERT INTO public."PACIENTE" (cpf, data_nascimento, "R_telefone", "R_cpf")
+       VALUES ($1, $2, $3, $4)`,
+      [cpf, data_nascimento, R_telefone, R_cpf]
+    );
+
+    await client.query("COMMIT");
     res.status(200).send("Paciente cadastrado com sucesso!");
   } catch (err) {
-    console.error("Erro ao cadastrar:", err);
+    await client.query("ROLLBACK");
+    console.error("❌ Erro ao cadastrar paciente:", err);
     res.status(500).send("Erro ao cadastrar paciente.");
+  } finally {
+    client.release();
   }
 });
 
+// Inicia o servidor
 app.listen(5000, () => console.log("🚀 Servidor rodando na porta 5000"));
