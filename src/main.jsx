@@ -1,11 +1,18 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import Cadastro from './pages/index'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Login from './pages/index'
+import Cadastro from './pages/cadastro'
+import HomePaciente from './pages/Paciente/Home/index'
 import MyGlobalStyles from './styles/globalStyles'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
     <MyGlobalStyles />
-    <Cadastro />
-  </StrictMode>,
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/cadastro" element={<Cadastro />} />
+      <Route path="/homepaciente" element={<HomePaciente/>} />
+    </Routes>
+  </BrowserRouter>
 )
