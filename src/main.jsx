@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/index'
 import Cadastro from './pages/cadastro'
 import HomePaciente from './pages/Paciente/Home/index'
+import HomeMedico from './pages/Medico/Home/page'
 import MyGlobalStyles from './styles/globalStyles'
-//import Medico from './pages/Medico/Home/page'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
