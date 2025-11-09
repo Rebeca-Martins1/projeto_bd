@@ -1,34 +1,61 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FaNotesMedical, FaUserMd, FaHeartbeat, FaHospitalUser, FaPills, FaSignOutAlt, FaCommentDots } from "react-icons/fa";
-import { Container, Header, Subtitle, GridArea, Card } from "./styles";
+import { 
+  Container, 
+  TopBar, 
+  LogoutBtn, 
+  Content, 
+  Header, 
+  Subtitle, 
+  GridArea, 
+  Card 
+} from "./styles";
+
+import { 
+  FaCalendarAlt, 
+  FaCut, 
+  FaUserCog 
+} from "react-icons/fa";
 
 export default function HomePaciente() {
   const navigate = useNavigate();
+  const pacienteNome = "Rafael Castro"; // futuramente isso vem do backend/login
 
   const items = [
-    { icon: <FaHospitalUser size={26} />, label: "Meus dados", route: "/meusdados" },
-    { icon: <FaUserMd size={26} />, label: "Minhas consultas", route: "/consultas" },
-    { icon: <FaNotesMedical size={26} />, label: "Meus exames", route: "/exames" },
-    { icon: <FaHeartbeat size={26} />, label: "Histórico médico", route: "/historico" },
-    { icon: <FaPills size={26} />, label: "Medicações", route: "/medicacoes" },
-    { icon: <FaCommentDots size={26} />, label: "Suporte", route: "/suporte" },
-    { icon: <FaSignOutAlt size={26} />, label: "Sair", route: "/" },
+    { icon: <FaCalendarAlt size={28} />, label: "CONSULTAS", sub: "Marque sua próxima visita", route: "/consultas" },
+    { icon: <FaCut size={28} />, label: "MINHAS CIRURGIAS", sub: "Histórico e agendamentos", route: "/cirurgias" },
+    { icon: <FaUserCog size={28} />, label: "EDITAR PERFIL", sub: "Atualize seus dados", route: "/meusdados" },
   ];
+
+  function logout() {
+  localStorage.removeItem("token");
+  navigate("/../login");
+}
 
   return (
     <Container>
-      <Header>Bem-vindo, Paciente 👋</Header>
-      <Subtitle>Selecione uma opção e cuide da sua saúde</Subtitle>
 
-      <GridArea>
-        {items.map((item, i) => (
-          <Card key={i} onClick={() => navigate(item.route)}>
-            {item.icon}
-            <span>{item.label}</span>
-          </Card>
-        ))}
-      </GridArea>
+      {/* 🔵 Barra Superior */}
+      <TopBar>
+        <span>MED MAIS</span>
+        <span> Olá, {pacienteNome}</span>
+        <LogoutBtn onClick={logout}>Sair</LogoutBtn>
+      </TopBar>
+
+      {/* Conteúdo */}
+      <Content>
+        <Header>BEM-VINDO, {pacienteNome}</Header>
+        <Subtitle>Seu Portal do Paciente</Subtitle>
+
+        <GridArea>
+          {items.map((item, i) => (
+            <Card key={i} onClick={() => navigate(item.route)}>
+              {item.icon}
+              <span>{item.label}</span>
+            </Card>
+          ))}
+        </GridArea>
+      </Content>
     </Container>
   );
 }
