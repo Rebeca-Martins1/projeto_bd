@@ -14,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <MyGlobalStyles />
     <Routes>
       <Route path="/" element={< Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
