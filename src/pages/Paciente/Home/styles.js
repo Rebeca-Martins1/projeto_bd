@@ -78,28 +78,32 @@ export const MainContent = styled.main`
 `;
 
 export const WelcomeMessage = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-
+  margin-bottom: 2.5rem;
+  
   h1 {
     font-size: 1.875rem;
     font-weight: 700;
     color: #1f2937;
+    margin: 0 0 0.25rem 0;
   }
-
   p {
-    color: #4b5563;
     font-size: 1.125rem;
+    color: #4b5563;
+    margin: 0;
   }
 `;
 
 export const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 25px;
-  width: 100%;
-  max-width: 700px;
-  margin: 0 auto;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 `;
 
 // 🔹 Card de ação

@@ -128,3 +128,29 @@ export const SubmitBtn = styled.button`
     background-color: #283b73;
   }
 `;
+// 🔹 Rodapé
+export const Footer = styled.footer`
+  background-color: #1f2937;
+  color: #d1d5db;
+  padding: 1rem 0;
+`;
+
+export const FooterGrid = styled.div`
+  width: 90%;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+export const FooterCol = styled.div`
+  h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p, li {
+    font-size: 0.875rem;
+    color: #d1d5db;
+  }
+`;
