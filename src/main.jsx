@@ -5,6 +5,7 @@ import Login from './pages/index'
 import Cadastro from './pages/cadastro'
 import HomePaciente from './pages/Paciente/Home/index'
 import HomeMedico from './pages/Medico/Home/page'
+import HomeAdm from './pages/Adm/Home/index'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
       <Route path="/homemedico" element={<HomeMedico/>} />
+      <Route path="/homeadm" element={<HomeAdm/>} />
     </Routes>
   </BrowserRouter>
 )
