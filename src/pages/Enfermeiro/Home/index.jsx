@@ -3,7 +3,7 @@ import * as S from "./styles";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
-import { IconCalendarPlus, IconCalendarCheck, IconClipboardList } from "../../../icons";
+import { IconSettings, IconScissors, IconBed } from "../../../icons";
 
 function ActionCard({ icon, title, description, buttonText }) {
   return (
@@ -31,19 +31,19 @@ export default function HomeEnfermeiro() {
 
           <S.CardGrid>
             <ActionCard 
-              icon={IconCalendarPlus}
+              icon={IconSettings}
               title="EDITAR PERFIL"
               description="Atualize suas informações"
               buttonText="IR PRA SEÇÃO"
             />
             <ActionCard 
-              icon={IconCalendarCheck}
+              icon={IconScissors}
               title="MINHAS CIRURGIAS"
               description="Visualize suas cirurgias agendadas e passadas"
               buttonText="IR PRA SEÇÃO"
             />
             <ActionCard 
-              icon={IconClipboardList}
+              icon={IconBed}
               title="LEITOS SOB MINHA RESPONSABILIDADE"
               description="Veja suas ocupações e os detalhes dos leitos"
               buttonText="IR PRA SEÇÃO"

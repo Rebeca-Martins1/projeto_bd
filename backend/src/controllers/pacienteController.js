@@ -21,7 +21,7 @@ export async function cadastrarPaciente(req, res) {
     await client.query("BEGIN");
 
     const existing = await client.query(
-      'SELECT 1 FROM public."PESSOA" WHERE cpf = $1',
+      'SELECT 1 FROM public."PACIENTE" WHERE cpf = $1',
       [cpf]
     );
 
