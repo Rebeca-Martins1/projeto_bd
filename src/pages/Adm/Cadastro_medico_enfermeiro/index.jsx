@@ -33,28 +33,28 @@ export default function CadastroProfissional() {
     e.preventDefault();
 
     try {
-      // 🔹 1. Cadastra na tabela PESSOA
-      await axios.post("http://localhost:3001/pessoa", {
-        cpf: formData.cpf,
-        nome: formData.nome,
-        tipo: tipo.toUpperCase(), // "MEDICO" ou "ENFERMEIRO"
-        telefone: formData.telefone,
-        email: formData.email,
-        sexo: formData.sexo,
-        senha: formData.senha,
-      });
-
-      // 🔹 2. Dependendo do tipo, cadastra nas tabelas específicas
       if (tipo === "medico") {
-        await axios.post("http://localhost:3001/medico", {
+        await axios.post("http://localhost:5000/medico", {
           cpf: formData.cpf,
+          nome: formData.nome,
+          tipo: tipo.toUpperCase(),
+          telefone: formData.telefone,
+          email: formData.email,
+          sexo: formData.sexo,
+          senha: formData.senha,
           crm: formData.crm,
           disponibilidade: true,
           especialidade: formData.especialidade,
         });
       } else if (tipo === "enfermeiro") {
-        await axios.post("http://localhost:3001/enfermeiro", {
+        await axios.post("http://localhost:5000/enfermeiro", {
           cpf: formData.cpf,
+          nome: formData.nome,
+          tipo: tipo.toUpperCase(),
+          telefone: formData.telefone,
+          email: formData.email,
+          sexo: formData.sexo,
+          senha: formData.senha,
           coren: formData.coren,
           disponivel: true,
           especialidade: formData.especialidade,
@@ -62,7 +62,6 @@ export default function CadastroProfissional() {
       }
 
       alert(`${tipo === "medico" ? "Médico" : "Enfermeiro"} cadastrado com sucesso!`);
-      navigate("/homeadmin");
     } catch (err) {
       console.error("Erro ao cadastrar profissional:", err);
       alert("Erro ao cadastrar. Verifique os dados e tente novamente.");
@@ -179,7 +178,7 @@ export default function CadastroProfissional() {
               </S.InputGroup>
 
               <S.InputGroup>
-                <label>Especialidade</label>
+                <label>Especialidades</label>
                 <input
                   type="text"
                   name="especialidade"
@@ -188,7 +187,9 @@ export default function CadastroProfissional() {
                   placeholder="Ex: Cardiologia, Pediatria..."
                   required
                 />
+                <small>Separe múltiplas especialidades com vírgula</small>
               </S.InputGroup>
+
             </>
           )}
 
@@ -206,16 +207,18 @@ export default function CadastroProfissional() {
               </S.InputGroup>
 
               <S.InputGroup>
-                <label>Especialidade</label>
+                <label>Especialidades</label>
                 <input
                   type="text"
                   name="especialidade"
                   value={formData.especialidade}
                   onChange={handleChange}
-                  placeholder="Ex: UTI, Pronto Atendimento..."
+                  placeholder="Ex: Cardiologia, Pediatria..."
                   required
                 />
+                <small>Separe múltiplas especialidades com vírgula</small>
               </S.InputGroup>
+
             </>
           )}
 
