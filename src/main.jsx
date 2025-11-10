@@ -7,6 +7,7 @@ import HomePaciente from './pages/Paciente/Home/index'
 import HomeMedico from './pages/Medico/Home/page'
 import HomeAdm from './pages/Adm/Home/index'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
+import EditarPerfilPaciente from './pages/Paciente/EditarPerfil'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
+      <Route path="/editarperfil" element={<EditarPerfilPaciente/>} />
 
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
