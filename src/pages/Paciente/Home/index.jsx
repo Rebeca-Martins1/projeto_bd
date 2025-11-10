@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import { FaCalendarAlt, FaCut, FaUserCog, FaHeartbeat } from "react-icons/fa";
+import Footer from "../../../components/Footer";
+import Header from "../../../components/Header";
 
 function ActionCard({ icon, title, description, onClick }) {
   return (
@@ -48,16 +50,7 @@ export default function HomePaciente() {
     <>
       <S.GlobalStyles />
       <S.PacientePortalContainer>
-        {/* 🔵 TOPO */}
-        <S.TopHeader>
-          <S.TopHeaderContent>
-            <S.Logo>
-              <FaHeartbeat size={24} />
-              <S.LogoTitle>MED MAIS</S.LogoTitle>
-            </S.Logo>
-            <S.LogoutBtn onClick={logout}>Sair</S.LogoutBtn>
-          </S.TopHeaderContent>
-        </S.TopHeader>
+        <Header />
 
         {/* --- CONTEÚDO PRINCIPAL --- */}
         <S.MainContent>
@@ -79,25 +72,7 @@ export default function HomePaciente() {
           </S.CardGrid>
         </S.MainContent>
 
-        {/* --- RODAPÉ --- */}
-        <S.Footer>
-          <S.FooterGrid>
-            <S.FooterCol>
-              <h5>Sobre nós</h5>
-              <p>Informações sobre o Hospital.</p>
-            </S.FooterCol>
-
-            <S.FooterCol>
-              <h5>Informações para contato</h5>
-              <ul>
-                <li>Rua do Hospital</li>
-                <li>Cidade, estado, cep</li>
-                <li>Telefone</li>
-                <li>email@hospital.com</li>
-              </ul>
-            </S.FooterCol>
-          </S.FooterGrid>
-        </S.Footer>
+        <Footer />
       </S.PacientePortalContainer>
     </>
   );
