@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
-import { FaCalendarAlt, FaCut, FaUserCog, FaHeartbeat } from "react-icons/fa";
+import { FaCalendarAlt, FaCut, FaUserCog } from "react-icons/fa";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
@@ -16,16 +16,31 @@ function ActionCard({ icon, title, description, onClick }) {
   );
 }
 
-export default function HomePaciente() {
+export default function PortalPaciente() {
   const navigate = useNavigate();
-  const pacienteNome = "Rafael Castro"; // futuramente vem do backend/login
+  const [usuario, setUsuario] = useState(null); // ✅ estado inicial
+
+  useEffect(() => {
+    // roda apenas uma vez
+    const dadosSalvos = localStorage.getItem("usuarioLogado");
+    if (dadosSalvos) {
+      setUsuario(JSON.parse(dadosSalvos));
+    } else {
+      navigate("/login"); // mais seguro que window.location.href
+    }
+  }, [navigate]);
+
+  if (!usuario) {
+    // enquanto o usuário não é carregado, evita renderizar
+    return <p>Carregando...</p>;
+  }
 
   const items = [
     {
       icon: <FaCalendarAlt size={40} />,
       title: "CONSULTAS",
       description: "Marque sua próxima visita",
-      route: "/MarcarConsulta", // 👈 Rota para a tela de marcação de consulta
+      route: "/MarcarConsulta",
     },
     {
       icon: <FaCut size={40} />,
@@ -42,8 +57,8 @@ export default function HomePaciente() {
   ];
 
   function logout() {
-    localStorage.removeItem("token");
-    navigate("/../login");
+    localStorage.removeItem("usuarioLogado");
+    navigate("/login");
   }
 
   return (
@@ -51,11 +66,9 @@ export default function HomePaciente() {
       <S.GlobalStyles />
       <S.PacientePortalContainer>
         <Header />
-
-        {/* --- CONTEÚDO PRINCIPAL --- */}
         <S.MainContent>
           <S.WelcomeMessage>
-            <h1>BEM-VINDO, {pacienteNome}</h1>
+            <h1>BEM-VINDO, {usuario.nome}</h1>
             <p>Seu Portal do Paciente</p>
           </S.WelcomeMessage>
 
@@ -71,7 +84,6 @@ export default function HomePaciente() {
             ))}
           </S.CardGrid>
         </S.MainContent>
-
         <Footer />
       </S.PacientePortalContainer>
     </>
