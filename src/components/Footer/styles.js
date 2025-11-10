@@ -250,20 +250,17 @@ export const ActionCardButton = styled.button`
 export const Footer = styled.footer`
   background-color: #1f2937;
   color: #d1d5db;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  flex-shrink: 0;
+  padding: 1rem 0;
 `;
 
-export const FooterGrid = styled(Container)`
+export const FooterGrid = styled.div`
+  width: 90%;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr;
   gap: 2rem;
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  grid-template-columns: repeat(2, 1fr);
 `;
+
 
 export const FooterCol = styled.div`
   h5 {
@@ -309,10 +306,3 @@ export const FooterCol = styled.div`
   }
 `;
 
-export const FooterBottom = styled(Container)`
-  border-top: 1px solid #374151;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-`;

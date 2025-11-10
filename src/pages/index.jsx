@@ -23,7 +23,7 @@ export default function Login() {
 
       switch (tipo) {
         case "paciente":
-          navigate('/homemedico');
+          navigate('/homepaciente');
           break;
         case "medico":
           navigate('/homemedico');
@@ -56,7 +56,7 @@ export default function Login() {
     <>
       <S.GlobalStyles />
       <S.MedicoPortalContainer>
-        <Header />
+        <Header isLogin={true} />
         <Container>
           <Form>
             <h1>Login</h1>
@@ -100,7 +100,7 @@ export default function Login() {
             </div>
           </Form>
         </Container>
-        <Footer />
+      <Footer />
     </S.MedicoPortalContainer>
     </>
   );
