@@ -1,10 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
-import { Container, Form, Button } from "./styles";
+import { Container, Form, Button, TitleSection } from "./styles";
 import { useNavigate } from 'react-router-dom';
 import * as S from "../pages/Medico/Home/styles";
 import Footer from "../components/Footer";
 import Header from "../components/header";
+import { FaHeartbeat } from "react-icons/fa";
 
 export default function Login() {
   const [cpf, setCpf] = useState("");
@@ -58,8 +59,11 @@ export default function Login() {
       <S.MedicoPortalContainer>
         <Header isLogin={true} />
         <Container>
+          <TitleSection>
+            <h2>Bem-vindo de volta ao</h2> <h1> MED MAIS <FaHeartbeat size={24} color="#e63946" /> </h1>
+          </TitleSection>
           <Form>
-            <h1>Login</h1>
+            <h1>Entrar</h1>
             <input
               type="number"
               placeholder="Cpf"
@@ -82,8 +86,7 @@ export default function Login() {
             <Button type="button" onClick={handleLogin}>
               Entrar
             </Button>
-            <div style={{  }}>
-              <span>Ainda não possui uma Conta? </span>
+            {/*<div style={{  }}>
               <button
                 type="button"
                 style={{
@@ -95,9 +98,9 @@ export default function Login() {
                 }}
                 onClick={() => navigate("/cadastro")}
               >
-                Se inscreva
+                Esqueceu senha?
               </button>
-            </div>
+            </div>*/}
           </Form>
         </Container>
       <Footer />

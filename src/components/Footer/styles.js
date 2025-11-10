@@ -251,6 +251,7 @@ export const Footer = styled.footer`
   background-color: #1f2937;
   color: #d1d5db;
   padding: 1rem 0;
+  margin-top: auto;
 `;
 
 export const FooterGrid = styled.div`
