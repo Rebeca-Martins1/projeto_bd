@@ -8,6 +8,7 @@ import HomeMedico from './pages/Medico/Home/page'
 import HomeAdm from './pages/Adm/Home/index'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
+import Cirurgiamedico from './pages/Medico/AgendarCirurgia/page'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
