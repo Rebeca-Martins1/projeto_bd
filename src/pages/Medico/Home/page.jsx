@@ -42,7 +42,7 @@ export default function HomeMedico() {
               title="AGENDAR CIRURGIA"
               description="Programe novas intervenções com o médico"
               buttonText="IR PRA SESSÃO"
-              path="/medico/agendar-cirurgia"
+              path="/agendarcirurgia"
             />
             <ActionCard 
               icon={IconCalendarCheck}

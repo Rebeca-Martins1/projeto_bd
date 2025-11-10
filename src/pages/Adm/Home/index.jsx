@@ -23,21 +23,30 @@ export default function HomePaciente() {
   const items = [
     {
       icon: <FaCalendarAlt size={40} />,
-      title: "CONSULTAS",
-      description: "Marque sua próxima visita",
+      title: "CADASTRO DE FUNCIONARIOS",
+      description: "Cadastro de médicos e enfermeiros",
       route: "/cadastro_medico_paciente",
     },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "CADASTRO DE LEITOS",
+      description: "Cadastro de leitos de uti e de leitos da enfermaria",
+      route: "/cadastro_medico_paciente",
+    },
+
     {
       icon: <FaCut size={40} />,
-      title: "CIRURGIAS",
-      description: "Histórico e agendamentos",
-      route: "/cirurgias",
+      title: "SOLICITAÇÃO DE CIRURGIA",
+      description: "Solicitações das cirurgias dos médicos tem que ser aprovadas e modificadas caso necessário",
+      route: " ",
     },
+
     {
       icon: <FaUserCog size={40} />,
       title: "EDITAR PERFIL",
       description: "Atualize seus dados",
-      route: "/meusdados",
+      route: " ",
     },
   ];
 
