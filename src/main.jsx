@@ -10,7 +10,10 @@ import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
-
+import ConselhoPresidente from './pages/ConselhoPresidente/Home/index'
+import OcupacaoSalas from './pages/ConselhoPresidente/OcupacaoSalas/index'
+import OcupacaoLeitos from './pages/ConselhoPresidente/OcupacaoLeitos/index'
+import AtividadeMedica from './pages/ConselhoPresidente/AtividadeMedica/index'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -29,6 +32,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
 
+      <Route path="/conselho" element={<ConselhoPresidente/>} />
+      <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />
+      <Route path="/ocupacaosalas" element={<OcupacaoSalas/>} />
+      <Route path="/atividademedica" element={<AtividadeMedica/>} />
     </Routes>
   </BrowserRouter>
 )
