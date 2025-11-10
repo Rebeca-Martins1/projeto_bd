@@ -1,7 +1,7 @@
 import {Container, h1, Form, Button, Form_cadastro} from './styles';
 import * as S from "../pages/Medico/Home/styles";
 import Footer from "../components/Footer";
-import Header from "../components/header";
+import Header from "../components/Header";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';

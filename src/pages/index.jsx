@@ -4,7 +4,7 @@ import { Container, Form, Button, TitleSection } from "./styles";
 import { useNavigate } from 'react-router-dom';
 import * as S from "../pages/Medico/Home/styles";
 import Footer from "../components/Footer";
-import Header from "../components/header";
+import Header from "../components/Header";
 import { FaHeartbeat } from "react-icons/fa";
 
 export default function Login() {

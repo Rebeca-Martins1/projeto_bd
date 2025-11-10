@@ -1,7 +1,7 @@
 import React from "react";
 import * as S from "./styles";
 import Footer from "../../../components/Footer";
-import Header from "../../../components/header";
+import Header from "../../../components/Header";
 
 import { IconCalendarPlus, IconCalendarCheck, IconClipboardList } from "../../../icons";
 
