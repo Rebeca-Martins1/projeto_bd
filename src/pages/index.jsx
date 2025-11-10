@@ -11,9 +11,11 @@ export default function Login() {
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
   const [tipo, setTipo] = useState("paciente");
+  const [erro, setErro] = useState(""); 
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    setErro("");
     try {
       const response = await axios.post("http://localhost:5000/login", {
         cpf,
@@ -35,19 +37,17 @@ export default function Login() {
         case "conselho":
           navigate('/homeconselhopresidente');
           break;
-
         case "adm":
           navigate('/homeadm');
           break;
         default:
           navigate('/');
       }
-
     } catch (err) {
       if (err.response && err.response.status === 401) {
-        alert("Cpf ou senha incorretos!");
+        setErro("CPF ou senha incorretos!");
       } else {
-        alert("Erro ao fazer login!");
+        setErro("Erro ao fazer login. Tente novamente!");
       }
       console.error(err);
     }
@@ -60,13 +60,14 @@ export default function Login() {
         <Header isLogin={true} />
         <Container>
           <TitleSection>
-            <h2>Bem-vindo de volta ao</h2> <h1> MED MAIS <FaHeartbeat size={24} color="#e63946" /> </h1>
+            <h2>Bem-vindo de volta ao</h2>
+            <h1> MED MAIS <FaHeartbeat size={24} color="#e63946" /> </h1>
           </TitleSection>
           <Form>
             <h1>Entrar</h1>
             <input
               type="number"
-              placeholder="Cpf"
+              placeholder="CPF"
               value={cpf}
               onChange={(e) => setCpf(e.target.value)}
             />
@@ -83,28 +84,20 @@ export default function Login() {
               <option value="conselho">Conselho Presidente</option>
               <option value="adm">Administrador</option>
             </select>
+
+            {erro && (
+              <p style={{ color: "red", fontSize: "12px" }}>
+                {erro}
+              </p>
+            )}
+
             <Button type="button" onClick={handleLogin}>
               Entrar
             </Button>
-            {/*<div style={{  }}>
-              <button
-                type="button"
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "blue",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
-                onClick={() => navigate("/cadastro")}
-              >
-                Esqueceu senha?
-              </button>
-            </div>*/}
           </Form>
         </Container>
-      <Footer />
-    </S.MedicoPortalContainer>
+        <Footer />
+      </S.MedicoPortalContainer>
     </>
   );
 }

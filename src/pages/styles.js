@@ -115,45 +115,64 @@ export const Form_cadastro = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;                
+  width: 100%;
   max-width: 1000px;
   padding: 30px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 
-  h1 {
-    font-size: 20px;
+  h2 {
+    font-size: 22px;
     color: #243b80;
+    margin-bottom: 18px;
   }
 
   form {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 10px;
     justify-content: space-between;
-    margin-top: 20px;
+  }
+
+  .input-group {
+    flex: 1 1 calc(50% - 10px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-group.full {
+    flex: 1 1 100%;
   }
 
   input,
   select {
-    flex: 1 1 calc(50% - 10px);
-    padding: 12px 14px;
+    width: 100%;
+    padding: 10px 14px;
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 16px;
     outline: none;
-    transition: 0.3s;
-
-    &:focus {
-      border-color: #243b80;
-      box-shadow: 0 0 0 2px rgba(36, 59, 128, 0.15);
-    }
+    transition: 0.2s;
+    box-sizing: border-box;
   }
 
-  .full {
-    flex: 1 1 100%;
+  input:focus,
+  select:focus {
+    border-color: #243b80;
+    box-shadow: 0 0 0 2px rgba(36, 59, 128, 0.12);
+  }
+
+  .erro-input {
+    border-color: #e63946 !important;
+  }
+
+  .erro {
+    color: #e63946;
+    font-size: 12px;
+    margin-top: 3px;
+    text-align: left;
   }
 
   button {
@@ -165,21 +184,15 @@ export const Form_cadastro = styled.div`
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: #2f4fb1;
-      transform: scale(1.02);
-    }
+    margin-top: 8px;
+    transition: all 0.2s ease;
   }
 
   @media (max-width: 768px) {
     form {
       flex-direction: column;
     }
-    input,
-    select {
+    .input-group {
       flex: 1 1 100%;
     }
   }
