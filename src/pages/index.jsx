@@ -14,44 +14,48 @@ export default function Login() {
   const [erro, setErro] = useState(""); 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    setErro("");
-    try {
-      const response = await axios.post("http://localhost:5000/login", {
-        cpf,
-        senha,
-        tipo,
-      });
-      console.log("Usuário logado:", response.data.user);
+const handleLogin = async () => {
+  setErro("");
+  try {
+    const response = await axios.post("http://localhost:5000/login", {
+      cpf,
+      senha,
+      tipo,
+    });
 
-      switch (tipo) {
-        case "paciente":
-          navigate('/homepaciente');
-          break;
-        case "medico":
-          navigate('/homemedico');
-          break;
-        case "enfermeiro":
-          navigate('/homeenfermeiro');
-          break;
-        case "conselho":
-          navigate('/homeconselhopresidente');
-          break;
-        case "adm":
-          navigate('/homeadm');
-          break;
-        default:
-          navigate('/');
-      }
-    } catch (err) {
-      if (err.response && err.response.status === 401) {
-        setErro("CPF ou senha incorretos!");
-      } else {
-        setErro("Erro ao fazer login. Tente novamente!");
-      }
-      console.error(err);
+    console.log("Usuário logado:", response.data.user);
+
+    // ✅ Salva o usuário no localStorage
+    localStorage.setItem("usuarioLogado", JSON.stringify(response.data.user));
+
+    switch (tipo) {
+      case "paciente":
+        navigate("/homepaciente");
+        break;
+      case "medico":
+        navigate("/homemedico");
+        break;
+      case "enfermeiro":
+        navigate("/homeenfermeiro");
+        break;
+      case "conselho":
+        navigate("/homeconselhopresidente");
+        break;
+      case "adm":
+        navigate("/homeadm");
+        break;
+      default:
+        navigate("/");
     }
-  };
+  } catch (err) {
+    if (err.response && err.response.status === 401) {
+      setErro("CPF ou senha incorretos!");
+    } else {
+      setErro("Erro ao fazer login. Tente novamente!");
+    }
+    console.error(err);
+  }
+};
 
   return (
     <>
