@@ -2,6 +2,9 @@ import { useState } from "react";
 import axios from "axios";
 import { Container, Form, Button } from "./styles";
 import { useNavigate } from 'react-router-dom';
+import * as S from "../pages/Medico/Home/styles";
+import Footer from "../components/Footer";
+import Header from "../components/header";
 
 export default function Login() {
   const [cpf, setCpf] = useState("");
@@ -50,49 +53,55 @@ export default function Login() {
   };
 
   return (
-    <Container>
-      <Form>
-        <h1>Login</h1>
-        <input
-          type="number"
-          placeholder="Cpf"
-          value={cpf}
-          onChange={(e) => setCpf(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-        />
-        <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-          <option value="paciente">Paciente</option>
-          <option value="medico">Médico</option>
-          <option value="enfermeiro">Enfermeiro</option>
-          <option value="conselho">Conselho Presidente</option>
-          <option value="adm">Administrador</option>
-        </select>
-        <Button type="button" onClick={handleLogin}>
-          Entrar
-        </Button>
-        <div style={{ marginTop: "1rem" }}>
-          <span>Ainda não possui uma Conta? </span>
-          <button
-            type="button"
-            style={{
-              background: "none",
-              border: "none",
-              color: "blue",
-              cursor: "pointer",
-              textDecoration: "underline",
-              padding: 0
-            }}
-            onClick={() => navigate("/cadastro")}
-          >
-            Se inscreva
-          </button>
-        </div>
-      </Form>
-    </Container>
+    <>
+      <S.GlobalStyles />
+      <S.MedicoPortalContainer>
+        <Header />
+        <Container>
+          <Form>
+            <h1>Login</h1>
+            <input
+              type="number"
+              placeholder="Cpf"
+              value={cpf}
+              onChange={(e) => setCpf(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
+            <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+              <option value="paciente">Paciente</option>
+              <option value="medico">Médico</option>
+              <option value="enfermeiro">Enfermeiro</option>
+              <option value="conselho">Conselho Presidente</option>
+              <option value="adm">Administrador</option>
+            </select>
+            <Button type="button" onClick={handleLogin}>
+              Entrar
+            </Button>
+            <div style={{  }}>
+              <span>Ainda não possui uma Conta? </span>
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "blue",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+                onClick={() => navigate("/cadastro")}
+              >
+                Se inscreva
+              </button>
+            </div>
+          </Form>
+        </Container>
+        <Footer />
+    </S.MedicoPortalContainer>
+    </>
   );
 }

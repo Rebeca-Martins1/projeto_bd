@@ -250,9 +250,8 @@ export const ActionCardButton = styled.button`
 export const Footer = styled.footer`
   background-color: #1f2937;
   color: #d1d5db;
-  padding-top: 3rem;
-  padding-bottom: 2rem;
-  margin-top: 4rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
   flex-shrink: 0;
 `;
 

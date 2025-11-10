@@ -2,12 +2,11 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   display: flex;
-  height: 100vh;              
-  width: 100vw;  
+  margin-top: 75px;
+  margin-block-end: 75px;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 100px;
 `;
 
 export const ItemStructure = styled.div`
@@ -28,9 +27,6 @@ export const Form = styled.div`
     padding: 30px;
     border-radius: 10px;
     background-color: #2e2d4e;
-    max-width: 50%;
-    width: 400px;
-    margin-bottom: 20px;
 `;
 
 export const Button = styled.div`
@@ -39,7 +35,6 @@ export const Button = styled.div`
     justify-content: center; 
     border-radius: 30px;
     background-color: #8b8ae1;
-    height: 40px;
     border: none;
     font-weight: bold;
     cursor: pointer;
