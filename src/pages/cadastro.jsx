@@ -66,7 +66,7 @@ export default function Cadastro() {
   const handleCadastro = async () => {
     if (!validarFormulario()) return;
     try {
-      await axios.post("http://localhost:5000/paciente", {
+      await axios.post("http://localhost:5000/cadastrar", {
         nome,
         email,
         sexo,

@@ -25,7 +25,7 @@ export default function HomePaciente() {
       icon: <FaCalendarAlt size={40} />,
       title: "CONSULTAS",
       description: "Marque sua próxima visita",
-      route: "/MarcarConsulta", // 👈 Rota para a tela de marcação de consulta
+      route: "/cadastro_medico_paciente",
     },
     {
       icon: <FaCut size={40} />,
