@@ -23,9 +23,9 @@ export default function Header({ isLogin = false }) {
         </S.Logo>
 
          {isLogin ? (
-          <S.RegisterBtn onClick={goToRegister}>
+          <S.Button onClick={goToRegister}>
             Cadastro
-          </S.RegisterBtn>
+          </S.Button>
         ) : (
           <S.LogoutBtn onClick={logout}>
             Sair

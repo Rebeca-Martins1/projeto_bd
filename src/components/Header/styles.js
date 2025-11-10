@@ -192,18 +192,19 @@ export const FooterCol = styled.div`
   }
 `;
 
-export const RegisterBtn = styled.button`
-  background-color: #2563eb;
+export const Button = styled.button`
+  background-color: #243b80;
   color: white;
+  font-weight: bold;
+  padding: 12px;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
+  transition: 0.2s;
 
   &:hover {
-    background-color: #1d4ed8;
+    background-color: #2f4fb1;
+    transform: scale(1.02);
   }
 `;
 
