@@ -21,11 +21,11 @@ pool.connect()
   .then(() => console.log("✅ Conectado ao PostgreSQL"))
   .catch(err => console.error("Erro de conexão:", err));
 
-// 👇 A PARTIR DAQUI entram as rotas
-app.post("/paciente", async (req, res) => {
+//cadastro
+  app.post("/paciente", async (req, res) => {
   console.log("📦 Dados recebidos do frontend:", req.body);
 
-  const { nome, email, sexo, cpf, data_nascimento, telefone, R_telefone, R_cpf, senha } = req.body;
+  const { nome, email, sexo, cpf, data_nascimento, telefone, R_telefone, R_cpf, empresa_plano, numero_carteirinha, senha} = req.body;
   const client = await pool.connect();
 
   try {
@@ -48,9 +48,9 @@ app.post("/paciente", async (req, res) => {
     );
 
     await client.query(
-      `INSERT INTO public."PACIENTE" (cpf, data_nascimento, "R_telefone", "R_cpf")
-       VALUES ($1, $2, $3, $4)`,
-      [cpf, data_nascimento, R_telefone, R_cpf]
+      `INSERT INTO public."PACIENTE" (cpf, data_nascimento, "R_telefone", "R_cpf", empresa_plano, numero_carteirinha)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [cpf, data_nascimento, R_telefone, R_cpf, empresa_plano, numero_carteirinha]
     );
 
     await client.query("COMMIT");
@@ -63,6 +63,8 @@ app.post("/paciente", async (req, res) => {
     client.release();
   }
 });
+
+//login
 app.post("/login", async (req, res) => {
   const { cpf, senha, tipo } = req.body;
 

@@ -1,6 +1,7 @@
 import {Container, h1, Form, Button} from './styles'
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 export default function Cadastro() {
     const [cpf, setCpf] = useState("");
@@ -11,7 +12,10 @@ export default function Cadastro() {
     const [telefone, setTelefone] = useState("");
     const [telefoneAcompanhante, setTelefoneAcompanhante] = useState("");
     const [cpfAcompanhante, setCpfAcompanhante] = useState("");
-    const [senha, setSenha] = useState("");    
+    const [empresa_plano, setEmpresaPlano] = useState("");
+    const [numero_carteirinha, setNumeroCarteirinha] = useState("");
+    const [senha, setSenha] = useState(""); 
+    const navigate = useNavigate();   
 
     const handleCadastro = async () => {
         try {
@@ -24,11 +28,11 @@ export default function Cadastro() {
         telefone,
         R_telefone: telefoneAcompanhante, 
         R_cpf: cpfAcompanhante,
+        empresa_plano,
+        numero_carteirinha,
         senha
         });
 
-        alert("Cadastro realizado com sucesso!");
-        
         setCpf("");
         setNome("");
         setData("");
@@ -37,8 +41,10 @@ export default function Cadastro() {
         setTelefone("");
         setTelefoneAcompanhante("");
         setCpfAcompanhante("");
+        setEmpresaPlano("");
+        setNumeroCarteirinha("");
         setSenha("");
-
+        navigate('/');
         } catch (err) {
         alert("Erro ao cadastrar!");
         console.error(err);
@@ -59,6 +65,8 @@ export default function Cadastro() {
                 </select>
                 <input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="CPF" />
                 <input value={data} onChange={(e) => setData(e.target.value)} type="date" />
+                <input value={empresa_plano} onChange={(e) => setEmpresaPlano(e.target.value)} placeholder="Nome do Plano" />
+                <input value={numero_carteirinha} onChange={(e) => setNumeroCarteirinha(e.target.value)} placeholder="Número da Carteirinha" />
                 <input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="Telefone" />
                 <input value={telefoneAcompanhante} onChange={(e) => setTelefoneAcompanhante(e.target.value)} placeholder="Telefone do acompanhante" />
                 <input value={cpfAcompanhante} onChange={(e) => setCpfAcompanhante(e.target.value)} placeholder="CPF do acompanhante" />
