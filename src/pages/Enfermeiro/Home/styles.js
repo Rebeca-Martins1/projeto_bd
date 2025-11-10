@@ -31,7 +31,7 @@ export const Container = styled.div`
   }
 `;
 
-export const MedicoPortalContainer = styled.div`
+export const EnfermeiroPortalContainer = styled.div`
   /* Se o GlobalStyles funcionar, o #root terá 100% de largura.
     Este 'width: 100%' fará o nosso container preencher o #root.
   */
