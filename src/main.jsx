@@ -11,6 +11,8 @@ import EditarPerfilPaciente from './pages/Paciente/EditarPerfil'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
+import HomeEnfermeiro from './pages/Enfermeiro/Home/index'
+import PlantaoEnfermeiro from './pages/Enfermeiro/Plantao/index'
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -27,6 +29,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
+
+      <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
+      <Route path="/plantao" element={<PlantaoEnfermeiro/>} />
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
