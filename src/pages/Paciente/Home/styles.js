@@ -1,98 +1,189 @@
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 
-export const Container = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background: #f8fafc;
-  display: flex;
-  flex-direction: column;
+// 🔹 Estilos Globais
+export const GlobalStyles = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body, #root {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    font-family: 'Inter', sans-serif;
+  }
 `;
 
-export const TopBar = styled.div`
-  width: 100%;
-  background: #071f52ff;
-  padding: 15px 25px;
+// 🔹 Container principal
+export const PacientePortalContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+`;
+
+// 🔹 Cabeçalho
+export const TopHeader = styled.header`
+  background-color: #1f2937;
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+`;
+
+export const TopHeaderContent = styled.div`
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+`;
+
+export const Logo = styled.div`
+  display: flex;
   align-items: center;
   color: white;
   font-size: 18px;
   font-weight: 600;
+  gap: 0.5rem;
+`;
+
+export const LogoTitle = styled.span`
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
 `;
 
 export const LogoutBtn = styled.button`
-  background: #1e40af;
+  background-color: #ef4444;
   color: white;
   border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.2s;
+  transition: 0.3s;
 
   &:hover {
-    background: #1d4ed8;
+    background-color: #dc2626;
   }
 `;
 
-export const Content = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;  /* <-- centraliza verticalmente */
-  padding: 30px 20px;
+// 🔹 Conteúdo Principal
+export const MainContent = styled.main`
+  flex-grow: 1;
+  width: 90%;
+  max-width: 1000px;
+  margin: 3rem auto 2rem auto; /* margem inferior reduzida */
 `;
 
-export const Header = styled.h1`
-  color: #0f1f39;
-  font-size: 28px;
-  margin-bottom: 6px;
+export const WelcomeMessage = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  p {
+    color: #4b5563;
+    font-size: 1.125rem;
+  }
 `;
 
-export const Subtitle = styled.p`
-  color: #64748b;
-  font-size: 16px;
-  margin-bottom: 35px;
-`;
-
-export const GridArea = styled.div`
+export const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Cards maiores */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 25px;
   width: 100%;
-  max-width: 700px; /* <-- reduz largura máxima para centralizar */
-  justify-content: center; /* <-- centraliza a grid */
+  max-width: 700px;
+  margin: 0 auto;
 `;
 
-
-export const Card = styled.div`
-  background: white;
-  border: 1px solid #d1dceb;
-  border-radius: 12px;
-  padding: 25px 15px;
+// 🔹 Card de ação
+export const ActionCardContainer = styled.div`
+  background-color: #fff;
+  border: 1px solid #93c5fd;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   transition: 0.2s;
-
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
 
+  &:hover {
+    border-color: #3b82f6;
+    transform: translateY(-4px);
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 1rem;
+  }
+
   svg {
     color: #2563eb;
   }
+`;
 
-  span {
-    font-size: 16px;
-    font-weight: 600;
-    color: #0f1f39;
-  }
+export const ActionCardIcon = styled.div`
+  color: #2563eb;
+  margin-bottom: 0.5rem;
+`;
+
+export const ActionCardButton = styled.button`
+  background-color: #374151;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
 
   &:hover {
-    border-color: #2563eb;
-    transform: translateY(-4px);
+    background-color: #1f2937;
+  }
+`;
+
+// 🔹 Rodapé
+export const Footer = styled.footer`
+  background-color: #1f2937;
+  color: #d1d5db;
+  padding: 1rem 0;
+`;
+
+export const FooterGrid = styled.div`
+  width: 90%;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+export const FooterCol = styled.div`
+  h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p, li {
+    font-size: 0.875rem;
+    color: #d1d5db;
   }
 `;
