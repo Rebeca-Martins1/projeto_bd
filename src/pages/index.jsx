@@ -20,7 +20,7 @@ export default function Login() {
 
       switch (tipo) {
         case "paciente":
-          navigate('/homepaciente');
+          navigate('/homemedico');
           break;
         case "medico":
           navigate('/homemedico');
