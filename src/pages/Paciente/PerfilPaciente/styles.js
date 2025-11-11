@@ -17,25 +17,6 @@ export const PageContainer = styled.div`
   align-items: center;
   padding-top: 30px;
 `;
-
-export const Header = styled.div`
-  width: 100%;
-  max-width: 900px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 25px;
-
-  h2 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1c2541;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-`;
-
 export const BackButton = styled.button`
   background: #e2e8f0;
   color: #1c2541;
@@ -126,11 +107,4 @@ export const SubmitBtn = styled.button`
   &:hover {
     background: #273469;
   }
-`;
-
-export const Footer = styled.div`
-  margin-top: 30px;
-  font-size: 13px;
-  color: #64748b;
-  opacity: 0.8;
 `;

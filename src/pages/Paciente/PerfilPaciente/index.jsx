@@ -1,8 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   GlobalStyles,
   PageContainer,
-  Header,
   BackButton,
   FormCard,
   SectionTitle,
@@ -10,16 +10,18 @@ import {
   SubmitBtn
 } from "./styles";
 
+import Footer from "../../../components/Footer";
+import Header from "../../../components/Header";
+
 const PatientProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
-  // Dados fake até conectar no backend
   const [formData, setFormData] = useState({
     nome: "Maria Santos",
     idade: "32",
     telefone: "(11) 99822-3344",
     email: "maria.santos@example.com",
-
     alergias: "Alergia a Dipirona",
     cirurgias: "Rinoplastia (2020)",
     medicamentos: "Anticoncepcional contínuo",
@@ -42,13 +44,21 @@ const PatientProfile = () => {
   return (
     <>
       <GlobalStyles />
-
       <PageContainer>
+        {/* ✅ Cabeçalho (componente pronto) */}
+        <Header />
 
-        <Header>
+        <div style={{ padding: "20px", textAlign: "center" }}>
           <h2>Informações do Paciente</h2>
 
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px",
+              marginTop: "10px"
+            }}
+          >
             <button
               onClick={handleToggleEdit}
               style={{
@@ -64,109 +74,57 @@ const PatientProfile = () => {
               {isEditing ? "Cancelar" : "Editar"}
             </button>
 
-            <BackButton>
+            <BackButton onClick={() => navigate("/portalpaciente")}>
               Mostrar Todas as Informações
             </BackButton>
           </div>
-        </Header>
+        </div>
 
         <FormCard onSubmit={handleSubmit}>
           <SectionTitle>Informações Pessoais</SectionTitle>
 
-          <InputGroup>
-            <label>Nome</label>
-            <input
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Idade</label>
-            <input
-              name="idade"
-              value={formData.idade}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Telefone</label>
-            <input
-              name="telefone"
-              value={formData.telefone}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Email</label>
-            <input
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
+          {[
+            ["nome", "Nome"],
+            ["idade", "Idade"],
+            ["telefone", "Telefone"],
+            ["email", "Email"]
+          ].map(([field, label]) => (
+            <InputGroup key={field}>
+              <label>{label}</label>
+              <input
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </InputGroup>
+          ))}
 
           <SectionTitle>Histórico Clínico</SectionTitle>
 
-          <InputGroup>
-            <label>Alergias</label>
-            <textarea
-              name="alergias"
-              value={formData.alergias}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Cirurgias</label>
-            <textarea
-              name="cirurgias"
-              value={formData.cirurgias}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Medicamentos</label>
-            <textarea
-              name="medicamentos"
-              value={formData.medicamentos}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Cosméticos Utilizados</label>
-            <textarea
-              name="cosmeticos"
-              value={formData.cosmeticos}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
-
-          <InputGroup>
-            <label>Histórico Médico Geral</label>
-            <textarea
-              name="historicoMedico"
-              value={formData.historicoMedico}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </InputGroup>
+          {[
+            ["alergias", "Alergias"],
+            ["cirurgias", "Cirurgias"],
+            ["medicamentos", "Medicamentos"],
+            ["cosmeticos", "Cosméticos Utilizados"],
+            ["historicoMedico", "Histórico Médico Geral"]
+          ].map(([field, label]) => (
+            <InputGroup key={field}>
+              <label>{label}</label>
+              <textarea
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
+            </InputGroup>
+          ))}
 
           {isEditing && <SubmitBtn type="submit">Salvar Alterações</SubmitBtn>}
         </FormCard>
+
+        {/* ✅ Rodapé (componente pronto) */}
+        <Footer />
       </PageContainer>
     </>
   );
