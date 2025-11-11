@@ -3,6 +3,7 @@ import cors from "cors";
 import loginRoutes from "./routes/loginRoutes.js";
 import cadastroRoutes from "./routes/pacienteRoutes.js"
 import cadastromedicoRoutes from "./routes/medicoRoutes.js"
+import cadastroleitosRoutes from "./routes/leitosRoutes.js"
 import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
 import cadastroadmcp from "./routes/adm_cpRoutes.js"
@@ -18,6 +19,7 @@ app.use("/login", loginRoutes);
 app.use("/cadastrar", cadastroRoutes);
 app.use("/medico", cadastromedicoRoutes);
 app.use("/enfermeiro", cadastroenfermeiroRoutes);
+app.use("/leitos", cadastroleitosRoutes);
 app.use("/admcp", cadastroadmcp);
 app.use("/plantao", plantaoRoutes);
 

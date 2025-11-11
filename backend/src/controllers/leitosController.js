@@ -30,7 +30,7 @@ export async function cadastrarLeitos(req, res) {
     const quant_paciente=0;
     // Inserção na tabela LEITOS
     await client.query(
-      `INSERT INTO public."LEITOS" (n_sala, tipo, quant_paciente,capacidade)
+      `INSERT INTO public."LEITOS" (n_sala, tipo, quant_paciente, capacidade)
        VALUES ($1, $2, $3, $4)`,
       [n_sala, tipo, quant_paciente, capacidade]
     );

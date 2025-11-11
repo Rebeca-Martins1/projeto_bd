@@ -24,7 +24,8 @@ export async function cadastrarAdmCP(req, res) {
       return res.status(400).send("CPF já cadastrado.");
     }
 
-    const tipo = "conselho presidente";
+    //const tipo = "adm";
+    const tipo = "conselho";
 
     // Inserção na tabela PESSOA
     await client.query(
