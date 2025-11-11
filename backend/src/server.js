@@ -5,6 +5,7 @@ import cadastroRoutes from "./routes/pacienteRoutes.js"
 import cadastromedicoRoutes from "./routes/medicoRoutes.js"
 import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
+import cadastroadmcp from "./routes/adm_cpRoutes.js"
 import pool from "./config/db.js"; 
 
 const app = express();
@@ -17,6 +18,7 @@ app.use("/login", loginRoutes);
 app.use("/cadastrar", cadastroRoutes);
 app.use("/medico", cadastromedicoRoutes);
 app.use("/enfermeiro", cadastroenfermeiroRoutes);
+app.use("/admcp", cadastroadmcp);
 app.use("/plantao", plantaoRoutes);
 
 app.listen(PORT, () => {
