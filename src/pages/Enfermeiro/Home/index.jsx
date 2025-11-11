@@ -48,6 +48,13 @@ export default function HomeEnfermeiro() {
               description="Veja suas ocupações e os detalhes dos leitos"
               buttonText="IR PRA SEÇÃO"
             />
+
+             <ActionCard 
+              icon={IconBed}
+              title="PLANTÃO"
+              description="Cadastre e veja seu plantão aqui"
+              buttonText="IR PRA SEÇÃO"
+            />
           </S.CardGrid>
         </S.MainContent>
 
