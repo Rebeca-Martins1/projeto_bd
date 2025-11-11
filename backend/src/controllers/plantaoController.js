@@ -1,25 +1,48 @@
-// controllers/plantaoController.js
 import pool from "../config/db.js";
 
 export const cadastrarPlantao = async (req, res) => {
-  try {
-    const { cpf, coren, inicio_plantao, inicio_folga, disponivel } = req.body;
+  const { cpf, inicio_plantao, inicio_folga } = req.body;
 
-    if (!cpf || !coren || !inicio_plantao || !inicio_folga) {
-      return res.status(400).json({ message: "Todos os campos são obrigatórios." });
+  if (!cpf || !inicio_plantao || !inicio_folga) {
+    return res.status(400).json({ erro: "Todos os campos são obrigatórios." });
+  }
+
+  try {
+    // Calcula o próximo plantão (36h depois da folga)
+    const folga = new Date(inicio_folga);
+    const proximoPlantao = new Date(folga.getTime() + 36 * 60 * 60 * 1000);
+
+    // Atualiza o registro do enfermeiro
+    const query = `
+      UPDATE enfermeiros
+      SET 
+        inicio_plantao = ?,
+        inicio_folga = ?,
+        proximo_plantao = ?,
+        disponivel = ?
+      WHERE cpf = ?
+    `;
+
+    const valores = [
+      inicio_plantao,
+      inicio_folga,
+      proximoPlantao,
+      false, // o enfermeiro estará indisponível durante o plantão
+      cpf,
+    ];
+
+    const [resultado] = await pool.query(query, valores);
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ erro: "Enfermeiro não encontrado." });
     }
 
-    const query = `
-      INSERT INTO plantao (cpf, coren, inicio_plantao, inicio_folga, disponivel)
-      VALUES ($1, $2, $3, $4, $5)
-    `;
-    const values = [cpf, coren, inicio_plantao, inicio_folga, disponivel];
-
-    await pool.query(query, values);
-
-    res.status(201).json({ message: "Plantão cadastrado com sucesso!" });
+    res.status(200).json({
+      mensagem: "Plantão cadastrado com sucesso!",
+      proximoPlantao,
+    });
   } catch (error) {
     console.error("Erro ao cadastrar plantão:", error);
-    res.status(500).json({ message: "Erro interno no servidor." });
+    res.status(500).json({ erro: "Erro no servidor ao cadastrar plantão." });
   }
 };

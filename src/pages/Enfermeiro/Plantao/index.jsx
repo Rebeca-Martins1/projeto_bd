@@ -9,7 +9,6 @@ export default function Plantao() {
   const navigate = useNavigate();
 
   const [cpf, setCpf] = useState("");
-  const [coren, setCoren] = useState("");
   const [inicioPlantao, setInicioPlantao] = useState("");
   const [inicioFolga, setInicioFolga] = useState("");
   const [proximoPlantao, setProximoPlantao] = useState(null);
@@ -26,26 +25,28 @@ export default function Plantao() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!cpf || !coren || !inicioPlantao || !inicioFolga) {
-      setMensagem("⚠️ Por favor, preencha todos os campos.");
+    if (!cpf || !inicioPlantao || !inicioFolga) {
+      setMensagem("Por favor, preencha todos os campos.");
       return;
     }
 
     setEnviando(true);
-    const dataRetorno = calcularProximoPlantao(inicioFolga);
-    setProximoPlantao(dataRetorno);
-
-    const payload = {
-      cpf,
-      coren,
-      inicio_plantao: inicioPlantao,
-      inicio_folga: inicioFolga,
-      disponivel: false,
-    };
 
     try {
-      await axios.post("http://localhost:5000/plantao/cadastrar", payload);
+      const response = await axios.post("http://localhost:5000/plantao/cadastrar", {
+        cpf,
+        inicio_plantao: inicioPlantao,
+        inicio_folga: inicioFolga,
+      });
+
       setMensagem("Plantão cadastrado com sucesso!");
+      setProximoPlantao(
+        new Date(response.data.proximoPlantao).toLocaleString("pt-BR", {
+          dateStyle: "short",
+          timeStyle: "short",
+        })
+      );
+
       setTimeout(() => navigate("/home-enfermeiro"), 3000);
     } catch (error) {
       console.error(error);
@@ -64,7 +65,7 @@ export default function Plantao() {
         <S.MainContent>
           <S.FormContainer>
             <h1>Cadastro de Plantão</h1>
-            <p>Preencha as informações abaixo para registrar seu plantão.</p>
+            <p>Registre seu plantão e veja quando deve retornar.</p>
 
             <S.Form onSubmit={handleSubmit}>
               <S.InputGroup>
@@ -75,15 +76,6 @@ export default function Plantao() {
                     value={cpf}
                     onChange={(e) => setCpf(e.target.value)}
                     placeholder="Digite seu CPF"
-                  />
-                </div>
-                <div>
-                  <label>COREN</label>
-                  <input
-                    type="text"
-                    value={coren}
-                    onChange={(e) => setCoren(e.target.value)}
-                    placeholder="Digite seu COREN"
                   />
                 </div>
               </S.InputGroup>

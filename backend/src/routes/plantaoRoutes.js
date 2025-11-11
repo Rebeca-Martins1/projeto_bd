@@ -1,4 +1,3 @@
-// routes/plantaoRoutes.js
 import express from "express";
 import { cadastrarPlantao } from "../controllers/plantaoController.js";
 
