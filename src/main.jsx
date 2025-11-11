@@ -14,6 +14,8 @@ import ConselhoPresidente from './pages/ConselhoPresidente/Home/index'
 import OcupacaoSalas from './pages/ConselhoPresidente/OcupacaoSalas/index'
 import OcupacaoLeitos from './pages/ConselhoPresidente/OcupacaoLeitos/index'
 import AtividadeMedica from './pages/ConselhoPresidente/AtividadeMedica/index'
+import HomeEnfermeiro from './pages/Enfermeiros/Home/index'
+import Platao from './pages/Enfermeiros/Plantao/index'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -28,6 +30,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
+
+      <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
+      <Route path="/platao" element={<Plantao/>} />
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
