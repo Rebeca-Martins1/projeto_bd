@@ -27,7 +27,7 @@ export async function cadastrarMedico(req, res) {
     }
 
     const tipo = "medico";
-    const disponibilidade = true;
+    const disponivel = true;
 
     // Inserção na tabela PESSOA
     await client.query(
@@ -38,9 +38,9 @@ export async function cadastrarMedico(req, res) {
 
     // Inserção na tabela MEDICO
     await client.query(
-      `INSERT INTO public."MEDICO" (cpf, crm, disponibilidade)
+      `INSERT INTO public."MEDICO" (cpf, crm, disponivel)
        VALUES ($1, $2, $3)`,
-      [cpf, crm, disponibilidade]
+      [cpf, crm, disponivel]
     );
      
     // Inserção na tabela ESPECIALIDE_MEDICO

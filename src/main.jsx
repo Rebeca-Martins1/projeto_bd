@@ -9,6 +9,7 @@ import HomeAdm from './pages/Adm/Home/index'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
+import CadastroLeito from './pages/Adm/Cadastro_Leitos/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
 import ConselhoPresidente from './pages/ConselhoPresidente/Home/index'
 import OcupacaoSalas from './pages/ConselhoPresidente/OcupacaoSalas/index'
@@ -36,6 +37,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
+      <Route path="/cadastro_leitos" element={<CadastroLeito/>} />
 
       <Route path="/conselho" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />

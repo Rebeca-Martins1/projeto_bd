@@ -43,7 +43,7 @@ export default function CadastroProfissional() {
           sexo: formData.sexo,
           senha: formData.senha,
           crm: formData.crm,
-          disponibilidade: true,
+          disponivel: true,
           especialidade: formData.especialidade,
         });
       } else if (tipo === "enfermeiro") {
