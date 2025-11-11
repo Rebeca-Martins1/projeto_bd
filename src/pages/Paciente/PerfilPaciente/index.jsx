@@ -43,10 +43,11 @@ const PatientProfile = () => {
 
   return (
     <>
+     <Header />
       <GlobalStyles />
       <PageContainer>
         {/* ✅ Cabeçalho (componente pronto) */}
-        <Header />
+        
 
         <div style={{ padding: "20px", textAlign: "center" }}>
           <h2>Informações do Paciente</h2>
@@ -124,8 +125,8 @@ const PatientProfile = () => {
         </FormCard>
 
         {/* ✅ Rodapé (componente pronto) */}
-        <Footer />
       </PageContainer>
+      <Footer />
     </>
   );
 };
