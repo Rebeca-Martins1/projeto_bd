@@ -32,7 +32,7 @@ export default function HomePaciente() {
       icon: <FaCalendarAlt size={40} />,
       title: "CADASTRO DE LEITOS",
       description: "Cadastro de leitos de uti e de leitos da enfermaria",
-      route: "/cadastro_medico_paciente",
+      route: "/cadastro_leitos",
     },
 
     {
@@ -61,7 +61,6 @@ export default function HomePaciente() {
       <S.PacientePortalContainer>
         <Header />
 
-        {/* --- CONTEÚDO PRINCIPAL --- */}
         <S.MainContent>
           <S.WelcomeMessage>
             <h1>BEM-VINDO, {pacienteNome}</h1>
