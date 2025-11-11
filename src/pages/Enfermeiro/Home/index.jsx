@@ -3,7 +3,7 @@ import * as S from "./styles";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
-import { IconSettings, IconScissors, IconBed } from "../../../icons";
+import { IconSettings, IconScissors, IconBed, IconHospital } from "../../../icons";
 
 function ActionCard({ icon, title, description, buttonText }) {
   return (
@@ -50,7 +50,7 @@ export default function HomeEnfermeiro() {
             />
 
              <ActionCard 
-              icon={IconBed}
+              icon={IconHospital}
               title="PLANTÃO"
               description="Cadastre e veja seu plantão aqui"
               buttonText="IR PRA SEÇÃO"
