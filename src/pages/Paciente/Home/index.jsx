@@ -52,7 +52,7 @@ export default function PortalPaciente() {
       icon: <FaUserCog size={40} />,
       title: "EDITAR PERFIL",
       description: "Atualize seus dados",
-      route: "/meusdados",
+      route: "/perfilpaciente",
     },
   ];
 
