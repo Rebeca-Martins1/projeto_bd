@@ -3,7 +3,7 @@ import * as S from "./styles";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
-import { IconSettings, IconScissors, IconBed } from "../../../icons";
+import { IconSettings, IconScissors, IconBed, IconHospital } from "../../../icons";
 
 function ActionCard({ icon, title, description, buttonText }) {
   return (
@@ -46,6 +46,13 @@ export default function HomeEnfermeiro() {
               icon={IconBed}
               title="LEITOS SOB MINHA RESPONSABILIDADE"
               description="Veja suas ocupações e os detalhes dos leitos"
+              buttonText="IR PRA SEÇÃO"
+            />
+
+             <ActionCard 
+              icon={IconHospital}
+              title="PLANTÃO"
+              description="Cadastre e veja seu plantão aqui"
               buttonText="IR PRA SEÇÃO"
             />
           </S.CardGrid>
