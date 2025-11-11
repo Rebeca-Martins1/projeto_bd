@@ -24,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <MyGlobalStyles />
     <Routes>
-      <Route path="/" element={< Plantao />} />
+      <Route path="/" element={< Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       
