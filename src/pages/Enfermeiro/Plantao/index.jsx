@@ -112,9 +112,6 @@ export default function Plantao() {
                 {enviando ? "Enviando..." : "Cadastrar Plantão"}
               </S.Button>
 
-              <S.Voltar onClick={() => navigate("/home-enfermeiro")}>
-                ← Voltar para o Home
-              </S.Voltar>
             </S.Form>
           </S.FormContainer>
         </S.MainContent>

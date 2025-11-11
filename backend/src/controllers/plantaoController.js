@@ -8,38 +8,36 @@ export const cadastrarPlantao = async (req, res) => {
   }
 
   try {
-    // Calcula o próximo plantão (36h depois da folga)
+    // Calcula o próximo plantão (apenas para retorno, não salva no banco)
     const folga = new Date(inicio_folga);
     const proximoPlantao = new Date(folga.getTime() + 36 * 60 * 60 * 1000);
 
-    // Atualiza o registro do enfermeiro
+    // Atualiza os dados do enfermeiro no banco
     const query = `
-      UPDATE enfermeiros
+      UPDATE public."ENFERMEIRO"
       SET 
-        inicio_plantao = ?,
-        inicio_folga = ?,
-        proximo_plantao = ?,
-        disponivel = ?
-      WHERE cpf = ?
+        inicio_plantao = $1,
+        inicio_folga = $2,
+        disponivel = $3
+      WHERE cpf = $4
     `;
 
     const valores = [
       inicio_plantao,
       inicio_folga,
-      proximoPlantao,
-      false, // o enfermeiro estará indisponível durante o plantão
+      false, // enfermeiro fica indisponível durante o plantão
       cpf,
     ];
 
-    const [resultado] = await pool.query(query, valores);
+    const resultado = await pool.query(query, valores);
 
-    if (resultado.affectedRows === 0) {
+    if (resultado.rowCount === 0) {
       return res.status(404).json({ erro: "Enfermeiro não encontrado." });
     }
 
     res.status(200).json({
       mensagem: "Plantão cadastrado com sucesso!",
-      proximoPlantao,
+      proximoPlantao, // apenas retornado na resposta
     });
   } catch (error) {
     console.error("Erro ao cadastrar plantão:", error);
