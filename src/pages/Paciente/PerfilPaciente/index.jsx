@@ -43,11 +43,9 @@ const PatientProfile = () => {
 
   return (
     <>
+      <Header />
       <GlobalStyles />
       <PageContainer>
-        {/* ✅ Cabeçalho (componente pronto) */}
-        <Header />
-
         <div style={{ padding: "20px", textAlign: "center" }}>
           <h2>Informações do Paciente</h2>
 
@@ -76,6 +74,14 @@ const PatientProfile = () => {
 
             <BackButton onClick={() => navigate("/portalpaciente")}>
               Mostrar Todas as Informações
+            </BackButton>
+
+            {/* ✅ Novo botão "Voltar" */}
+            <BackButton
+              onClick={() => navigate("/homepaciente")}
+              style={{ backgroundColor: "#e63946" }}
+            >
+              Voltar
             </BackButton>
           </div>
         </div>
@@ -122,10 +128,8 @@ const PatientProfile = () => {
 
           {isEditing && <SubmitBtn type="submit">Salvar Alterações</SubmitBtn>}
         </FormCard>
-
-        {/* ✅ Rodapé (componente pronto) */}
-        <Footer />
       </PageContainer>
+      <Footer />
     </>
   );
 };

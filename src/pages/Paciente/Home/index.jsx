@@ -11,7 +11,7 @@ function ActionCard({ icon, title, description, onClick }) {
       <S.ActionCardIcon>{icon}</S.ActionCardIcon>
       <h3>{title}</h3>
       <p>{description}</p>
-      <S.ActionCardButton>IR PRA SESSÃO</S.ActionCardButton>
+      <S.ActionCardButton>IR PRA SEÇÃO</S.ActionCardButton>
     </S.ActionCardContainer>
   );
 }
