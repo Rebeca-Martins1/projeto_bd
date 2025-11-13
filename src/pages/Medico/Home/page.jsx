@@ -49,14 +49,14 @@ export default function HomeMedico() {
               title="MINHAS CIRURGIAS"
               description="Visualize suas cirurgias agendadas e passadas"
               buttonText="IR PRA SESSÃO"
-              path="/medico/minhas-cirurgias"
+              path="/minhascirurgias"
             />
             <ActionCard 
               icon={IconClipboardList}
               title="MINHAS CONSULTAS"
               description="Veja seus atendimentos e horários"
               buttonText="IR PRA SESSÃO"
-              path="/medico/minhas-consultas"
+              path="/minhasconsultas"
             />
           </S.CardGrid>
         </S.MainContent>

@@ -12,6 +12,8 @@ import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
 import CadastroLeito from './pages/Adm/Cadastro_Leitos/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
+import MinhasCirurgias from './pages/Medico/MinhasCirurgias/page'
+import MinhasConsultas from './pages/Medico/MinhasConsultas/page'
 import ConselhoPresidente from './pages/ConselhoPresidente/Home/index'
 import OcupacaoSalas from './pages/ConselhoPresidente/OcupacaoSalas/index'
 import OcupacaoLeitos from './pages/ConselhoPresidente/OcupacaoLeitos/index'
@@ -34,6 +36,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
+      <Route path="/minhascirurgias" element={<MinhasCirurgias/>} />
+      <Route path="/minhasconsultas" element={<MinhasConsultas/>} />
 
       <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
       <Route path="/plantao" element={<Plantao/>} />
