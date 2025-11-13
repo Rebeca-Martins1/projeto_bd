@@ -3,8 +3,10 @@ import * as S from "./styles";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function CadastroLeito() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     n_sala: "",
     tipo: "",
@@ -31,6 +33,7 @@ export default function CadastroLeito() {
 
       alert("Leito cadastrado com sucesso!");
       setFormData({ n_sala: "", tipo: "", quant_paciente: "", capacidade: "" });
+      navigate("/homeadm");
     } catch (err) {
       console.error("Erro ao cadastrar leito:", err);
       alert("Erro ao cadastrar leito. Verifique os dados e tente novamente.");

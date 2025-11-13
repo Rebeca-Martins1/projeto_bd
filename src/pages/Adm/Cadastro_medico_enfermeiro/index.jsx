@@ -62,6 +62,7 @@ export default function CadastroProfissional() {
       }
 
       alert(`${tipo === "medico" ? "Médico" : "Enfermeiro"} cadastrado com sucesso!`);
+      navigate("/homeadm");
     } catch (err) {
       console.error("Erro ao cadastrar profissional:", err);
       alert("Erro ao cadastrar. Verifique os dados e tente novamente.");

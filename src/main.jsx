@@ -4,13 +4,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/index'
 import Cadastro from './pages/cadastro'
 import HomePaciente from './pages/Paciente/Home/index'
-import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
 import HomeMedico from './pages/Medico/Home/page'
 import HomeAdm from './pages/Adm/Home/index'
+import CadastroLeito from './pages/Adm/Cadastro_Leitos'
+import Cadastroadmcp from './pages/Adm/CADASTRAADM_CP/Cadastro_Leitos'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
-import CadastroLeito from './pages/Adm/Cadastro_Leitos/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
 import MinhasCirurgias from './pages/Medico/MinhasCirurgias/page'
 import MinhasConsultas from './pages/Medico/MinhasConsultas/page'
@@ -21,7 +21,6 @@ import AtividadeMedica from './pages/ConselhoPresidente/AtividadeMedica/index'
 import HomeEnfermeiro from './pages/Enfermeiro/Home/index'
 import Plantao from './pages/Enfermeiro/Plantao/index'
 
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <MyGlobalStyles />
@@ -30,7 +29,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       
-      <Route path="/perfilpaciente" element={<PerfilPaciente />} />
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
 

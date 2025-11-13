@@ -39,7 +39,7 @@ const handleLogin = async () => {
         navigate("/homeenfermeiro");
         break;
       case "conselho":
-        navigate("/homeconselhopresidente");
+        navigate("/conselho");
         break;
       case "adm":
         navigate("/homeadm");

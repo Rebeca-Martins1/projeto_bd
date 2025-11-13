@@ -1,20 +1,23 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import * as S from "./styles";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
 export default function Plantao() {
+  const navigate = useNavigate();
+
   const [cpf, setCpf] = useState("");
-  const [coren, setCoren] = useState("");
   const [inicioPlantao, setInicioPlantao] = useState("");
   const [inicioFolga, setInicioFolga] = useState("");
   const [proximoPlantao, setProximoPlantao] = useState(null);
   const [mensagem, setMensagem] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   const calcularProximoPlantao = (dataFim) => {
     const fim = new Date(dataFim);
     if (isNaN(fim.getTime())) return null;
-
     const retorno = new Date(fim.getTime() + 36 * 60 * 60 * 1000);
     return retorno.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
   };
@@ -22,102 +25,99 @@ export default function Plantao() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!cpf || !coren || !inicioPlantao || !inicioFolga) {
+    if (!cpf || !inicioPlantao || !inicioFolga) {
       setMensagem("Por favor, preencha todos os campos.");
       return;
     }
 
-    const dataRetorno = calcularProximoPlantao(inicioFolga);
-    setProximoPlantao(dataRetorno);
-
-    // Simulação de envio ao backend
-    const payload = {
-      cpf,
-      coren,
-      inicio_plantao: inicioPlantao,
-      inicio_folga: inicioFolga,
-      disponivel: false,
-    };
+    setEnviando(true);
 
     try {
-      // Exemplo de POST (descomente se for usar axios)
-      // await axios.post("http://seu-backend.com/api/plantao", payload);
+      const response = await axios.post("http://localhost:5000/plantao/cadastrar", {
+        cpf,
+        inicio_plantao: inicioPlantao,
+        inicio_folga: inicioFolga,
+      });
+
       setMensagem("Plantão cadastrado com sucesso!");
+      setProximoPlantao(
+        new Date(response.data.proximoPlantao).toLocaleString("pt-BR", {
+          dateStyle: "short",
+          timeStyle: "short",
+        })
+      );
+
+      setTimeout(() => navigate("/home-enfermeiro"), 3000);
     } catch (error) {
+      console.error(error);
       setMensagem("Erro ao cadastrar plantão. Tente novamente.");
+    } finally {
+      setEnviando(false);
     }
   };
 
   return (
     <>
       <S.GlobalStyles />
-      <S.PageContainer>
+      <S.ContainerPlantao>
         <Header />
 
-        <S.FormContainer>
-          <S.FormBox onSubmit={handleSubmit}>
-            <h2>Cadastro de Plantão</h2>
-            <p>Preencha as informações abaixo</p>
+        <S.MainContent>
+          <S.FormContainer>
+            <h1>Cadastro de Plantão</h1>
+            <p>Registre seu plantão e veja quando deve retornar.</p>
 
-            <S.FormGrid>
+            <S.Form onSubmit={handleSubmit}>
               <S.InputGroup>
-                <label>CPF</label>
-                <input
-                  type="text"
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                  placeholder="Digite o CPF"
-                  required
-                />
+                <div>
+                  <label>CPF</label>
+                  <input
+                    type="text"
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                    placeholder="Digite seu CPF"
+                  />
+                </div>
               </S.InputGroup>
 
               <S.InputGroup>
-                <label>COREN</label>
-                <input
-                  type="text"
-                  value={coren}
-                  onChange={(e) => setCoren(e.target.value)}
-                  placeholder="Digite o COREN"
-                  required
-                />
+                <div>
+                  <label>Início do Plantão</label>
+                  <input
+                    type="datetime-local"
+                    value={inicioPlantao}
+                    onChange={(e) => setInicioPlantao(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label>Início da Folga</label>
+                  <input
+                    type="datetime-local"
+                    value={inicioFolga}
+                    onChange={(e) => setInicioFolga(e.target.value)}
+                  />
+                </div>
               </S.InputGroup>
 
-              <S.InputGroup>
-                <label>Início do Plantão</label>
-                <input
-                  type="datetime-local"
-                  value={inicioPlantao}
-                  onChange={(e) => setInicioPlantao(e.target.value)}
-                  required
-                />
-              </S.InputGroup>
+              {proximoPlantao && (
+                <S.InfoBox>
+                  <strong>Seu próximo plantão será em:</strong>
+                  <p>{proximoPlantao}</p>
+                </S.InfoBox>
+              )}
 
-              <S.InputGroup>
-                <label>Fim do Plantão (Início da Folga)</label>
-                <input
-                  type="datetime-local"
-                  value={inicioFolga}
-                  onChange={(e) => setInicioFolga(e.target.value)}
-                  required
-                />
-              </S.InputGroup>
-            </S.FormGrid>
+              {mensagem && <S.Message>{mensagem}</S.Message>}
 
-            <S.SubmitButton type="submit">Cadastrar Plantão</S.SubmitButton>
+              <S.Button type="submit" disabled={enviando}>
+                {enviando ? "Enviando..." : "Cadastrar Plantão"}
+              </S.Button>
 
-            {proximoPlantao && (
-              <S.Resultado>
-                <strong>Seu próximo plantão será em:</strong>
-                <span>{proximoPlantao}</span>
-              </S.Resultado>
-            )}
-
-            {mensagem && <S.Mensagem>{mensagem}</S.Mensagem>}
-          </S.FormBox>
-        </S.FormContainer>
+            </S.Form>
+          </S.FormContainer>
+        </S.MainContent>
 
         <Footer />
-      </S.PageContainer>
+      </S.ContainerPlantao>
     </>
   );
 }
