@@ -72,10 +72,6 @@ const PatientProfile = () => {
               {isEditing ? "Cancelar" : "Editar"}
             </button>
 
-            <BackButton onClick={() => navigate("/portalpaciente")}>
-              Mostrar Todas as Informações
-            </BackButton>
-
             {/* ✅ Novo botão "Voltar" */}
             <BackButton
               onClick={() => navigate("/homepaciente")}

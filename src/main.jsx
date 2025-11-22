@@ -20,6 +20,7 @@ import OcupacaoLeitos from './pages/ConselhoPresidente/OcupacaoLeitos/index'
 import AtividadeMedica from './pages/ConselhoPresidente/AtividadeMedica/index'
 import HomeEnfermeiro from './pages/Enfermeiro/Home/index'
 import Plantao from './pages/Enfermeiro/Plantao/index'
+import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
+      <Route path="/perfilpaciente" element={<PerfilPaciente/>} />
 
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
