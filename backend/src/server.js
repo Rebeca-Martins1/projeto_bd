@@ -4,6 +4,7 @@ import loginRoutes from "./routes/loginRoutes.js";
 import cadastroRoutes from "./routes/pacienteRoutes.js"
 import cadastromedicoRoutes from "./routes/medicoRoutes.js"
 import cadastroleitosRoutes from "./routes/leitosRoutes.js"
+import cadastrosalasRoutes from "./routes/salasRoutes.js"
 import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
 import cadastroadmcp from "./routes/adm_cpRoutes.js"
@@ -28,6 +29,7 @@ app.use("/cadastrar", cadastroRoutes);
 app.use("/medico", cadastromedicoRoutes);
 app.use("/enfermeiro", cadastroenfermeiroRoutes);
 app.use("/leitos", cadastroleitosRoutes);
+app.use("/salas", cadastrosalasRoutes);
 app.use("/admcp", cadastroadmcp);
 app.use("/conselhopresidente", conselhoPresidenteRoutes);
 app.use("/atividadecirurgica", atividadeCirurgicaRoutes);

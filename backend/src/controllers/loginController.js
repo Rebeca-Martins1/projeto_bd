@@ -4,9 +4,9 @@ export const login = async (req, res) => {
   const { cpf, senha, tipo } = req.body;
 
   try {
-    // 1) Verifica se CPF e senha existem em PESSOA
+    //vê se CPF e senha existem em PESSOA
     const pessoaResult = await pool.query(
-      `SELECT cpf, nome, email 
+      `SELECT cpf, nome, telefone, email, sexo, senha
        FROM public."PESSOA"
        WHERE cpf = $1 AND senha = $2`,
       [cpf, senha]
@@ -16,7 +16,7 @@ export const login = async (req, res) => {
       return res.status(401).send("CPF ou senha incorretos.");
     }
 
-    // 2) Verifica se o CPF realmente pertence ao tipo selecionado
+    //verifica se o CPF realmente pertence ao tipo selecionado
     const tabelaPorTipo = {
       paciente: `"PACIENTE"`,
       medico: `"MEDICO"`,
@@ -27,12 +27,8 @@ export const login = async (req, res) => {
 
     const tabela = tabelaPorTipo[tipo];
 
-    if (!tabela) {
-      return res.status(400).send("Tipo inválido.");
-    }
-
     const tipoResult = await pool.query(
-      `SELECT 1 FROM ${tabela} WHERE cpf = $1`,
+      `SELECT * FROM ${tabela} WHERE cpf = $1`,
       [cpf]
     );
 
@@ -40,15 +36,26 @@ export const login = async (req, res) => {
       return res.status(403).send("Esta pessoa não possui este tipo de acesso.");
     }
 
-    // 3) Login OK → retorna usuário
-    const user = pessoaResult.rows[0];
+    //vê se medico ou enfermeiro está ativo
+    if ((tipo === "medico" || tipo === "enfermeiro")) {
+      const registro = tipoResult.rows[0];
+      if (registro.ativo !== true) {
+        return res.status(403).send("Seu cadastro não está ativo.");
+      }
+    }
 
+
+    const user = pessoaResult.rows[0];
     res.status(200).json({
       user: {
         cpf: user.cpf,
         nome: user.nome,
+        telefone: user.telefone,
         email: user.email,
-        tipo: tipo, // tipo selecionado pelo usuário
+        sexo: user.sexo,
+        tipo: tipo,
+
+        dadosTipo: tipoResult.rows[0] || null
       },
     });
 

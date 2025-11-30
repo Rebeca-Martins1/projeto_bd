@@ -25,7 +25,6 @@ const handleLogin = async () => {
 
     console.log("Usuário logado:", response.data.user);
 
-    // ✅ Salva o usuário no localStorage
     localStorage.setItem("usuarioLogado", JSON.stringify(response.data.user));
 
     switch (tipo) {
@@ -47,14 +46,20 @@ const handleLogin = async () => {
       default:
         navigate("/");
     }
-  } catch (err) {
-    if (err.response && err.response.status === 401) {
-      setErro("CPF ou senha incorretos!");
+    } catch (err) {
+    if (err.response) {
+      if (err.response.status === 401) {
+        setErro("CPF ou senha incorretos!");
+      } else if (err.response.status === 403) {
+        setErro(err.response.data || "Acesso negado.");
+      } else if (err.response.status === 400) {
+        setErro(err.response.data || "Tipo inválido.");
+      }
     } else {
-      setErro("Erro ao fazer login. Tente novamente!");
+      setErro("Erro ao conectar ao servidor.");
     }
-    console.error(err);
   }
+
 };
 
   return (
@@ -70,7 +75,6 @@ const handleLogin = async () => {
           <Form>
             <h1>Entrar</h1>
             <input
-              type="number"
               placeholder="CPF"
               value={cpf}
               onChange={(e) => setCpf(e.target.value)}

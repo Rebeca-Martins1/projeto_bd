@@ -1,14 +1,12 @@
 import pool from "../config/db.js";
 
-export async function cadastrarLeitos(req, res) {
+export async function cadastrarSalas(req, res) {
   const {
     n_sala,
     tipo,
-    quant_paciente,
-    capacidade,
   } = req.body;
 
-  if (!n_sala || !tipo || !capacidade) {
+  if (!n_sala || !tipo) {
     return res.status(400).json({ erro: "Preencha todos os campos obrigatórios." });
   }
 
@@ -17,17 +15,17 @@ export async function cadastrarLeitos(req, res) {
     await client.query("BEGIN");
 
     const existe = await client.query(
-      'SELECT ativo FROM public."LEITOS" WHERE n_sala= $1 AND tipo= $2',
+      'SELECT ativo FROM public."SALAS" WHERE n_sala= $1 AND tipo= $2',
       [n_sala, tipo]
     );
 
     if (existe.rows.length > 0) {
       if (existe.rows[0].ativo === true) {
         await client.query("ROLLBACK");
-        return res.status(400).send("Já existe um leito cadastrado com esse número e tipo.");
+        return res.status(400).send("Já existe uma sala cadastrado com esse número e tipo.");
       } else {
         await client.query(
-            `UPDATE public."LEITOS" 
+            `UPDATE public."SALAS" 
             SET ativo = true 
             WHERE n_sala = $1 AND tipo= $2`,
             [n_sala, tipo]
@@ -40,17 +38,17 @@ export async function cadastrarLeitos(req, res) {
     const quant_paciente=0;
 
     await client.query(
-      `INSERT INTO public."LEITOS" (n_sala, tipo, quant_paciente, capacidade)
-       VALUES ($1, $2, $3, $4)`,
-      [n_sala, tipo, quant_paciente, capacidade]
+      `INSERT INTO public."SALAS" (n_sala, tipo)
+       VALUES ($1, $2)`,
+      [n_sala, tipo]
     );
 
     await client.query("COMMIT");
-    res.status(200).send("✅ Leito cadastrado com sucesso!");
+    res.status(200).send("✅ Sala cadastrada com sucesso!");
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("❌ Erro ao cadastrar leito:", err);
-    res.status(500).send("Erro ao cadastrar leito.");
+    console.error("❌ Erro ao cadastrar sala:", err);
+    res.status(500).send("Erro ao cadastrar sala.");
   } finally {
     client.release();
   }

@@ -53,13 +53,11 @@ export const BackBtn = styled.button`
 `;
 
 export const FormContainer = styled.main`
-  width: 100%;
-  height: 100vh;        
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  background: #f4f4f4;     
 `;
 
 export const FormCard = styled.form`
@@ -67,17 +65,14 @@ export const FormCard = styled.form`
   padding: 2rem 3rem;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 700px;       
-  max-width: 95%;     
-  display: grid;
-  grid-template-columns: repeat(2, minmax(260px, 1fr));
-  gap: 20px;
-  justify-items: center;
+  width: 100%;
+  max-width: 500px;
 `;
 
 export const FormHeader = styled.div`
   text-align: center;
   margin-bottom: 2rem;
+
   h2 {
     margin: 0.5rem 0;
     color: #1c2541;
@@ -92,8 +87,8 @@ export const FormHeader = styled.div`
 export const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.0rem;
-  width: 100%;
+  margin-bottom: 1.2rem;
+
   label {
     margin-bottom: 0.4rem;
     font-weight: 500;
@@ -131,5 +126,31 @@ export const SubmitBtn = styled.button`
 
   &:hover {
     background-color: #283b73;
+  }
+`;
+// 🔹 Rodapé
+export const Footer = styled.footer`
+  background-color: #1f2937;
+  color: #d1d5db;
+  padding: 1rem 0;
+`;
+
+export const FooterGrid = styled.div`
+  width: 90%;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+export const FooterCol = styled.div`
+  h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p, li {
+    font-size: 0.875rem;
+    color: #d1d5db;
   }
 `;

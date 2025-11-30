@@ -76,7 +76,7 @@ export default function CadastroProfissional() {
 
       <S.FormContainer>
         <S.FormCard onSubmit={handleSubmit}>
-          <S.FormHeader>
+          <S.FormHeader style={{ gridColumn: "1 / 3" }}>
             {tipo === "enfermeiro" ? (
               <FaUserNurse size={32} color="#1c2541" />
             ) : (
@@ -86,9 +86,8 @@ export default function CadastroProfissional() {
             <p>Preencha os dados para cadastrar médico ou enfermeiro</p>
           </S.FormHeader>
 
-          {/* Escolher tipo */}
-          <S.InputGroup>
-            <label>Tipo de Profissional</label>
+          <S.InputGroup style={{ gridColumn: "1 / 3" }}>
+            <label style={{ textAlign: "center", display: "block" }}>Tipo de Profissional</label>
             <select name="tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} required>
               <option value="">Selecione...</option>
               <option value="medico">Médico</option>
@@ -96,7 +95,6 @@ export default function CadastroProfissional() {
             </select>
           </S.InputGroup>
 
-          {/* Dados básicos */}
           <S.InputGroup>
             <label>CPF</label>
             <input
@@ -164,7 +162,6 @@ export default function CadastroProfissional() {
             />
           </S.InputGroup>
 
-          {/* Campos específicos */}
           {tipo === "medico" && (
             <>
               <S.InputGroup>
@@ -223,7 +220,7 @@ export default function CadastroProfissional() {
             </>
           )}
 
-          <S.SubmitBtn type="submit">Cadastrar</S.SubmitBtn>
+          <S.SubmitBtn type="submit" style={{ gridColumn: "1 / 3" }}>Cadastrar</S.SubmitBtn>
         </S.FormCard>
       </S.FormContainer>
 
