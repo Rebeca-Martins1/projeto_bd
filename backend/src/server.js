@@ -7,6 +7,14 @@ import cadastroleitosRoutes from "./routes/leitosRoutes.js"
 import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
 import cadastroadmcp from "./routes/adm_cpRoutes.js"
+import conselhoPresidenteRoutes from "./routes/conselhoPresidenteRoutes.js"
+import atividadeCirurgicaRoutes from "./routes/atividadeCirurgicaRoutes.js"
+import atividadeMedicaRoutes from "./routes/atividadeMedicaRoutes.js"
+import historicoPacientesRoutes from "./routes/historicoPacientesRoutes.js"
+import ocupacaoLeitosRoutes from "./routes/ocupacaoLeitosRoutes.js"
+import ocupacaoSalasRoutes from "./routes/ocupacaoSalasRoutes.js"
+import recursosHumanosRoutes from "./routes/recursosHumanosRoutes.js"
+
 import pool from "./config/db.js"; 
 
 const app = express();
@@ -21,7 +29,14 @@ app.use("/medico", cadastromedicoRoutes);
 app.use("/enfermeiro", cadastroenfermeiroRoutes);
 app.use("/leitos", cadastroleitosRoutes);
 app.use("/admcp", cadastroadmcp);
-app.use("/plantao", plantaoRoutes);
+app.use("/conselhopresidente", conselhoPresidenteRoutes);
+app.use("/atividadecirurgica", atividadeCirurgicaRoutes);
+app.use("/atividademedica", atividadeMedicaRoutes);
+app.use("/historicopacientes", historicoPacientesRoutes);
+app.use("/ocupacaoleitos", ocupacaoLeitosRoutes);
+app.use("/ocupacaosalas", ocupacaoSalasRoutes);
+app.use("/recursoshumanos", recursosHumanosRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

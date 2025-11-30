@@ -18,6 +18,9 @@ import ConselhoPresidente from './pages/ConselhoPresidente/Home/index'
 import OcupacaoSalas from './pages/ConselhoPresidente/OcupacaoSalas/index'
 import OcupacaoLeitos from './pages/ConselhoPresidente/OcupacaoLeitos/index'
 import AtividadeMedica from './pages/ConselhoPresidente/AtividadeMedica/index'
+import AtividadeCirurgica from './pages/ConselhoPresidente/AtividadeCirurgica/index'
+import RecursosHumanos from './pages/ConselhoPresidente/RecursosHumanos/index'
+import HistoricoPacientes from './pages/ConselhoPresidente/HistoricoPacientes/index'
 import HomeEnfermeiro from './pages/Enfermeiro/Home/index'
 import Plantao from './pages/Enfermeiro/Plantao/index'
 import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
@@ -46,10 +49,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
       <Route path="/cadastro_leitos" element={<CadastroLeito/>} />
 
-      <Route path="/conselho" element={<ConselhoPresidente/>} />
+      <Route path="/conselhopresidente" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />
       <Route path="/ocupacaosalas" element={<OcupacaoSalas/>} />
       <Route path="/atividademedica" element={<AtividadeMedica/>} />
+      <Route path="/atividadecirurgica" element={<AtividadeCirurgica/>} />
+      <Route path="/recursoshumanos" element={<RecursosHumanos/>} />
+      <Route path="/historicopacientes" element={<HistoricoPacientes/>} />
+
     </Routes>
   </BrowserRouter>
 )

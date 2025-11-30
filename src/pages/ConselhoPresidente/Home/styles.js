@@ -1,113 +1,118 @@
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, keyframes } from "styled-components";
 
-// Estilos globais
 export const GlobalStyles = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  html, body, #root {
-    width: 100%;
-    min-height: 100vh;
+  * {
     margin: 0;
     padding: 0;
-    background-color: #f3f4f6; 
-    font-family: 'Inter', sans-serif;
-    box-sizing: border-box; 
+    box-sizing: border-box;
   }
-  *, *:before, *:after {
-    box-sizing: inherit;
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    color: #334155;
+    line-height: 1.6;
+  }
+
+  html, body, #root {
+    height: 100%;
   }
 `;
 
-// Container principal
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const pulse = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+`;
+
 export const ConselhoPortalContainer = styled.div`
-  width: 100%; 
   min-height: 100vh;
-  background-color: #f3f4f6;
   display: flex;
   flex-direction: column;
 `;
 
-// Conteúdo principal
-export const MainContent = styled.div`
-  max-width: 1280px;
-  width: 100%;
+export const MainContent = styled.main`
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 3rem;
-  flex-grow: 1;
+  width: 100%;
 `;
 
-// Cabeçalho da página
 export const PageHeader = styled.div`
+  text-align: center;
   margin-bottom: 2rem;
-  
+
   h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
     font-weight: 700;
-    color: #1f2937;
-    margin: 0 0 0.5rem 0;
-  }
-  
-  p {
-    color: #6b7280;
-    font-size: 1rem;
-    margin: 0;
   }
 
-  @media (max-width: 768px) {
-    h1 {
-      font-size: 1.5rem;
-    }
-    p {
-      font-size: 0.875rem;
-    }
+  p {
+    font-size: 1.1rem;
+    color: #64748b;
   }
 `;
 
-// Barra de filtros
+export const LoadingMessage = styled.div`
+  text-align: center;
+  color: #3b82f6;
+  font-weight: 500;
+  margin-top: 1rem;
+`;
+
 export const FilterBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: white;
   padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin-bottom: 2rem;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  display: flex;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    flex-direction: column;
+    align-items: stretch;
   }
 `;
 
 export const FilterGroup = styled.div`
   display: flex;
+  align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  align-items: center;
 
   label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
+    font-weight: 600;
+    color: #475569;
     white-space: nowrap;
   }
 `;
 
 export const Select = styled.select`
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   background: white;
+  font-size: 0.9rem;
   color: #374151;
-  font-size: 0.875rem;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  
+  transition: all 0.2s;
+
   &:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   &:hover {
@@ -117,60 +122,63 @@ export const Select = styled.select`
 
 export const ExportButtons = styled.div`
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 0.75rem;
 `;
 
 export const ExportButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: ${props => props.variant === 'secondary' ? '#6b7280' : '#2563eb'};
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid ${props => props.variant === 'secondary' ? '#d1d5db' : '#3b82f6'};
+  border-radius: 8px;
+  background: ${props => props.variant === 'secondary' ? 'white' : '#3b82f6'};
+  color: ${props => props.variant === 'secondary' ? '#374151' : 'white'};
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
-  font-family: 'Inter', sans-serif;
-  
+  transition: all 0.2s;
+
   &:hover {
-    background-color: ${props => props.variant === 'secondary' ? '#4b5563' : '#1d4ed8'};
+    background: ${props => props.variant === 'secondary' ? '#f9fafb' : '#2563eb'};
+    border-color: ${props => props.variant === 'secondary' ? '#9ca3af' : '#2563eb'};
   }
 
-  svg {
-    flex-shrink: 0;
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   }
 `;
 
-// Grid de relatórios
 export const ReportGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 `;
 
-// Card de relatório
 export const ReportCard = styled.div`
   background: white;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  transition: all 0.3s;
-  cursor: pointer;
-  
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  opacity: ${props => props.disabled ? 0.7 : 1};
+
   &:hover {
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    border-color: #2563eb;
-    transform: translateY(-2px);
+    transform: ${props => props.disabled ? 'none' : 'translateY(-4px)'};
+    box-shadow: ${props => props.disabled ? '0 1px 3px rgba(0, 0, 0, 0.1)' : '0 8px 25px rgba(0, 0, 0, 0.15)'};
+    border-color: ${props => props.disabled ? '#e2e8f0' : '#3b82f6'};
+  }
+
+  &:active {
+    transform: ${props => props.disabled ? 'none' : 'translateY(-1px)'};
   }
 `;
 
@@ -179,56 +187,98 @@ export const CardHeader = styled.div`
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  
+
   svg {
+    color: #3b82f6;
     width: 24px;
     height: 24px;
-    color: #2563eb;
-    flex-shrink: 0;
   }
-  
+
   h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
     margin: 0;
   }
 `;
 
 export const CardContent = styled.div`
   p {
-    color: #6b7280;
-    font-size: 0.875rem;
+    color: #64748b;
     margin-bottom: 1.5rem;
     line-height: 1.5;
-    min-height: 40px;
+    min-height: 3em;
   }
 `;
 
-// Novo estilo para o botão de ação
 export const ActionButton = styled.button`
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  background: transparent;
+  color: #3b82f6;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
-  
-  &:hover {
-    background-color: #1d4ed8;
-  }
+  transition: all 0.2s;
+  font-size: 0.9rem;
 
-  svg {
-    flex-shrink: 0;
+  &:hover {
+    background: #3b82f6;
+    color: white;
   }
+`;
+
+export const LoadingSpinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+  margin-left: auto;
+`;
+
+export const StatsContainer = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+export const StatsTitle = styled.h2`
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+`;
+
+export const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+`;
+
+export const StatCard = styled.div`
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+`;
+
+export const StatNumber = styled.div`
+  font-size: 2rem;
+  font-weight: 800;
+  color: #3b82f6;
+  margin-bottom: 0.5rem;
+`;
+
+export const StatLabel = styled.div`
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
 `;

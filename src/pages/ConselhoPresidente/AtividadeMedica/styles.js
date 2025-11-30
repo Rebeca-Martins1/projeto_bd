@@ -1,267 +1,411 @@
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
-export const GlobalStyles = createGlobalStyle`
-  body {
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const pulse = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+`;
+
+export const GlobalStyles = styled.div`
+  * {
     margin: 0;
     padding: 0;
-    background-color: #f3f4f6;
-    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    color: #334155;
+    line-height: 1.6;
   }
 `;
 
 export const ConselhoPortalContainer = styled.div`
   min-height: 100vh;
-  background-color: #f3f4f6;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 `;
 
-export const Header = styled.header`
-  background-color: #1f2937;
-  color: white;
-  padding: 1.5rem 2rem;
+export const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
   flex-wrap: wrap;
   gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const BackButton = styled.button`
-  background-color: #6b7280;
+  background: #3b82f6;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+
   &:hover {
-    background-color: #4b5563;
+    background: #2563eb;
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
   }
 `;
 
 export const Title = styled.div`
-  text-align: center;
   flex: 1;
-  
+  text-align: center;
+
   h1 {
-    margin: 0;
-    font-size: 1.8rem;
+    font-size: 2.25rem;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
     font-weight: 700;
-    color: white;
   }
-  
+
   p {
-    margin: 0.25rem 0 0 0;
-    color: #d1d5db;
-    font-size: 0.875rem;
+    color: #64748b;
+    font-size: 1.1rem;
   }
+`;
+
+export const LoadingMessage = styled.div`
+  color: #3b82f6;
+  font-weight: 500;
+  margin-top: 0.5rem;
 `;
 
 export const ExportButtons = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  align-self: center;
 `;
 
 export const ExportBtn = styled.button`
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+
   &:hover {
-    background-color: #1d4ed8;
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
 
 export const FilterSection = styled.div`
   background: white;
-  padding: 1.5rem 2rem;
-  margin: 1rem 2rem;
-  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 `;
 
 export const FilterGroup = styled.div`
   display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
   flex-wrap: wrap;
 
   label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
   }
 `;
 
 export const Select = styled.select`
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   background: white;
+  font-size: 0.9rem;
   color: #374151;
-  font-size: 0.875rem;
   cursor: pointer;
+  transition: all 0.2s;
+  min-width: 150px;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+
+  &:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+  }
 `;
 
 export const MainContent = styled.div`
-  padding: 0 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 `;
 
 export const MetricsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
 `;
 
 export const MetricCard = styled.div`
   background: white;
   padding: 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #2563eb;
+  text-align: center;
+  border: 1px solid #e2e8f0;
 `;
 
 export const MetricTitle = styled.h3`
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 export const MetricValue = styled.div`
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e293b;
   margin-bottom: 0.5rem;
 `;
 
-export const MetricTrend = styled.span`
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: ${props => 
-    props.trend === 'up' ? '#d1fae5' : 
-    props.trend === 'down' ? '#fee2e2' : 
-    '#f3f4f6'};
-  color: ${props => 
-    props.trend === 'up' ? '#065f46' : 
-    props.trend === 'down' ? '#991b1b' : 
-    '#374151'};
+export const MetricTrend = styled.div`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: ${props => {
+    switch (props.trend) {
+      case 'up': return '#10b981';
+      case 'down': return '#ef4444';
+      default: return '#6b7280';
+    }
+  }};
+  margin-bottom: 0.25rem;
 `;
 
 export const MetricDetail = styled.div`
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #64748b;
 `;
 
 export const ChartsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const ChartCard = styled.div`
   background: white;
   padding: 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 `;
 
 export const ChartTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  font-size: 1.125rem;
+  font-size: 1.1rem;
+  color: #1e293b;
+  margin-bottom: 1rem;
   font-weight: 600;
-  color: #1f2937;
 `;
 
 export const ChartPlaceholder = styled.div`
-  height: 200px;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  border-radius: 0.375rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #64748b;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ChartLoading = styled(ChartPlaceholder)`
+  animation: ${pulse} 2s infinite;
+`;
+
+export const ChartData = styled.div`
+  margin-top: 1rem;
+  text-align: left;
+  width: 100%;
+  max-width: 300px;
+`;
+
+export const ChartDataItem = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: #9ca3af;
-  font-size: 0.875rem;
-  border: 1px dashed #d1d5db;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+`;
+
+export const ChartDataColor = styled.div`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: ${props => props.color || '#3b82f6'};
 `;
 
 export const TableSection = styled.div`
   background: white;
   padding: 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+  border: 1px solid #e2e8f0;
 `;
 
 export const TableTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
+  color: #1e293b;
+  margin-bottom: 1rem;
   font-weight: 600;
-  color: #1f2937;
+`;
+
+export const TableLoading = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  animation: ${pulse} 2s infinite;
 `;
 
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  
-  th, td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
+  font-size: 0.9rem;
+
   th {
-    background-color: #f9fafb;
+    background: #f8fafc;
+    padding: 1rem;
+    text-align: left;
     font-weight: 600;
     color: #374151;
-    font-size: 0.875rem;
+    border-bottom: 1px solid #e2e8f0;
   }
-  
+
   td {
-    font-size: 0.875rem;
-    color: #6b7280;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #475569;
   }
-  
+
   tr:hover {
-    background-color: #f9fafb;
+    background: #f8fafc;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
   }
 `;
 
 export const TrendBadge = styled.span`
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background-color: ${props => 
-    props.trend === 'up' ? '#d1fae5' : 
-    props.trend === 'down' ? '#fee2e2' : 
-    '#f3f4f6'};
-  color: ${props => 
-    props.trend === 'up' ? '#065f46' : 
-    props.trend === 'down' ? '#991b1b' : 
-    '#374151'};
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  background-color: ${props => {
+    switch (props.trend) {
+      case 'up': return '#d1fae5';
+      case 'down': return '#fee2e2';
+      default: return '#f3f4f6';
+    }
+  }};
+
+  color: ${props => {
+    switch (props.trend) {
+      case 'up': return '#065f46';
+      case 'down': return '#dc2626';
+      default: return '#374151';
+    }
+  }};
+`;
+
+export const EfficiencyBadge = styled.span`
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  background-color: ${props => {
+    const eficiencia = props.eficiencia || 0;
+    if (eficiencia >= 90) return '#d1fae5';
+    if (eficiencia >= 80) return '#fef3c7';
+    return '#fee2e2';
+  }};
+
+  color: ${props => {
+    const eficiencia = props.eficiencia || 0;
+    if (eficiencia >= 90) return '#065f46';
+    if (eficiencia >= 80) return '#92400e';
+    return '#dc2626';
+  }};
 `;
 
 export const StatusBadge = styled.span`
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background-color: ${props => 
-    props.status === 'ativo' ? '#d1fae5' : 
-    props.status === 'ferias' ? '#fef3c7' : 
-    '#f3f4f6'};
-  color: ${props => 
-    props.status === 'ativo' ? '#065f46' : 
-    props.status === 'ferias' ? '#92400e' : 
-    '#374151'};
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  background-color: ${props => {
+    switch (props.status) {
+      case 'ativo': return '#d1fae5';
+      case 'inativo': return '#fef3c7';
+      case 'ferias': return '#dbeafe';
+      default: return '#f3f4f6';
+    }
+  }};
+
+  color: ${props => {
+    switch (props.status) {
+      case 'ativo': return '#065f46';
+      case 'inativo': return '#92400e';
+      case 'ferias': return '#1e40af';
+      default: return '#374151';
+    }
+  }};
 `;

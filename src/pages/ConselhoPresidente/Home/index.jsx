@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
+import axios from "axios";
 import { 
   Activity, 
   BedDouble, 
@@ -18,12 +19,13 @@ import {
   ArrowRight
 } from "lucide-react";
 
-function ReportCard({ icon, title, description, onClick }) {
+function ReportCard({ icon, title, description, onClick, loading }) {
   return (
-    <S.ReportCard onClick={onClick}>
+    <S.ReportCard onClick={onClick} disabled={loading}>
       <S.CardHeader>
         {React.createElement(icon)}
         <h3>{title}</h3>
+        {loading && <S.LoadingSpinner />}
       </S.CardHeader>
       <S.CardContent>
         <p>{description}</p>
@@ -39,10 +41,44 @@ function ReportCard({ icon, title, description, onClick }) {
 export default function HomeConselhoPresidente() {
   const [periodo, setPeriodo] = useState('mes');
   const [visualizacao, setVisualizacao] = useState('grafico');
+  const [dashboardData, setDashboardData] = useState({});
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const handleExport = (format) => {
-    alert(`Exportando relatórios em formato ${format.toUpperCase()}...`);
+  useEffect(() => {
+    fetchDashboardData();
+  }, [periodo]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/conselho-presidente/dashboard?periodo=${periodo}`);
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar dados do dashboard:", error);
+      alert("Erro ao carregar dados do dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = async (format) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/conselho-presidente/export?format=${format}&periodo=${periodo}`, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `relatorios-${periodo}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      alert("Erro ao exportar relatórios");
+    }
   };
 
   const reportCards = [
@@ -50,42 +86,41 @@ export default function HomeConselhoPresidente() {
       type: "ocupacaoleitos",
       icon: BedDouble,
       title: "OCUPAÇÃO DE LEITOS",
-      description: "Análise detalhada da ocupação de UTI e enfermaria"
+      description: `UTI: ${dashboardData.ocupacaoLeitos?.uti?.ocupados || 0}/${dashboardData.ocupacaoLeitos?.uti?.total || 0} | Enfermaria: ${dashboardData.ocupacaoLeitos?.enfermaria?.ocupados || 0}/${dashboardData.ocupacaoLeitos?.enfermaria?.total || 0}`
     },
     {
       type: "ocupacaosalas",
       icon: Building2,
       title: "OCUPAÇÃO DE SALAS",
-      description: "Utilização de consultórios e salas de cirurgia"
+      description: `Consultórios: ${dashboardData.ocupacaoSalas?.consultorios?.ocupados || 0}/${dashboardData.ocupacaoSalas?.consultorios?.total || 0} | Cirurgia: ${dashboardData.ocupacaoSalas?.cirurgia?.ocupados || 0}/${dashboardData.ocupacaoSalas?.cirurgia?.total || 0}`
     },
     {
       type: "atividademedica",
       icon: UserCheck,
       title: "ATIVIDADE MÉDICA",
-      description: "Consultas, especialidades e tempo médio"
+      description: `Consultas: ${dashboardData.atividadeMedica?.totalConsultas || 0} | Médicos Ativos: ${dashboardData.atividadeMedica?.medicosAtivos || 0}`
     },
     {
       type: "atividadecirurgica",
       icon: Activity,
       title: "ATIVIDADE CIRÚRGICA",
-      description: "Cirurgias realizadas e taxas de aprovação"
+      description: `Cirurgias: ${dashboardData.atividadeCirurgica?.total || 0} | Aprovadas: ${dashboardData.atividadeCirurgica?.aprovadas || 0} | Pendentes: ${dashboardData.atividadeCirurgica?.pendentes || 0}`
     },
     {
       type: "recursoshumanos",
       icon: Users,
       title: "RECURSOS HUMANOS",
-      description: "Horas trabalhadas e distribuição de plantões"
+      description: `Médicos: ${dashboardData.recursosHumanos?.totalMedicos || 0} | Enfermeiros: ${dashboardData.recursosHumanos?.totalEnfermeiros || 0} | Plantões: ${dashboardData.recursosHumanos?.plantoesAtivos || 0}`
     },
     {
-      type: "pacientes",
+      type: "historicopacientes",
       icon: ClipboardList,
       title: "PACIENTES",
-      description: "Total atendido e métricas de permanência"
+      description: `Total: ${dashboardData.pacientes?.total || 0} | Internados: ${dashboardData.pacientes?.internados || 0} | Alta: ${dashboardData.pacientes?.alta || 0}`
     }
   ];
 
   const handleCardClick = (route) => {
-    console.log("Navegando para:", route); // Para debug
     navigate(route);
   };
 
@@ -98,7 +133,8 @@ export default function HomeConselhoPresidente() {
         <S.MainContent>
           <S.PageHeader>
             <h1>Painel de Relatórios Gerenciais</h1>
-            <p>Clique em qualquer card para visualizar relatórios detalhados</p>
+            <p>Dados em tempo real do sistema hospitalar</p>
+            {loading && <S.LoadingMessage>Carregando dados...</S.LoadingMessage>}
           </S.PageHeader>
 
           <S.FilterBar>
@@ -138,10 +174,36 @@ export default function HomeConselhoPresidente() {
                 icon={card.icon} 
                 title={card.title}
                 description={card.description}
+                loading={loading}
                 onClick={() => handleCardClick(`/${card.type}`)}
               />
             ))}
           </S.ReportGrid>
+
+          {/* Resumo Estatístico */}
+          {!loading && (
+            <S.StatsContainer>
+              <S.StatsTitle>Resumo Estatístico</S.StatsTitle>
+              <S.StatsGrid>
+                <S.StatCard>
+                  <S.StatNumber>{dashboardData.resumo?.taxaOcupacaoLeitos || 0}%</S.StatNumber>
+                  <S.StatLabel>Taxa de Ocupação de Leitos</S.StatLabel>
+                </S.StatCard>
+                <S.StatCard>
+                  <S.StatNumber>{dashboardData.resumo?.mediaConsultasDia || 0}</S.StatNumber>
+                  <S.StatLabel>Média Consultas/Dia</S.StatLabel>
+                </S.StatCard>
+                <S.StatCard>
+                  <S.StatNumber>{dashboardData.resumo?.taxaAprovacaoCirurgias || 0}%</S.StatNumber>
+                  <S.StatLabel>Taxa Aprovação Cirurgias</S.StatLabel>
+                </S.StatCard>
+                <S.StatCard>
+                  <S.StatNumber>{dashboardData.resumo?.tempoMedioPermanencia || 0}d</S.StatNumber>
+                  <S.StatLabel>Tempo Médio Permanência</S.StatLabel>
+                </S.StatCard>
+              </S.StatsGrid>
+            </S.StatsContainer>
+          )}
         </S.MainContent>
 
         <Footer />

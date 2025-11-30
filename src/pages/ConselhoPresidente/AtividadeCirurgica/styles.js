@@ -176,7 +176,7 @@ export const MainContent = styled.div`
 
 export const MetricsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 `;
 
@@ -187,7 +187,6 @@ export const MetricCard = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   border: 1px solid #e2e8f0;
-  position: relative;
 `;
 
 export const MetricTitle = styled.h3`
@@ -222,37 +221,6 @@ export const MetricTrend = styled.div`
 export const MetricDetail = styled.div`
   font-size: 0.8rem;
   color: #64748b;
-  margin-bottom: 0.5rem;
-`;
-
-export const OcupacaoStatus = styled.div`
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  background-color: ${props => {
-    switch (props.status) {
-      case 'critico': return '#fee2e2';
-      case 'alerta': return '#fef3c7';
-      case 'estavel': return '#d1fae5';
-      case 'baixa': return '#dbeafe';
-      default: return '#f3f4f6';
-    }
-  }};
-
-  color: ${props => {
-    switch (props.status) {
-      case 'critico': return '#dc2626';
-      case 'alerta': return '#92400e';
-      case 'estavel': return '#065f46';
-      case 'baixa': return '#1e40af';
-      default: return '#374151';
-    }
-  }};
 `;
 
 export const ChartsGrid = styled.div`
@@ -326,7 +294,6 @@ export const TableSection = styled.div`
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
-  overflow-x: auto;
 `;
 
 export const TableTitle = styled.h3`
@@ -347,7 +314,6 @@ export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
-  min-width: 800px;
 
   th {
     background: #f8fafc;
@@ -356,14 +322,12 @@ export const Table = styled.table`
     font-weight: 600;
     color: #374151;
     border-bottom: 1px solid #e2e8f0;
-    white-space: nowrap;
   }
 
   td {
     padding: 1rem;
     border-bottom: 1px solid #f1f5f9;
     color: #475569;
-    white-space: nowrap;
   }
 
   tr:hover {
@@ -375,65 +339,33 @@ export const Table = styled.table`
   }
 `;
 
-export const UTIBadge = styled.span`
-  display: inline-block;
-  background: #fee2e2;
-  color: #dc2626;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
-`;
-
-export const OcupacaoPercentual = styled.span`
-  font-weight: 600;
-  color: ${props => {
-    const percentual = props.percentual || 0;
-    if (percentual >= 90) return '#dc2626';
-    if (percentual >= 80) return '#d97706';
-    if (percentual >= 60) return '#059669';
-    return '#374151';
-  }};
-`;
-
 export const StatusBadge = styled.span`
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
   background-color: ${props => {
     switch (props.status) {
-      case 'critico': return '#fee2e2';
-      case 'alerta': return '#fef3c7';
-      case 'estavel': return '#d1fae5';
-      case 'baixa': return '#dbeafe';
+      case 'ativo': return '#d1fae5';
+      case 'inativo': return '#fef3c7';
+      case 'agendada': return '#dbeafe';
+      case 'confirmada': return '#d1fae5';
+      case 'ferias': return '#fef3c7';
       default: return '#f3f4f6';
     }
   }};
 
   color: ${props => {
     switch (props.status) {
-      case 'critico': return '#dc2626';
-      case 'alerta': return '#92400e';
-      case 'estavel': return '#065f46';
-      case 'baixa': return '#1e40af';
+      case 'ativo': return '#065f46';
+      case 'inativo': return '#92400e';
+      case 'agendada': return '#1e40af';
+      case 'confirmada': return '#065f46';
+      case 'ferias': return '#92400e';
       default: return '#374151';
-    }
-  }};
-`;
-
-export const TableTrend = styled.span`
-  font-weight: 600;
-  color: ${props => {
-    switch (props.trend) {
-      case 'up': return '#10b981';
-      case 'down': return '#ef4444';
-      default: return '#6b7280';
     }
   }};
 `;

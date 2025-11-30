@@ -1,13 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
+import axios from "axios";
 
 export default function AtividadeMedica() {
   const navigate = useNavigate();
   const [periodo, setPeriodo] = useState('mes');
+  const [especialidade, setEspecialidade] = useState('todas');
+  const [medico, setMedico] = useState('todos');
+  const [loading, setLoading] = useState(true);
+  const [dados, setDados] = useState({
+    metricas: {},
+    especialidades: [],
+    topMedicos: [],
+    evolucaoMensal: []
+  });
 
-  const handleExport = (format) => {
-    alert(`Exportando relatório de atividade médica em formato ${format.toUpperCase()}...`);
+  useEffect(() => {
+    fetchDadosMedicos();
+  }, [periodo, especialidade, medico]);
+
+  const fetchDadosMedicos = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/conselho-presidente/atividade-medica', {
+        params: { periodo, especialidade, medico }
+      });
+      setDados(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar dados médicos:", error);
+      alert("Erro ao carregar dados da atividade médica");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = async (format) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/conselho-presidente/export-consultas`, {
+        params: { format, periodo, especialidade, medico },
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `atividade-medica-${periodo}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      alert("Erro ao exportar relatório");
+    }
+  };
+
+  const formatarDuracao = (minutos) => {
+    if (!minutos) return '0min';
+    return `${minutos} min`;
   };
 
   return (
@@ -16,18 +66,19 @@ export default function AtividadeMedica() {
       <S.ConselhoPortalContainer>
         {/* Header */}
         <S.Header>
-          <S.BackButton onClick={() => navigate("/conselho")}>
+          <S.BackButton onClick={() => navigate("/conselhopresidente")}>
             ← Voltar para Painel
           </S.BackButton>
           <S.Title>
             <h1>Atividade Médica</h1>
             <p>Relatório detalhado das consultas e atendimentos médicos</p>
+            {loading && <S.LoadingMessage>Carregando dados...</S.LoadingMessage>}
           </S.Title>
           <S.ExportButtons>
-            <S.ExportBtn onClick={() => handleExport('pdf')}>
+            <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
               Exportar PDF
             </S.ExportBtn>
-            <S.ExportBtn onClick={() => handleExport('excel')}>
+            <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
               Exportar Excel
             </S.ExportBtn>
           </S.ExportButtons>
@@ -37,7 +88,7 @@ export default function AtividadeMedica() {
         <S.FilterSection>
           <S.FilterGroup>
             <label>Período:</label>
-            <S.Select value={periodo} onChange={(e) => setPeriodo(e.target.value)}>
+            <S.Select value={periodo} onChange={(e) => setPeriodo(e.target.value)} disabled={loading}>
               <option value="semana">Última Semana</option>
               <option value="mes">Último Mês</option>
               <option value="trimestre">Último Trimestre</option>
@@ -45,20 +96,23 @@ export default function AtividadeMedica() {
             </S.Select>
             
             <label>Especialidade:</label>
-            <S.Select>
+            <S.Select value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} disabled={loading}>
               <option value="todas">Todas as Especialidades</option>
-              <option value="cardiologia">Cardiologia</option>
-              <option value="ortopedia">Ortopedia</option>
-              <option value="pediatria">Pediatria</option>
-              <option value="dermatologia">Dermatologia</option>
+              {dados.especialidades?.map((esp, index) => (
+                <option key={index} value={esp.especialidade}>
+                  {esp.especialidade}
+                </option>
+              ))}
             </S.Select>
 
             <label>Médico:</label>
-            <S.Select>
+            <S.Select value={medico} onChange={(e) => setMedico(e.target.value)} disabled={loading}>
               <option value="todos">Todos os Médicos</option>
-              <option value="joao">Dr. João Silva</option>
-              <option value="maria">Dra. Maria Souza</option>
-              <option value="paulo">Dr. Paulo Lima</option>
+              {dados.topMedicos?.map((med, index) => (
+                <option key={index} value={med.cpf}>
+                  {med.nome}
+                </option>
+              ))}
             </S.Select>
           </S.FilterGroup>
         </S.FilterSection>
@@ -69,30 +123,38 @@ export default function AtividadeMedica() {
           <S.MetricsGrid>
             <S.MetricCard>
               <S.MetricTitle>Total de Consultas</S.MetricTitle>
-              <S.MetricValue>1.247</S.MetricValue>
-              <S.MetricTrend trend="up">+8%</S.MetricTrend>
-              <S.MetricDetail>Este mês vs mês anterior</S.MetricDetail>
+              <S.MetricValue>{dados.metricas.totalConsultas || 0}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendConsultas || 'neutral'}>
+                {dados.metricas.variacaoConsultas || '0%'}
+              </S.MetricTrend>
+              <S.MetricDetail>Este período vs anterior</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Tempo Médio</S.MetricTitle>
-              <S.MetricValue>32 min</S.MetricValue>
-              <S.MetricTrend trend="down">-2 min</S.MetricTrend>
+              <S.MetricValue>{formatarDuracao(dados.metricas.tempoMedio)}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendTempo || 'neutral'}>
+                {dados.metricas.variacaoTempo || '0min'}
+              </S.MetricTrend>
               <S.MetricDetail>Por consulta</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Taxa de Comparecimento</S.MetricTitle>
-              <S.MetricValue>94%</S.MetricValue>
-              <S.MetricTrend trend="up">+3%</S.MetricTrend>
+              <S.MetricValue>{dados.metricas.taxaComparecimento || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendComparecimento || 'neutral'}>
+                {dados.metricas.variacaoComparecimento || '0%'}
+              </S.MetricTrend>
               <S.MetricDetail>Consultas realizadas</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Médicos Ativos</S.MetricTitle>
-              <S.MetricValue>28</S.MetricValue>
-              <S.MetricTrend trend="neutral">0</S.MetricTrend>
-              <S.MetricDetail>Este mês</S.MetricDetail>
+              <S.MetricValue>{dados.metricas.medicosAtivos || 0}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendMedicos || 'neutral'}>
+                {dados.metricas.variacaoMedicos || '0'}
+              </S.MetricTrend>
+              <S.MetricDetail>Este período</S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
 
@@ -100,166 +162,151 @@ export default function AtividadeMedica() {
           <S.ChartsGrid>
             <S.ChartCard>
               <S.ChartTitle>Consultas por Especialidade</S.ChartTitle>
-              <S.ChartPlaceholder>
-                Gráfico de Pizza - Especialidades Mais Requisitadas
-              </S.ChartPlaceholder>
+              {loading ? (
+                <S.ChartLoading>Carregando gráfico...</S.ChartLoading>
+              ) : (
+                <S.ChartPlaceholder>
+                  Gráfico de Pizza - Especialidades Mais Requisitadas
+                  <S.ChartData>
+                    {dados.especialidades?.slice(0, 5).map((esp, index) => (
+                      <S.ChartDataItem key={index}>
+                        <S.ChartDataColor color={esp.cor} />
+                        {esp.especialidade}: {esp.totalConsultas} ({esp.percentual}%)
+                      </S.ChartDataItem>
+                    ))}
+                  </S.ChartData>
+                </S.ChartPlaceholder>
+              )}
             </S.ChartCard>
 
             <S.ChartCard>
               <S.ChartTitle>Evolução Mensal</S.ChartTitle>
-              <S.ChartPlaceholder>
-                Gráfico de Linha - Tendência de Consultas
-              </S.ChartPlaceholder>
+              {loading ? (
+                <S.ChartLoading>Carregando gráfico...</S.ChartLoading>
+              ) : (
+                <S.ChartPlaceholder>
+                  Gráfico de Linha - Tendência de Consultas
+                  <S.ChartData>
+                    {dados.evolucaoMensal?.map((item, index) => (
+                      <S.ChartDataItem key={index}>
+                        {item.mes}: {item.consultas} consultas
+                      </S.ChartDataItem>
+                    ))}
+                  </S.ChartData>
+                </S.ChartPlaceholder>
+              )}
             </S.ChartCard>
           </S.ChartsGrid>
 
           {/* Tabela de Especialidades */}
           <S.TableSection>
             <S.TableTitle>Desempenho por Especialidade</S.TableTitle>
-            <S.Table>
-              <thead>
-                <tr>
-                  <th>Especialidade</th>
-                  <th>Total Consultas</th>
-                  <th>Tempo Médio</th>
-                  <th>Taxa Comparecimento</th>
-                  <th>Crescimento</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Cardiologia</strong></td>
-                  <td>312</td>
-                  <td>45 min</td>
-                  <td>96%</td>
-                  <td><S.TrendBadge trend="up">+12%</S.TrendBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Ortopedia</strong></td>
-                  <td>289</td>
-                  <td>30 min</td>
-                  <td>92%</td>
-                  <td><S.TrendBadge trend="up">+8%</S.TrendBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Pediatria</strong></td>
-                  <td>275</td>
-                  <td>25 min</td>
-                  <td>89%</td>
-                  <td><S.TrendBadge trend="down">-5%</S.TrendBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Dermatologia</strong></td>
-                  <td>198</td>
-                  <td>20 min</td>
-                  <td>95%</td>
-                  <td><S.TrendBadge trend="up">+15%</S.TrendBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Neurologia</strong></td>
-                  <td>173</td>
-                  <td>50 min</td>
-                  <td>94%</td>
-                  <td><S.TrendBadge trend="up">+6%</S.TrendBadge></td>
-                </tr>
-              </tbody>
-            </S.Table>
+            {loading ? (
+              <S.TableLoading>Carregando dados...</S.TableLoading>
+            ) : (
+              <S.Table>
+                <thead>
+                  <tr>
+                    <th>Especialidade</th>
+                    <th>Total Consultas</th>
+                    <th>Tempo Médio</th>
+                    <th>Taxa Comparecimento</th>
+                    <th>Crescimento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.especialidades?.map((esp, index) => (
+                    <tr key={index}>
+                      <td><strong>{esp.especialidade}</strong></td>
+                      <td>{esp.totalConsultas}</td>
+                      <td>{formatarDuracao(esp.tempoMedio)}</td>
+                      <td>{esp.taxaComparecimento}%</td>
+                      <td>
+                        <S.TrendBadge trend={esp.crescimento >= 0 ? 'up' : 'down'}>
+                          {esp.crescimento >= 0 ? '+' : ''}{esp.crescimento}%
+                        </S.TrendBadge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </S.Table>
+            )}
           </S.TableSection>
 
           {/* Top Médicos */}
           <S.TableSection>
-            <S.TableTitle>Top 10 Médicos - Maior Volume</S.TableTitle>
-            <S.Table>
-              <thead>
-                <tr>
-                  <th>Médico</th>
-                  <th>Especialidade</th>
-                  <th>Consultas</th>
-                  <th>Tempo Médio</th>
-                  <th>Avaliação</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Dr. João Silva</strong></td>
-                  <td>Cardiologia</td>
-                  <td>156</td>
-                  <td>45 min</td>
-                  <td>4.9 ★</td>
-                  <td><S.StatusBadge status="ativo">Ativo</S.StatusBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Dra. Maria Souza</strong></td>
-                  <td>Ortopedia</td>
-                  <td>142</td>
-                  <td>35 min</td>
-                  <td>4.8 ★</td>
-                  <td><S.StatusBadge status="ativo">Ativo</S.StatusBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Dr. Paulo Lima</strong></td>
-                  <td>Pediatria</td>
-                  <td>138</td>
-                  <td>25 min</td>
-                  <td>4.7 ★</td>
-                  <td><S.StatusBadge status="ativo">Ativo</S.StatusBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Dra. Ana Costa</strong></td>
-                  <td>Dermatologia</td>
-                  <td>125</td>
-                  <td>20 min</td>
-                  <td>4.9 ★</td>
-                  <td><S.StatusBadge status="ferias">Férias</S.StatusBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Dr. Carlos Santos</strong></td>
-                  <td>Neurologia</td>
-                  <td>118</td>
-                  <td>50 min</td>
-                  <td>4.6 ★</td>
-                  <td><S.StatusBadge status="ativo">Ativo</S.StatusBadge></td>
-                </tr>
-                <tr>
-                  <td><strong>Dra. Fernanda Oliveira</strong></td>
-                  <td>Cardiologia</td>
-                  <td>112</td>
-                  <td>40 min</td>
-                  <td>4.8 ★</td>
-                  <td><S.StatusBadge status="ativo">Ativo</S.StatusBadge></td>
-                </tr>
-              </tbody>
-            </S.Table>
+            <S.TableTitle>Top Médicos - Maior Volume</S.TableTitle>
+            {loading ? (
+              <S.TableLoading>Carregando dados...</S.TableLoading>
+            ) : (
+              <S.Table>
+                <thead>
+                  <tr>
+                    <th>Médico</th>
+                    <th>Especialidade</th>
+                    <th>Consultas</th>
+                    <th>Tempo Médio</th>
+                    <th>Eficiência</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.topMedicos?.map((medico, index) => (
+                    <tr key={index}>
+                      <td><strong>{medico.nome}</strong></td>
+                      <td>{medico.especialidade}</td>
+                      <td>{medico.totalConsultas}</td>
+                      <td>{formatarDuracao(medico.tempoMedio)}</td>
+                      <td>
+                        <S.EfficiencyBadge eficiencia={medico.eficiencia}>
+                          {medico.eficiencia}%
+                        </S.EfficiencyBadge>
+                      </td>
+                      <td>
+                        <S.StatusBadge status={medico.disponivel ? 'ativo' : 'inativo'}>
+                          {medico.disponivel ? 'Ativo' : 'Inativo'}
+                        </S.StatusBadge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </S.Table>
+            )}
           </S.TableSection>
 
           {/* Métricas de Tempo */}
           <S.MetricsGrid>
             <S.MetricCard>
               <S.MetricTitle>Horário de Pico</S.MetricTitle>
-              <S.MetricValue>09:00 - 11:00</S.MetricValue>
-              <S.MetricDetail>Manhã</S.MetricDetail>
+              <S.MetricValue>{dados.metricas.horarioPico || '09:00 - 11:00'}</S.MetricValue>
+              <S.MetricDetail>{dados.metricas.periodoPico || 'Manhã'}</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Taxa de Remarcação</S.MetricTitle>
-              <S.MetricValue>8%</S.MetricValue>
-              <S.MetricTrend trend="down">-2%</S.MetricTrend>
-              <S.MetricDetail>Este mês</S.MetricDetail>
+              <S.MetricValue>{dados.metricas.taxaRemarcacao || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendRemarcacao || 'neutral'}>
+                {dados.metricas.variacaoRemarcacao || '0%'}
+              </S.MetricTrend>
+              <S.MetricDetail>Este período</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Consultas de Retorno</S.MetricTitle>
-              <S.MetricValue>42%</S.MetricValue>
-              <S.MetricTrend trend="up">+5%</S.MetricTrend>
+              <S.MetricValue>{dados.metricas.consultasRetorno || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendRetorno || 'neutral'}>
+                {dados.metricas.variacaoRetorno || '0%'}
+              </S.MetricTrend>
               <S.MetricDetail>Do total</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Novos Pacientes</S.MetricTitle>
-              <S.MetricValue>723</S.MetricValue>
-              <S.MetricTrend trend="up">+12%</S.MetricTrend>
-              <S.MetricDetail>Este mês</S.MetricDetail>
+              <S.MetricValue>{dados.metricas.novosPacientes || 0}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas.trendNovosPacientes || 'neutral'}>
+                {dados.metricas.variacaoNovosPacientes || '0%'}
+              </S.MetricTrend>
+              <S.MetricDetail>Este período</S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
         </S.MainContent>
