@@ -8,6 +8,8 @@ import HomeMedico from './pages/Medico/Home/page'
 import HomeAdm from './pages/Adm/Home/index'
 import CadastroLeitos from './pages/Adm/Cadastro_Leitos'
 import CadastroSalas from './pages/Adm/Cadastro_Salas'
+import DesativarLeitos from './pages/Adm/Desativar_leitos'
+import DesativarSalas from './pages/Adm/Desativar_salas'
 import Cadastroadmcp from './pages/Adm/CADASTRAADM_CP'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
@@ -50,6 +52,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
       <Route path="/cadastro_leitos" element={<CadastroLeitos/>} />
       <Route path="/cadastro_salas" element={<CadastroSalas/>} />
+      <Route path="/desativar_leitos" element={<DesativarLeitos/>} />
+      <Route path="/desativar_salas" element={<DesativarSalas/>} />
 
       <Route path="/conselhopresidente" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />

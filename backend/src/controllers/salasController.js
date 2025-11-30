@@ -23,19 +23,8 @@ export async function cadastrarSalas(req, res) {
       if (existe.rows[0].ativo === true) {
         await client.query("ROLLBACK");
         return res.status(400).send("Já existe uma sala cadastrado com esse número e tipo.");
-      } else {
-        await client.query(
-            `UPDATE public."SALAS" 
-            SET ativo = true 
-            WHERE n_sala = $1 AND tipo= $2`,
-            [n_sala, tipo]
-          );
-      }
-      
+      } 
     } 
-
-
-    const quant_paciente=0;
 
     await client.query(
       `INSERT INTO public."SALAS" (n_sala, tipo)
@@ -44,10 +33,10 @@ export async function cadastrarSalas(req, res) {
     );
 
     await client.query("COMMIT");
-    res.status(200).send("✅ Sala cadastrada com sucesso!");
+    res.status(200).send("Sala cadastrada com sucesso!");
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("❌ Erro ao cadastrar sala:", err);
+    console.error("Erro ao cadastrar sala:", err);
     res.status(500).send("Erro ao cadastrar sala.");
   } finally {
     client.release();

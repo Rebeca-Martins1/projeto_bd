@@ -6,6 +6,8 @@ import cadastromedicoRoutes from "./routes/medicoRoutes.js"
 import cadastroleitosRoutes from "./routes/leitosRoutes.js"
 import cadastrosalasRoutes from "./routes/salasRoutes.js"
 import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
+import desativarleitosRoutes from "./routes/desativarLeitosRoutes.js"
+import desativarsalasRoutes from "./routes/desativarSalasRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
 import cadastroadmcp from "./routes/adm_cpRoutes.js"
 import conselhoPresidenteRoutes from "./routes/conselhoPresidenteRoutes.js"
@@ -30,6 +32,8 @@ app.use("/medico", cadastromedicoRoutes);
 app.use("/enfermeiro", cadastroenfermeiroRoutes);
 app.use("/leitos", cadastroleitosRoutes);
 app.use("/salas", cadastrosalasRoutes);
+app.use("/desativarleitos", desativarleitosRoutes);
+app.use("/desativarsalas", desativarsalasRoutes);
 app.use("/admcp", cadastroadmcp);
 app.use("/conselhopresidente", conselhoPresidenteRoutes);
 app.use("/atividadecirurgica", atividadeCirurgicaRoutes);

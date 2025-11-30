@@ -43,7 +43,9 @@ export default function Header({ isLogin = false }) {
     } else if (
       path.includes("/cadastro_medico_paciente") ||
       path.includes("/cadastro_leitos") ||
-      path.includes("/cadastro_salas") 
+      path.includes("/cadastro_salas") ||
+      path.includes("/desativar_leitos") ||
+      path.includes("desativar_salas")
     ) {
       navigate("/homeadm");
     } else if (

@@ -22,21 +22,11 @@ export async function cadastrarLeitos(req, res) {
     );
 
     if (existe.rows.length > 0) {
-      if (existe.rows[0].ativo === true) {
+      if (existe.rows[0]) {
         await client.query("ROLLBACK");
         return res.status(400).send("Já existe um leito cadastrado com esse número e tipo.");
-      } else {
-        await client.query(
-            `UPDATE public."LEITOS" 
-            SET ativo = true 
-            WHERE n_sala = $1 AND tipo= $2`,
-            [n_sala, tipo]
-          );
-      }
-      
+      } 
     } 
-
-
     const quant_paciente=0;
 
     await client.query(
@@ -46,10 +36,10 @@ export async function cadastrarLeitos(req, res) {
     );
 
     await client.query("COMMIT");
-    res.status(200).send("✅ Leito cadastrado com sucesso!");
+    res.status(200).send("Leito cadastrado com sucesso!");
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("❌ Erro ao cadastrar leito:", err);
+    console.error("Erro ao cadastrar leito:", err);
     res.status(500).send("Erro ao cadastrar leito.");
   } finally {
     client.release();

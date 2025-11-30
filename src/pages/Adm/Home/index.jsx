@@ -42,6 +42,27 @@ export default function HomePaciente() {
     },
 
     {
+      icon: <FaCalendarAlt size={40} />,
+      title: "DESATIVAR/ATIVAR LEITOS",
+      description: "Desativa leitos para caso aquele leito não seja mais usado e ativa caso mude de ideia",
+      route: "/desativar_leitos",
+    },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "DESATIVAR/ATIVAR SALAS",
+      description: "Desativa salas para caso aquela sala não seja mais usada e ativa caso mude de ideia",
+      route: "/desativar_salas",
+    },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "DESATIVAR/ATIVAR PROFISSIONAIS",
+      description: "Desativa proficionais para caso ocorra uma demissão e ativa caso seja recontratado",
+      route: "/desativar_salas",
+    },
+
+    {
       icon: <FaCut size={40} />,
       title: "SOLICITAÇÃO DE CIRURGIA",
       description: "Solicitações das cirurgias dos médicos tem que ser aprovadas e modificadas caso necessário",
