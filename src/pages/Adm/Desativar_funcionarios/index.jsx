@@ -3,32 +3,37 @@ import { Container, Content, Table, DesativarBtn, Error, AtivarBtn } from "./sty
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
-export default function DesativarLeitos() {
-  const [leitos, setLeitos] = useState([]);
+export default function DesativarPessoas() {
+  const [medicos, setMedicos] = useState([]);
+  const [enfermeiros, setEnfermeiros] = useState([]);
   const [erro, setErro] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
     async function carregar() {
-        try {
-        const req = await fetch("http://localhost:5000/desativarleitos/leitos/ativos");
-        const data = await req.json();
-        setLeitos(data);
-        } catch {
-        setErro("Erro ao carregar leitos.");
-        }
+      try {
+        const reqMedicos = await fetch("http://localhost:5000/desativarfuncionarios/listarMedicos");
+        const medicosData = await reqMedicos.json();
+
+        const reqEnf = await fetch("http://localhost:5000/desativarfuncionarios/listarEnfermeiros");
+        const enfData = await reqEnf.json();
+
+        setMedicos(medicosData);
+        setEnfermeiros(enfData);
+      } catch {
+        setErro("Erro ao carregar funcionarios.");
+      }
     }
     carregar();
-    }, []);
+  }, []);
 
-
-  async function desativarLeito(n_sala, tipo) {
+  async function desativarMedico(cpf) {
     setErro("");
     setSuccess("");
 
     try {
         const req = await fetch(
-        `http://localhost:5000/desativarleitos/leito/desativar/${n_sala}/${tipo}`,
+        `http://localhost:5000/desativarfuncionarios/medico/desativar/${cpf}`,
         {
             method: "PUT",
         }
@@ -40,27 +45,27 @@ export default function DesativarLeitos() {
         return;
         }
 
-        setLeitos(prev =>
-        prev.map(leito =>
-            leito.n_sala === n_sala && leito.tipo === tipo
-            ? { ...leito, ativo: false }
-            : leito
+        setMedicos(prev =>
+        prev.map(medico =>
+            medico.cpf === cpf
+            ? { ...medico, ativo: false }
+            : medico
         )
         );
 
-        setSuccess("Leito desativado com sucesso!");
+        setSuccess("Medico desativado com sucesso!");
     } catch (error) {
         setErro("Erro ao conectar com o servidor.");
     }
     }
 
-    async function ativarLeito(n_sala, tipo) {
+    async function desativarEnfermeiro(cpf) {
     setErro("");
     setSuccess("");
 
     try {
         const req = await fetch(
-        `http://localhost:5000/desativarleitos/leito/ativar/${n_sala}/${tipo}`,
+        `http://localhost:5000/desativarfuncionarios/enfermeiro/desativar/${cpf}`,
         {
             method: "PUT",
         }
@@ -72,67 +77,160 @@ export default function DesativarLeitos() {
         return;
         }
 
-        setLeitos(prev =>
-        prev.map(leito =>
-            leito.n_sala === n_sala && leito.tipo === tipo
-            ? { ...leito, ativo: true }
-            : leito
+        setEnfermeiros(prev =>
+        prev.map(enfermeiro =>
+            enfermeiro.cpf === cpf
+            ? { ...enfermeiro, ativo: false }
+            : enfermeiro
+        )
+        );
+
+        setSuccess("Enfermeiro desativado com sucesso!");
+    } catch (error) {
+        setErro("Erro ao conectar com o servidor.");
+    }
+    }
+
+    async function ativarMedico(cpf) {
+    setErro("");
+    setSuccess("");
+
+    try {
+        const req = await fetch(
+        `http://localhost:5000/desativarfuncionarios/medico/ativar/${cpf}`,
+        {
+            method: "PUT",
+        }
+        );
+
+        if (!req.ok) {
+        const msg = await req.text();
+        setErro(msg);
+        return;
+        }
+
+        setMedicos(prev =>
+        prev.map(medico =>
+            medico.cpf === cpf
+            ? { ...medico, ativo: true }
+            : medico
         )
         );
         
-        setSuccess("Leito ativado com sucesso!");
+        setSuccess("Medico ativado com sucesso!");
     } catch (error) {
         setErro("Erro ao conectar com o servidor.");
     }
     }
 
+    async function ativarEnfermeiro(cpf) {
+    setErro("");
+    setSuccess("");
+
+    try {
+        const req = await fetch(
+        `http://localhost:5000/desativarfuncionarios/enfermeiro/ativar/${cpf}`,
+        {
+            method: "PUT",
+        }
+        );
+
+        if (!req.ok) {
+        const msg = await req.text();
+        setErro(msg);
+        return;
+        }
+
+        setEnfermeiros(prev =>
+        prev.map(enfermeiro =>
+            enfermeiro.cpf === cpf
+            ? { ...enfermeiro, ativo: true }
+            : enfermeiro
+        )
+        );
+        
+        setSuccess("Enfermeiro ativado com sucesso!");
+    } catch (error) {
+        setErro("Erro ao conectar com o servidor.");
+    }
+    }
 
   return (
     <Container>
-        <Header/>
+      <Header />
       <Content>
-        <div style={{ textAlign: "center", marginBlock:"20px" }}>
-        <h1>Desativar/Ativar Leitos</h1>
-        {erro && <Error>{erro}</Error>}
+        <div style={{ textAlign: "center", marginBlock: "20px" }}>
+          <h1>Gerenciar Médicos e Enfermeiros</h1>
+          {erro && <Error>{erro}</Error>}
         </div>
 
-
+        <h2 style={{ marginTop: "20px" }}>Médicos</h2>
         <Table>
           <thead>
             <tr>
-              <th>Número Sala</th>
-              <th>Tipo</th>
-              <th>Quantidade pacientes</th>
+              <th>CPF</th>
+              <th>Nome</th>
               <th>Status</th>
               <th>Ação</th>
             </tr>
           </thead>
+
           <tbody>
-            {leitos.map(leito => (
-                <tr key={`${leito.n_sala}-${leito.tipo}`}>
-                <td style={{ textAlign: "center" }}>{leito.n_sala}</td>
-                <td style={{ textAlign: "center" }}>{leito.tipo}</td>
-                <td style={{ textAlign: "center" }}>{leito.quant_paciente}</td>
-                <td style={{ textAlign: "center" }}>{leito.ativo ? "Ativo" : "Desativado"}</td>
+            {medicos.map(m => (
+              <tr key={m.cpf}>
+                <td style={{ textAlign: "center" }}>{m.cpf}</td>
+                <td style={{ textAlign: "center" }}>{m.nome}</td>
+                <td style={{ textAlign: "center" }}>{m.ativo ? "Ativo" : "Desativado"}</td>
                 <td style={{ textAlign: "center" }}>
-                    {leito.ativo ? (
-                    <DesativarBtn onClick={() => desativarLeito(leito.n_sala, leito.tipo)}>
-                        Desativar
+                  {m.ativo ? (
+                    <DesativarBtn onClick={() => desativarMedico( m.cpf, "desativar")}>
+                      Desativar
                     </DesativarBtn>
-                    ) : (
-                    <AtivarBtn onClick={() => ativarLeito(leito.n_sala, leito.tipo)}>
-                        Ativar
+                  ) : (
+                    <AtivarBtn onClick={() => ativarMedico( m.cpf, "ativar")}>
+                      Ativar
                     </AtivarBtn>
-                    )}
+                  )}
                 </td>
-                </tr>
+              </tr>
             ))}
-            </tbody>
+          </tbody>
+        </Table>
 
+        <h2 style={{ marginTop: "20px" }}>Enfermeiros</h2>
+        <Table>
+          <thead>
+            <tr>
+              <th>CPF</th>
+              <th>Nome</th>
+              <th>Status</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
 
+          <tbody>
+            {enfermeiros.map(e => (
+              <tr key={e.cpf}>
+                <td style={{ textAlign: "center" }}>{e.cpf}</td>
+                <td style={{ textAlign: "center" }}>{e.nome}</td>
+                <td style={{ textAlign: "center" }}>{e.ativo ? "Ativo" : "Desativado"}</td>
+                <td style={{ textAlign: "center" }}>
+                  {e.ativo ? (
+                    <DesativarBtn onClick={() => desativarEnfermeiro(e.cpf, "desativar")}>
+                      Desativar
+                    </DesativarBtn>
+                  ) : (
+                    <AtivarBtn onClick={() => ativarEnfermeiro(e.cpf, "ativar")}>
+                      Ativar
+                    </AtivarBtn>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </Table>
       </Content>
-      <Footer/>
+      <Footer />
     </Container>
   );
 }

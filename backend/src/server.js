@@ -8,6 +8,7 @@ import cadastrosalasRoutes from "./routes/salasRoutes.js"
 import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import desativarleitosRoutes from "./routes/desativarLeitosRoutes.js"
 import desativarsalasRoutes from "./routes/desativarSalasRoutes.js"
+import desativarfuncionarioRoutes from "./routes/desativarFuncionarioRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
 import cadastroadmcp from "./routes/adm_cpRoutes.js"
 import conselhoPresidenteRoutes from "./routes/conselhoPresidenteRoutes.js"
@@ -34,6 +35,7 @@ app.use("/leitos", cadastroleitosRoutes);
 app.use("/salas", cadastrosalasRoutes);
 app.use("/desativarleitos", desativarleitosRoutes);
 app.use("/desativarsalas", desativarsalasRoutes);
+app.use("/desativarfuncionarios", desativarfuncionarioRoutes);
 app.use("/admcp", cadastroadmcp);
 app.use("/conselhopresidente", conselhoPresidenteRoutes);
 app.use("/atividadecirurgica", atividadeCirurgicaRoutes);

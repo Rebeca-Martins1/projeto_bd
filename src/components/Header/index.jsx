@@ -45,7 +45,8 @@ export default function Header({ isLogin = false }) {
       path.includes("/cadastro_leitos") ||
       path.includes("/cadastro_salas") ||
       path.includes("/desativar_leitos") ||
-      path.includes("desativar_salas")
+      path.includes("desativar_salas") ||
+      path.includes("/desativar_funcionarios")
     ) {
       navigate("/homeadm");
     } else if (

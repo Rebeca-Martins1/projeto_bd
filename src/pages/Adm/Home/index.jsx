@@ -59,7 +59,7 @@ export default function HomePaciente() {
       icon: <FaCalendarAlt size={40} />,
       title: "DESATIVAR/ATIVAR PROFISSIONAIS",
       description: "Desativa proficionais para caso ocorra uma demissão e ativa caso seja recontratado",
-      route: "/desativar_salas",
+      route: "/desativar_funcionarios",
     },
 
     {
