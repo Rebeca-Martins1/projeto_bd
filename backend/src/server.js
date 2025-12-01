@@ -8,6 +8,7 @@ import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
 import cadastroadmcp from "./routes/adm_cpRoutes.js"
 import pool from "./config/db.js"; 
+import consultaRoutes from "./routes/consultaRoutes.js";
 
 const app = express();
 const PORT = 5000;
@@ -22,6 +23,7 @@ app.use("/enfermeiro", cadastroenfermeiroRoutes);
 app.use("/leitos", cadastroleitosRoutes);
 app.use("/admcp", cadastroadmcp);
 app.use("/plantao", plantaoRoutes);
+app.use("/consultas", consultaRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
