@@ -39,6 +39,17 @@ app.use("/desativarsalas", desativarsalasRoutes);
 app.use("/desativarfuncionarios", desativarfuncionarioRoutes);
 app.use("/admcp", cadastroadmcp);
 
+app.use("/conselhopresidente", conselhoPresidenteRoutes);
+app.use("/atividadecirurgica", atividadeCirurgicaRoutes);
+app.use("/atividademedica", atividadeMedicaRoutes);
+app.use("/historicopacientes", historicoPacientesRoutes);
+app.use("/ocupacaoleitos", ocupacaoLeitosRoutes);
+app.use("/ocupacaosalas", ocupacaoSalasRoutes);
+app.use("/recursoshumanos", recursosHumanosRoutes);
+
+app.use("/plantao", plantaoRoutes);
+app.use("/consultas", consultaRoutes);
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
