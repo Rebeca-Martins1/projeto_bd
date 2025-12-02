@@ -20,6 +20,7 @@ import ocupacaoSalasRoutes from "./routes/ocupacaoSalasRoutes.js"
 import recursosHumanosRoutes from "./routes/recursosHumanosRoutes.js"
 
 import pool from "./config/db.js"; 
+import consultaRoutes from "./routes/consultaRoutes.js";
 
 const app = express();
 const PORT = 5000;
@@ -37,14 +38,6 @@ app.use("/desativarleitos", desativarleitosRoutes);
 app.use("/desativarsalas", desativarsalasRoutes);
 app.use("/desativarfuncionarios", desativarfuncionarioRoutes);
 app.use("/admcp", cadastroadmcp);
-app.use("/conselhopresidente", conselhoPresidenteRoutes);
-app.use("/atividadecirurgica", atividadeCirurgicaRoutes);
-app.use("/atividademedica", atividadeMedicaRoutes);
-app.use("/historicopacientes", historicoPacientesRoutes);
-app.use("/ocupacaoleitos", ocupacaoLeitosRoutes);
-app.use("/ocupacaosalas", ocupacaoSalasRoutes);
-app.use("/recursoshumanos", recursosHumanosRoutes);
-
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

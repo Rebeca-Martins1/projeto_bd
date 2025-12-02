@@ -78,12 +78,32 @@ export default function MarcarConsulta() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Consulta marcada (simulação):", formData);
-    alert("Consulta marcada com sucesso! (simulação)");
-    navigate("/homepaciente");
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch("http://localhost:5000/consultas ", {  
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Consulta marcada com sucesso!");
+      navigate("/homepaciente");
+    } else {
+      alert("Erro: " + data.error);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao conectar com o servidor.");
+  }
+};
 
   return (
     <S.PageContainer>
