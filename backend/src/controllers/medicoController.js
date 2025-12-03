@@ -25,13 +25,22 @@ export async function cadastrarMedico(req, res) {
     if (existe_pessoa.rows.length > 0) {
 
       const existe_medico = await client.query(
-        'SELECT 1 FROM public."MEDICO" WHERE cpf = $1',
+        'SELECT ativo FROM public."MEDICO" WHERE cpf = $1',
         [cpf]
       );
 
       if (existe_medico.rows.length > 0) {
-        await client.query("ROLLBACK");
-        return res.status(400).send("CPF já cadastrado.");
+        if (existe_medico.rows[0].ativo === true) {
+          await client.query("ROLLBACK");
+          return res.status(400).send("CPF já cadastrado.");
+        }else {
+          await client.query(
+            `UPDATE public."MEDICO" 
+            SET ativo = true 
+            WHERE cpf = $1`,
+            [cpf]
+          );
+        }
       } else {
        await client.query(
         `INSERT INTO public."MEDICO" (cpf, crm, disponivel)

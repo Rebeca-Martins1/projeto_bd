@@ -25,13 +25,22 @@ export async function cadastrarEnfermeiro(req, res) {
     if (existe_pessoa.rows.length > 0) {
 
       const existe_enfermeiro = await client.query(
-        'SELECT 1 FROM public."ENFERMEIRO" WHERE cpf = $1',
+        'SELECT ativo FROM public."ENFERMEIRO" WHERE cpf = $1',
         [cpf]
       );
 
       if (existe_enfermeiro.rows.length > 0) {
-        await client.query("ROLLBACK");
-        return res.status(400).send("CPF já cadastrado.");
+        if(existe_enfermeiro.rows[0].ativo === true){
+          await client.query("ROLLBACK");
+          return res.status(400).send("CPF já cadastrado.");
+        } else {
+          await client.query(
+            `UPDATE public."ENFERMEIRO" 
+            SET ativo = true 
+            WHERE cpf = $1`,
+            [cpf]
+          );
+        }
       } else {
        await client.query(
           `INSERT INTO public."ENFERMEIRO" (cpf, coren, disponivel)

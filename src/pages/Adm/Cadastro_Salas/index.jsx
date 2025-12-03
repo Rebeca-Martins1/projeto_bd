@@ -5,13 +5,11 @@ import Footer from "../../../components/Footer";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-export default function CadastroLeito() {
+export default function CadastroSala() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     n_sala: "",
     tipo: "",
-    quant_paciente: "",
-    capacidade: "",
   });
 
   const handleChange = (e) => {
@@ -24,17 +22,16 @@ export default function CadastroLeito() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/leitos", {
+      await axios.post("http://localhost:5000/salas", {
         n_sala: Number(formData.n_sala),
         tipo: formData.tipo,
-        quant_paciente: Number(formData.quant_paciente) || 0,
-        capacidade: Number(formData.capacidade),
       });
 
+      
       navigate("/homeadm");
     } catch (err) {
-      console.error("Erro ao cadastrar leito:", err);
-      alert("Erro ao cadastrar leito. Verifique os dados e tente novamente.");
+      console.error("Erro ao cadastrar sala:", err);
+      alert("Erro ao cadastrar sala. Verifique os dados e tente novamente.");
     }
   };
 
@@ -46,8 +43,8 @@ export default function CadastroLeito() {
       <S.FormContainer>
         <S.FormCard onSubmit={handleSubmit}>
           <S.FormHeader>
-            <h2>Cadastro de Leito</h2>
-            <p>Preencha as informações do leito</p>
+            <h2>Cadastro de Sala</h2>
+            <p>Preencha as informações da sala</p>
           </S.FormHeader>
 
           <S.InputGroup>
@@ -62,7 +59,7 @@ export default function CadastroLeito() {
           </S.InputGroup>
 
           <S.InputGroup>
-            <label>Tipo de Leito</label>
+            <label>Tipo de Sala</label>
             <select
               name="tipo"
               value={formData.tipo}
@@ -70,23 +67,12 @@ export default function CadastroLeito() {
               required
             >
               <option value="">Selecione</option>
-              <option value="UTI">Leito UTI</option>
-              <option value="ENFERMARIA">Leito Enfermaria</option>
+              <option value="Consultorio">Sala de consultorio</option>
+              <option value="Cirurgia">Sala de cirurgia</option>
             </select>
           </S.InputGroup>
 
-          <S.InputGroup>
-            <label>Capacidade Máxima</label>
-            <input
-              type="number"
-              name="capacidade"
-              value={formData.capacidade}
-              onChange={handleChange}
-              required
-            />
-          </S.InputGroup>
-
-          <S.SubmitBtn type="submit">Cadastrar Leito</S.SubmitBtn>
+          <S.SubmitBtn type="submit">Cadastrar Sala</S.SubmitBtn>
         </S.FormCard>
       </S.FormContainer>
 

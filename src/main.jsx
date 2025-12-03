@@ -6,8 +6,12 @@ import Cadastro from './pages/cadastro'
 import HomePaciente from './pages/Paciente/Home/index'
 import HomeMedico from './pages/Medico/Home/page'
 import HomeAdm from './pages/Adm/Home/index'
-import CadastroLeito from './pages/Adm/Cadastro_Leitos'
-import Cadastroadmcp from './pages/Adm/CADASTRAADM_CP/Cadastro_Leitos'
+import CadastroLeitos from './pages/Adm/Cadastro_Leitos'
+import CadastroSalas from './pages/Adm/Cadastro_Salas'
+import DesativarLeitos from './pages/Adm/Desativar_leitos'
+import DesativarSalas from './pages/Adm/Desativar_salas'
+import DesativarFuncionarios from './pages/Adm/Desativar_funcionarios'
+import Cadastroadmcp from './pages/Adm/CADASTRAADM_CP'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
@@ -47,7 +51,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
-      <Route path="/cadastro_leitos" element={<CadastroLeito/>} />
+      <Route path="/cadastro_leitos" element={<CadastroLeitos/>} />
+      <Route path="/cadastro_salas" element={<CadastroSalas/>} />
+      <Route path="/desativar_leitos" element={<DesativarLeitos/>} />
+      <Route path="/desativar_salas" element={<DesativarSalas/>} />
+      <Route path="/desativar_funcionarios" element={<DesativarFuncionarios/>} />
 
       <Route path="/conselhopresidente" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />

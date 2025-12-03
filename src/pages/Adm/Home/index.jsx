@@ -18,8 +18,7 @@ function ActionCard({ icon, title, description, onClick }) {
 
 export default function HomePaciente() {
   const navigate = useNavigate();
-  const pacienteNome = "Rafael Castro"; // futuramente vem do backend/login
-
+  
   const items = [
     {
       icon: <FaCalendarAlt size={40} />,
@@ -33,6 +32,34 @@ export default function HomePaciente() {
       title: "CADASTRO DE LEITOS",
       description: "Cadastro de leitos de uti e de leitos da enfermaria",
       route: "/cadastro_leitos",
+    },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "CADASTRO DE SALAS",
+      description: "Cadastro de consultorios e de salas de cirurgia",
+      route: "/cadastro_salas",
+    },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "DESATIVAR/ATIVAR LEITOS",
+      description: "Desativa leitos para caso aquele leito não seja mais usado e ativa caso mude de ideia",
+      route: "/desativar_leitos",
+    },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "DESATIVAR/ATIVAR SALAS",
+      description: "Desativa salas para caso aquela sala não seja mais usada e ativa caso mude de ideia",
+      route: "/desativar_salas",
+    },
+
+    {
+      icon: <FaCalendarAlt size={40} />,
+      title: "DESATIVAR/ATIVAR PROFISSIONAIS",
+      description: "Desativa proficionais para caso ocorra uma demissão e ativa caso seja recontratado",
+      route: "/desativar_funcionarios",
     },
 
     {
@@ -54,7 +81,7 @@ export default function HomePaciente() {
     localStorage.removeItem("token");
     navigate("/../login");
   }
-
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   return (
     <>
       <S.GlobalStyles />
@@ -63,8 +90,8 @@ export default function HomePaciente() {
 
         <S.MainContent>
           <S.WelcomeMessage>
-            <h1>BEM-VINDO, {pacienteNome}</h1>
-            <p>Seu Portal do Paciente</p>
+            <h1>BEM-VINDO, {usuario.nome}</h1>
+            <p>Seu Portal do Administrador</p>
           </S.WelcomeMessage>
 
           <S.CardGrid>
