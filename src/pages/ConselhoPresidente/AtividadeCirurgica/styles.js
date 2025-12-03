@@ -1,5 +1,6 @@
-import styled, { keyframes } from "styled-components";
+import styled, { createGlobalStyle, keyframes } from 'styled-components';
 
+// Animações
 const spin = keyframes`
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -11,85 +12,73 @@ const pulse = keyframes`
   100% { opacity: 1; }
 `;
 
-export const GlobalStyles = styled.div`
-  * {
+// Estilos globais
+export const GlobalStyles = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  html, body, #root {
+    width: 100%;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    background-color: #f3f4f6; 
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box; 
   }
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+`;
 
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8fafc;
-    color: #334155;
-    line-height: 1.6;
+// Componentes base
+export const Container = styled.div`
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+
+  @media (min-width: 1024px) {
+    max-width: 1024px; 
   }
 `;
 
 export const ConselhoPortalContainer = styled.div`
+  width: 100%; 
   min-height: 100vh;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  background-color: #f3f4f6;
+  display: flex;
+  flex-direction: column;
 `;
 
-export const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
+// Conteúdo principal
+export const MainContent = styled(Container)`
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  flex-grow: 1;
 `;
 
 export const BackButton = styled.button`
-  background: #3b82f6;
-  color: white;
+  background-color: #374151;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  white-space: nowrap;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &:hover {
-    background: #2563eb;
+    background-color: #1f2937;
   }
 
-  &:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
+  svg {
+    width: 1rem;
+    height: 1rem;
   }
-`;
-
-export const Title = styled.div`
-  flex: 1;
-  text-align: center;
-
-  h1 {
-    font-size: 2.25rem;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-  }
-
-  p {
-    color: #64748b;
-    font-size: 1.1rem;
-  }
-`;
-
-export const LoadingMessage = styled.div`
-  color: #3b82f6;
-  font-weight: 500;
-  margin-top: 0.5rem;
 `;
 
 export const ExportButtons = styled.div`
@@ -99,63 +88,73 @@ export const ExportButtons = styled.div`
 `;
 
 export const ExportBtn = styled.button`
-  background: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  white-space: nowrap;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    background-color: #1d4ed8;
   }
 
   &:disabled {
-    opacity: 0.6;
+    background-color: #9ca3af;
     cursor: not-allowed;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
   }
 `;
 
+// Filtros
 export const FilterSection = styled.div`
-  background: white;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   margin-bottom: 2rem;
 `;
 
 export const FilterGroup = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  flex-wrap: wrap;
 
   label {
-    font-weight: 600;
-    color: #475569;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
     white-space: nowrap;
   }
 `;
 
 export const Select = styled.select`
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  font-size: 0.9rem;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  font-size: 0.875rem;
   color: #374151;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s;
   min-width: 150px;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 
   &:hover {
@@ -163,50 +162,53 @@ export const Select = styled.select`
   }
 
   &:disabled {
-    background: #f3f4f6;
+    background-color: #f3f4f6;
     cursor: not-allowed;
   }
 `;
 
-export const MainContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-`;
-
+// Métricas
 export const MetricsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(1, 1fr);
   gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 `;
 
 export const MetricCard = styled.div`
-  background: white;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   text-align: center;
-  border: 1px solid #e2e8f0;
 `;
 
 export const MetricTitle = styled.h3`
-  font-size: 0.9rem;
-  color: #64748b;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 `;
 
 export const MetricValue = styled.div`
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
 `;
 
 export const MetricTrend = styled.div`
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: ${props => {
     switch (props.trend) {
@@ -215,123 +217,165 @@ export const MetricTrend = styled.div`
       default: return '#6b7280';
     }
   }};
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.25rem 0;
 `;
 
 export const MetricDetail = styled.div`
-  font-size: 0.8rem;
-  color: #64748b;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
 `;
 
+export const StatusBadge = styled.span`
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  background-color: ${props => {
+    switch (props.status) {
+      case 'alto': return '#10b981';
+      case 'moderado': return '#fef3c7';
+      case 'baixo': return '#fee2e2';
+      case 'critico': return '#fee2e2';
+      case 'alerta': return '#fef3c7';
+      case 'estavel': return '#d1fae5';
+      default: return '#f3f4f6';
+    }
+  }};
+
+  color: ${props => {
+    switch (props.status) {
+      case 'alto': return '#065f46';
+      case 'moderado': return '#92400e';
+      case 'baixo': return '#dc2626';
+      case 'critico': return '#dc2626';
+      case 'alerta': return '#92400e';
+      case 'estavel': return '#065f46';
+      default: return '#374151';
+    }
+  }};
+`;
+
+// Gráficos
 export const ChartsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
+  margin-bottom: 2rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 `;
 
 export const ChartCard = styled.div`
-  background: white;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
 `;
 
 export const ChartTitle = styled.h3`
-  font-size: 1.1rem;
-  color: #1e293b;
-  margin-bottom: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
 `;
 
-export const ChartPlaceholder = styled.div`
-  background: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  border-radius: 8px;
-  padding: 3rem 1rem;
-  text-align: center;
-  color: #64748b;
-  min-height: 200px;
+export const ChartContainer = styled.div`
+  height: 250px;
+  position: relative;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 `;
 
-export const ChartLoading = styled(ChartPlaceholder)`
+// Componentes de gráfico visual
+export const ChartVisual = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 1rem;
+`;
+
+export const ChartBar = styled.div`
+  flex: 1;
+  background-color: ${props => props.color || '#3b82f6'};
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: height 0.3s;
+  height: ${props => props.height || '0'}%;
+  min-height: 20px;
+
+  &::after {
+    content: '${props => props.value || "0"}';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+`;
+
+export const ChartLoading = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
   animation: ${pulse} 2s infinite;
 `;
 
-export const ChartData = styled.div`
-  margin-top: 1rem;
-  text-align: left;
-  width: 100%;
-  max-width: 300px;
-`;
-
-export const ChartDataItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-`;
-
-export const ChartDataColor = styled.div`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: ${props => props.color || '#3b82f6'};
-`;
-
+// Tabela
 export const TableSection = styled.div`
-  background: white;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  margin-bottom: 2rem;
+  overflow-x: auto;
 `;
 
 export const TableTitle = styled.h3`
   font-size: 1.25rem;
-  color: #1e293b;
-  margin-bottom: 1rem;
   font-weight: 600;
-`;
-
-export const TableLoading = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  animation: ${pulse} 2s infinite;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
 `;
 
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  min-width: 800px;
 
   th {
-    background: #f8fafc;
-    padding: 1rem;
+    background-color: #f9fafb;
+    padding: 0.75rem 1rem;
     text-align: left;
     font-weight: 600;
     color: #374151;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
   }
 
   td {
-    padding: 1rem;
-    border-bottom: 1px solid #f1f5f9;
-    color: #475569;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #6b7280;
+    white-space: nowrap;
   }
 
   tr:hover {
-    background: #f8fafc;
+    background-color: #f9fafb;
   }
 
   tr:last-child td {
@@ -339,33 +383,74 @@ export const Table = styled.table`
   }
 `;
 
-export const StatusBadge = styled.span`
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+export const PercentValue = styled.span`
+  font-weight: 600;
+  color: ${props => {
+    const percentual = props.value || 0;
+    if (percentual >= 90) return '#dc2626';
+    if (percentual >= 80) return '#d97706';
+    if (percentual >= 60) return '#059669';
+    return '#374151';
+  }};
+`;
+
+export const EmergenciaBadge = styled.span`
+  display: inline-block;
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+`;
+
+export const TipoCirurgiaBadge = styled.span`
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 
   background-color: ${props => {
-    switch (props.status) {
-      case 'ativo': return '#d1fae5';
-      case 'inativo': return '#fef3c7';
-      case 'agendada': return '#dbeafe';
-      case 'confirmada': return '#d1fae5';
-      case 'ferias': return '#fef3c7';
+    switch (props.tipo) {
+      case 'EMERGENCIA': return '#fee2e2';
+      case 'ELETIVA': return '#d1fae5';
+      case 'URGENCIA': return '#fef3c7';
       default: return '#f3f4f6';
     }
   }};
 
   color: ${props => {
-    switch (props.status) {
-      case 'ativo': return '#065f46';
-      case 'inativo': return '#92400e';
-      case 'agendada': return '#1e40af';
-      case 'confirmada': return '#065f46';
-      case 'ferias': return '#92400e';
+    switch (props.tipo) {
+      case 'EMERGENCIA': return '#dc2626';
+      case 'ELETIVA': return '#065f46';
+      case 'URGENCIA': return '#92400e';
       default: return '#374151';
     }
+  }};
+`;
+
+export const DuracaoBadge = styled.span`
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  background-color: ${props => {
+    const duracao = props.duracao || 0;
+    if (duracao > 240) return '#fee2e2'; // > 4h
+    if (duracao > 120) return '#fef3c7'; // > 2h
+    if (duracao > 60) return '#d1fae5'; // > 1h
+    return '#f3f4f6';
+  }};
+
+  color: ${props => {
+    const duracao = props.duracao || 0;
+    if (duracao > 240) return '#dc2626';
+    if (duracao > 120) return '#92400e';
+    if (duracao > 60) return '#065f46';
+    return '#374151';
   }};
 `;

@@ -29,7 +29,6 @@ app.use("/medico", cadastromedicoRoutes);
 app.use("/enfermeiro", cadastroenfermeiroRoutes);
 app.use("/leitos", cadastroleitosRoutes);
 app.use("/admcp", cadastroadmcp);
-app.use("/conselhopresidente", conselhoPresidenteRoutes);
 app.use("/atividadecirurgica", atividadeCirurgicaRoutes);
 app.use("/atividademedica", atividadeMedicaRoutes);
 app.use("/historicopacientes", historicoPacientesRoutes);

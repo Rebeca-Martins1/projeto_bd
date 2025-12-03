@@ -1,8 +1,8 @@
 import express from "express";
-import { getOcupacaoSalas } from "../controllers/ocupacaoSalasController.js";
+import { ocupacaoSalas } from "../controllers/ocupacaoSalasController.js";
 
 const router = express.Router();
 
-router.get("/", getOcupacaoSalas);
+router.get("/", ocupacaoSalas);
 
 export default router;

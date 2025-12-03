@@ -1,20 +1,27 @@
 import pool from "../config/db.js";
 
-export const getAtividadeMedica = async (req, res) => {
+export const atividadeMedica = async (req, res) => {
   const { periodo, especialidade, medico } = req.query;
 
   try {
-    // Métricas principais
+    // Métricas principais - SEM COALESCE
     const metricasQuery = `
       SELECT 
         COUNT(*) as totalConsultas,
-        ROUND(AVG(
-          EXTRACT(EPOCH FROM (c.data_hora + INTERVAL '30 minutes' - c.data_hora))
-        ) / 60, 1) as tempoMedio,
-        ROUND((COUNT(*) * 100.0 / (
-          SELECT COUNT(*) FROM public."CONSULTA" 
-          WHERE data_hora >= NOW() - INTERVAL '2 months'
-        )), 2) as taxaComparecimento,
+        CASE 
+          WHEN COUNT(*) = 0 THEN 0
+          ELSE ROUND(AVG(
+            EXTRACT(EPOCH FROM (c.data_hora + INTERVAL '30 minutes' - c.data_hora))
+          ) / 60, 1)
+        END as tempoMedio,
+        CASE 
+          WHEN (SELECT COUNT(*) FROM public."CONSULTA" 
+                WHERE data_hora >= NOW() - INTERVAL '2 months') = 0 THEN 0
+          ELSE ROUND((COUNT(*) * 100.0 / (
+            SELECT COUNT(*) FROM public."CONSULTA" 
+            WHERE data_hora >= NOW() - INTERVAL '2 months'
+          )), 2)
+        END as taxaComparecimento,
         (SELECT COUNT(*) FROM public."MEDICO" WHERE ativo = true) as medicosAtivos
       FROM public."CONSULTA" c
       WHERE c.data_hora >= NOW() - INTERVAL '1 month'
@@ -22,18 +29,21 @@ export const getAtividadeMedica = async (req, res) => {
     `;
 
     const metricasResult = await pool.query(metricasQuery);
+    const metricasRow = metricasResult.rows[0] || {};
 
+    const totalConsultas = parseInt(metricasRow.totalconsultas) || 0;
+    
     const metricas = {
-      totalConsultas: parseInt(metricasResult.rows[0]?.totalconsultas) || 0,
+      totalConsultas: totalConsultas,
       trendConsultas: 'up',
       variacaoConsultas: '+8%',
-      tempoMedio: parseFloat(metricasResult.rows[0]?.tempomedio) || 0,
+      tempoMedio: parseFloat(metricasRow.tempomedio) || 0,
       trendTempo: 'neutral',
       variacaoTempo: '0min',
-      taxaComparecimento: parseFloat(metricasResult.rows[0]?.taxacomparecimento) || 0,
+      taxaComparecimento: parseFloat(metricasRow.taxacomparecimento) || 0,
       trendComparecimento: 'up',
       variacaoComparecimento: '+2%',
-      medicosAtivos: parseInt(metricasResult.rows[0]?.medicosativos) || 0,
+      medicosAtivos: parseInt(metricasRow.medicosativos) || 0,
       trendMedicos: 'neutral',
       variacaoMedicos: '0',
       horarioPico: '09:00 - 11:00',
@@ -49,68 +59,121 @@ export const getAtividadeMedica = async (req, res) => {
       variacaoNovosPacientes: '+12%'
     };
 
-    // Especialidades
+    // Especialidades - SEM COALESCE
     const especialidadesQuery = `
       SELECT 
         em.especialidade,
         COUNT(c.data_hora) as totalConsultas,
-        ROUND(AVG(
-          EXTRACT(EPOCH FROM (c.data_hora + INTERVAL '30 minutes' - c.data_hora))
-        ) / 60, 1) as tempoMedio,
-        ROUND((COUNT(*) * 100.0 / (
-          SELECT COUNT(*) FROM public."CONSULTA" 
-          WHERE data_hora >= NOW() - INTERVAL '1 month'
-        )), 2) as taxaComparecimento,
-        ROUND((COUNT(*) * 100.0 / (
-          SELECT COUNT(*) FROM public."CONSULTA" 
-          WHERE data_hora >= NOW() - INTERVAL '2 months'
-        )), 2) as crescimento
+        CASE 
+          WHEN COUNT(c.data_hora) = 0 THEN 0
+          ELSE ROUND(AVG(
+            EXTRACT(EPOCH FROM (c.data_hora + INTERVAL '30 minutes' - c.data_hora))
+          ) / 60, 1)
+        END as tempoMedio,
+        CASE 
+          WHEN ${totalConsultas} = 0 THEN 0
+          ELSE ROUND((COUNT(c.data_hora) * 100.0 / ${totalConsultas}), 2)
+        END as taxaComparecimento,
+        CASE 
+          WHEN (
+            SELECT COUNT(*) FROM public."CONSULTA" 
+            WHERE data_hora >= NOW() - INTERVAL '2 months'
+          ) = 0 THEN 0
+          ELSE ROUND((COUNT(c.data_hora) * 100.0 / (
+            SELECT COUNT(*) FROM public."CONSULTA" 
+            WHERE data_hora >= NOW() - INTERVAL '2 months'
+          )), 2)
+        END as crescimento
       FROM public."ESPECIALIDADE_MEDICO" em
       LEFT JOIN public."MEDICO" m ON em.cpf_medico = m.cpf
-      LEFT JOIN public."CONSULTA" c ON m.cpf = c.cpf_medico
-      WHERE c.data_hora >= NOW() - INTERVAL '1 month'
-      ${especialidade !== 'todas' ? `AND em.especialidade = '${especialidade}'` : ''}
+      LEFT JOIN public."CONSULTA" c ON m.cpf = c.cpf_medico 
+        AND c.data_hora >= NOW() - INTERVAL '1 month'
+      ${especialidade !== 'todas' ? `WHERE em.especialidade = '${especialidade}'` : ''}
       GROUP BY em.especialidade
-      ORDER BY totalConsultas DESC
+      ORDER BY COUNT(c.data_hora) DESC
     `;
 
     const especialidadesResult = await pool.query(especialidadesQuery);
 
-    const especialidades = especialidadesResult.rows.map(esp => ({
-      ...esp,
-      cor: esp.especialidade === 'Cardiologia' ? '#ef4444' :
-           esp.especialidade === 'Ortopedia' ? '#3b82f6' :
-           esp.especialidade === 'Pediatria' ? '#10b981' :
-           esp.especialidade === 'Ginecologia' ? '#f59e0b' : '#6b7280',
-      percentual: Math.round((esp.totalconsultas / metricas.totalConsultas) * 100)
-    }));
+    // Processar especialidades manualmente
+    const especialidades = especialidadesResult.rows.map(esp => {
+      const totalConsultasEspecialidade = parseInt(esp.totalconsultas) || 0;
+      const tempoMedio = parseFloat(esp.tempomedio) || 0;
+      const taxaComparecimento = parseFloat(esp.taxacomparecimento) || 0;
+      const crescimento = parseFloat(esp.crescimento) || 0;
+      
+      let cor = '#6b7280';
+      if (esp.especialidade === 'Cardiologia') {
+        cor = '#ef4444';
+      } else if (esp.especialidade === 'Ortopedia') {
+        cor = '#3b82f6';
+      } else if (esp.especialidade === 'Pediatria') {
+        cor = '#10b981';
+      } else if (esp.especialidade === 'Ginecologia') {
+        cor = '#f59e0b';
+      }
 
-    // Top médicos
+      const percentual = totalConsultas > 0 ? 
+        Math.round((totalConsultasEspecialidade / totalConsultas) * 100) : 0;
+
+      return {
+        especialidade: esp.especialidade || 'Não especificada',
+        totalConsultas: totalConsultasEspecialidade,
+        tempoMedio: tempoMedio,
+        taxaComparecimento: taxaComparecimento,
+        crescimento: crescimento,
+        cor: cor,
+        percentual: percentual
+      };
+    });
+
+    // Top médicos - SEM COALESCE
     const medicosQuery = `
       SELECT 
         p.nome,
         p.cpf,
         em.especialidade,
         COUNT(c.data_hora) as totalConsultas,
-        ROUND(AVG(
-          EXTRACT(EPOCH FROM (c.data_hora + INTERVAL '30 minutes' - c.data_hora))
-        ) / 60, 1) as tempoMedio,
-        ROUND((COUNT(*) * 100.0 / (
-          SELECT COUNT(*) FROM public."CONSULTA" 
-          WHERE data_hora >= NOW() - INTERVAL '1 month'
-        )), 2) as eficiencia,
+        CASE 
+          WHEN COUNT(c.data_hora) = 0 THEN 0
+          ELSE ROUND(AVG(
+            EXTRACT(EPOCH FROM (c.data_hora + INTERVAL '30 minutes' - c.data_hora))
+          ) / 60, 1)
+        END as tempoMedio,
+        CASE 
+          WHEN ${totalConsultas} = 0 THEN 0
+          ELSE ROUND((COUNT(c.data_hora) * 100.0 / ${totalConsultas}), 2)
+        END as eficiencia,
         m.disponivel
       FROM public."MEDICO" m
       JOIN public."PESSOA" p ON m.cpf = p.cpf
       JOIN public."ESPECIALIDADE_MEDICO" em ON m.cpf = em.cpf_medico
-      LEFT JOIN public."CONSULTA" c ON m.cpf = c.cpf_medico
-      WHERE c.data_hora >= NOW() - INTERVAL '1 month'
+      LEFT JOIN public."CONSULTA" c ON m.cpf = c.cpf_medico 
+        AND c.data_hora >= NOW() - INTERVAL '1 month'
       GROUP BY p.nome, p.cpf, em.especialidade, m.disponivel
-      ORDER BY totalConsultas DESC
+      ORDER BY COUNT(c.data_hora) DESC
       LIMIT 10
     `;
 
     const medicosResult = await pool.query(medicosQuery);
+
+    // Processar médicos manualmente
+    const topMedicos = medicosResult.rows.map(med => {
+      const totalConsultasMed = parseInt(med.totalconsultas) || 0;
+      const tempoMedio = parseFloat(med.tempomedio) || 0;
+      const eficiencia = parseFloat(med.eficiencia) || 0;
+      const disponivel = med.disponivel === true;
+
+      return {
+        nome: med.nome || 'Médico não identificado',
+        cpf: med.cpf || '00000000000',
+        especialidade: med.especialidade || 'Não especificada',
+        totalConsultas: totalConsultasMed,
+        tempoMedio: tempoMedio,
+        eficiencia: eficiencia,
+        disponivel: disponivel
+      };
+    });
 
     // Evolução mensal
     const evolucaoMensal = [
@@ -122,7 +185,7 @@ export const getAtividadeMedica = async (req, res) => {
     const dados = {
       metricas,
       especialidades,
-      topMedicos: medicosResult.rows,
+      topMedicos,
       evolucaoMensal
     };
 

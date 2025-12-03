@@ -1,8 +1,12 @@
 import express from "express";
-import { getHistoricoPacientes } from "../controllers/historicoPacientesController.js";
+import { historicoPacientes, exportPacientes } from "../controllers/historicoPacientesController.js";
 
 const router = express.Router();
 
-router.get("/", getHistoricoPacientes);
+// Rota para buscar dados
+router.get("/", historicoPacientes);
+
+// Rota para exportar dados
+router.get("/export", exportPacientes);
 
 export default router;

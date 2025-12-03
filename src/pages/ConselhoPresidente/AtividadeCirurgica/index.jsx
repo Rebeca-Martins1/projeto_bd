@@ -2,35 +2,49 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import axios from "axios";
+import { ArrowLeft, Download, FileText } from "lucide-react";
+import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
 
 export default function AtividadeCirurgica() {
   const navigate = useNavigate();
   const [periodo, setPeriodo] = useState('mes');
-  const [tipoCirurgia, setTipoCirurgia] = useState('todas');
-  const [especialidade, setEspecialidade] = useState('todas');
   const [loading, setLoading] = useState(true);
   const [dados, setDados] = useState({
     metricas: {},
-    cirurgiasPorEspecialidade: [],
+    desempenhoEspecialidades: [],
     topCirurgioes: [],
-    proximasCirurgias: [],
-    evolucaoMensal: []
+    evolucaoCirurgias: [],
+    distribuicaoTipoCirurgia: []
   });
 
   useEffect(() => {
     fetchDadosCirurgicos();
-  }, [periodo, tipoCirurgia, especialidade]);
+  }, [periodo]);
 
   const fetchDadosCirurgicos = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/conselho-presidente/atividade-cirurgica', {
-        params: { periodo, tipoCirurgia, especialidade }
+      const response = await axios.get('http://localhost:5000/atividadecirurgica', {
+        params: { periodo }
       });
-      setDados(response.data);
+      setDados(response.data || {
+        metricas: {},
+        desempenhoEspecialidades: [],
+        topCirurgioes: [],
+        evolucaoCirurgias: [],
+        distribuicaoTipoCirurgia: []
+      });
     } catch (error) {
       console.error("Erro ao buscar dados cirúrgicos:", error);
       alert("Erro ao carregar dados da atividade cirúrgica");
+      setDados({
+        metricas: {},
+        desempenhoEspecialidades: [],
+        topCirurgioes: [],
+        evolucaoCirurgias: [],
+        distribuicaoTipoCirurgia: []
+      });
     } finally {
       setLoading(false);
     }
@@ -38,8 +52,8 @@ export default function AtividadeCirurgica() {
 
   const handleExport = async (format) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/conselho-presidente/export-cirurgias`, {
-        params: { format, periodo, tipoCirurgia, especialidade },
+      const response = await axios.get(`http://localhost:5000/exportatividadecirurgica`, {
+        params: { format, periodo },
         responseType: 'blob'
       });
       
@@ -57,195 +71,322 @@ export default function AtividadeCirurgica() {
   };
 
   const formatarDuracao = (minutos) => {
-    if (!minutos) return '0min';
+    if (!minutos) return '0 min';
+    if (minutos < 60) return `${minutos} min`;
     const horas = Math.floor(minutos / 60);
     const mins = minutos % 60;
-    return horas > 0 ? `${horas}h ${mins}min` : `${mins}min`;
+    return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
   };
 
-  const getTrendColor = (trend) => {
-    switch (trend) {
-      case 'up': return '#10b981';
-      case 'down': return '#ef4444';
-      default: return '#6b7280';
-    }
+  const getStatusEficiencia = (valor) => {
+    if (valor >= 90) return 'alto';
+    if (valor >= 80) return 'moderado';
+    if (valor >= 70) return 'estavel';
+    return 'baixo';
+  };
+
+  const getStatusDuracao = (minutos) => {
+    if (minutos > 240) return 'critico'; // > 4h
+    if (minutos > 120) return 'alerta'; // > 2h
+    if (minutos > 60) return 'estavel'; // > 1h
+    return 'baixo';
+  };
+
+  const formatarPercentual = (valor) => {
+    return `${valor >= 0 ? '+' : ''}${valor}%`;
   };
 
   return (
-    <div>
+    <>
       <S.GlobalStyles />
       <S.ConselhoPortalContainer>
-        {/* Header */}
-        <S.Header>
-          <S.BackButton onClick={() => navigate("/conselhopresidente")}>
-            ← Voltar para Painel
-          </S.BackButton>
-          <S.Title>
-            <h1>Atividade Cirúrgica</h1>
-            <p>Relatório detalhado das cirurgias e procedimentos realizados</p>
-            {loading && <S.LoadingMessage>Carregando dados...</S.LoadingMessage>}
-          </S.Title>
-          <S.ExportButtons>
-            <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
-              Exportar PDF
-            </S.ExportBtn>
-            <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
-              Exportar Excel
-            </S.ExportBtn>
-          </S.ExportButtons>
-        </S.Header>
+        <Header />
 
-        {/* Filtros */}
-        <S.FilterSection>
-          <S.FilterGroup>
-            <label>Período:</label>
-            <S.Select value={periodo} onChange={(e) => setPeriodo(e.target.value)} disabled={loading}>
-              <option value="semana">Última Semana</option>
-              <option value="mes">Último Mês</option>
-              <option value="trimestre">Último Trimestre</option>
-              <option value="ano">Último Ano</option>
-            </S.Select>
-            
-            <label>Tipo de Cirurgia:</label>
-            <S.Select value={tipoCirurgia} onChange={(e) => setTipoCirurgia(e.target.value)} disabled={loading}>
-              <option value="todas">Todas as Cirurgias</option>
-              <option value="eletiva">Eletivas</option>
-              <option value="emergencia">Emergência</option>
-              <option value="urgente">Urgentes</option>
-            </S.Select>
-
-            <label>Especialidade:</label>
-            <S.Select value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} disabled={loading}>
-              <option value="todas">Todas as Especialidades</option>
-              <option value="ortopedia">Ortopedia</option>
-              <option value="cardiologia">Cardiologia</option>
-              <option value="neurologia">Neurologia</option>
-              <option value="ginecologia">Ginecologia</option>
-              <option value="urologia">Urologia</option>
-              <option value="oftalmologia">Oftalmologia</option>
-            </S.Select>
-          </S.FilterGroup>
-        </S.FilterSection>
-
-        {/* Conteúdo Principal */}
         <S.MainContent>
+          {/* Header da página - TÍTULO CENTRALIZADO E EXPORTAR À DIREITA */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'flex-start',
+            marginBottom: '2.5rem',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}>
+            {/* Botão Voltar à esquerda */}
+            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
+              <ArrowLeft size={16} />
+              Voltar para Painel
+            </S.BackButton>
+            
+            {/* Título centralizado */}
+            <div style={{ 
+              textAlign: 'center',
+              flex: 1,
+              minWidth: '300px'
+            }}>
+              <h1 style={{ 
+                fontSize: '1.875rem', 
+                fontWeight: '700', 
+                color: '#1f2937',
+                margin: '0 0 0.25rem 0'
+              }}>
+                Atividade Cirúrgica
+              </h1>
+              <p style={{ 
+                fontSize: '1.125rem', 
+                color: '#4b5563',
+                margin: '0'
+              }}>
+                Relatório detalhado das cirurgias realizadas
+              </p>
+              {loading && <div style={{ color: '#3b82f6', marginTop: '0.5rem', fontSize: '0.875rem' }}>Carregando dados...</div>}
+            </div>
+            
+            {/* Botões de exportar à direita */}
+            <S.ExportButtons style={{ alignSelf: 'center' }}>
+              <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
+                <FileText size={16} />
+                Exportar PDF
+              </S.ExportBtn>
+              <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
+                <Download size={16} />
+                Exportar Excel
+              </S.ExportBtn>
+            </S.ExportButtons>
+          </div>
+
+          {/* Filtros - APENAS PERÍODO */}
+          <S.FilterSection>
+            <S.FilterGroup>
+              <label>Período:</label>
+              <S.Select value={periodo} onChange={(e) => setPeriodo(e.target.value)} disabled={loading}>
+                <option value="semana">Última Semana</option>
+                <option value="mes">Último Mês</option>
+                <option value="trimestre">Último Trimestre</option>
+                <option value="ano">Último Ano</option>
+              </S.Select>
+            </S.FilterGroup>
+          </S.FilterSection>
+
           {/* Métricas Principais */}
           <S.MetricsGrid>
             <S.MetricCard>
               <S.MetricTitle>Total de Cirurgias</S.MetricTitle>
-              <S.MetricValue>{dados.metricas.totalCirurgias || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendTotal || 'neutral'}>
-                {dados.metricas.variacaoTotal || '0%'}
+              <S.MetricValue>{dados.metricas?.totalCirurgias || 0}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendCirurgias || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoCirurgias || 0)}
               </S.MetricTrend>
-              <S.MetricDetail>Este período</S.MetricDetail>
+              <S.MetricDetail>
+                Este período vs anterior
+              </S.MetricDetail>
+              <S.StatusBadge status={getStatusEficiencia(dados.metricas?.taxaCrescimento || 0)}>
+                {getStatusEficiencia(dados.metricas?.taxaCrescimento || 0)}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
-              <S.MetricTitle>Taxa de Aprovação</S.MetricTitle>
-              <S.MetricValue>{dados.metricas.taxaAprovacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendAprovacao || 'neutral'}>
-                {dados.metricas.variacaoAprovacao || '0%'}
+              <S.MetricTitle>Duração Média</S.MetricTitle>
+              <S.MetricValue>{formatarDuracao(dados.metricas?.duracaoMedia)}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendDuracao || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoDuracao || 0)}
               </S.MetricTrend>
-              <S.MetricDetail>Cirurgias bem-sucedidas</S.MetricDetail>
+              <S.MetricDetail>
+                Por cirurgia
+              </S.MetricDetail>
+              <S.StatusBadge status={getStatusDuracao(dados.metricas?.duracaoMedia || 0)}>
+                {getStatusDuracao(dados.metricas?.duracaoMedia || 0)}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
-              <S.MetricTitle>Tempo Médio</S.MetricTitle>
-              <S.MetricValue>{formatarDuracao(dados.metricas.tempoMedio)}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendTempo || 'neutral'}>
-                {dados.metricas.variacaoTempo || '0min'}
+              <S.MetricTitle>Taxa de Ocupação Salas</S.MetricTitle>
+              <S.MetricValue>{dados.metricas?.taxaOcupacaoSalas || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendOcupacao || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoOcupacao || 0)}
               </S.MetricTrend>
-              <S.MetricDetail>Por cirurgia</S.MetricDetail>
+              <S.MetricDetail>
+                Salas de cirurgia
+              </S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
-              <S.MetricTitle>Taxa de Ocupação</S.MetricTitle>
-              <S.MetricValue>{dados.metricas.taxaOcupacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendOcupacao || 'neutral'}>
-                {dados.metricas.variacaoOcupacao || '0%'}
+              <S.MetricTitle>Cirurgiões Ativos</S.MetricTitle>
+              <S.MetricValue>{dados.metricas?.cirurgioesAtivos || 0}</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendCirurgioes || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoCirurgioes || 0)}
               </S.MetricTrend>
-              <S.MetricDetail>Salas de cirurgia</S.MetricDetail>
+              <S.MetricDetail>
+                Este período
+              </S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
 
-          {/* Gráficos */}
-          <S.ChartsGrid>
-            <S.ChartCard>
-              <S.ChartTitle>Distribuição por Tipo</S.ChartTitle>
-              {loading ? (
-                <S.ChartLoading>Carregando gráfico...</S.ChartLoading>
-              ) : (
-                <S.ChartPlaceholder>
-                  Gráfico de Pizza - Eletivas vs Emergência vs Urgentes
-                  <S.ChartData>
-                    {dados.metricas.distribuicaoTipo?.map((item, index) => (
-                      <S.ChartDataItem key={index}>
-                        <S.ChartDataColor color={item.cor} />
-                        {item.tipo}: {item.quantidade} ({item.percentual}%)
-                      </S.ChartDataItem>
-                    ))}
-                  </S.ChartData>
-                </S.ChartPlaceholder>
-              )}
-            </S.ChartCard>
-
-            <S.ChartCard>
-              <S.ChartTitle>Evolução Mensal</S.ChartTitle>
-              {loading ? (
-                <S.ChartLoading>Carregando gráfico...</S.ChartLoading>
-              ) : (
-                <S.ChartPlaceholder>
-                  Gráfico de Linha - Tendência de Cirurgias
-                  <S.ChartData>
-                    {dados.evolucaoMensal?.map((item, index) => (
-                      <S.ChartDataItem key={index}>
-                        {item.mes}: {item.cirurgias} cirurgias
-                      </S.ChartDataItem>
-                    ))}
-                  </S.ChartData>
-                </S.ChartPlaceholder>
-              )}
-            </S.ChartCard>
-          </S.ChartsGrid>
-
-          {/* Tabela de Cirurgias por Especialidade */}
+          {/* Dados de Evolução de Cirurgias em formato tabular */}
           <S.TableSection>
-            <S.TableTitle>Cirurgias por Especialidade</S.TableTitle>
+            <S.TableTitle>Evolução de Cirurgias</S.TableTitle>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+              Tendência ao longo do período
+            </div>
             {loading ? (
-              <S.TableLoading>Carregando dados...</S.TableLoading>
+              <S.ChartLoading>Carregando dados de evolução...</S.ChartLoading>
+            ) : (
+              dados.evolucaoCirurgias && dados.evolucaoCirurgias.length > 0 ? (
+                <S.Table>
+                  <thead>
+                    <tr>
+                      <th>Data/Dia</th>
+                      <th>Cirurgias Eletivas</th>
+                      <th>Cirurgias de Emergência</th>
+                      <th>Cirurgias de Urgência</th>
+                      <th>Total de Cirurgias</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dados.evolucaoCirurgias.slice(0, 8).map((ponto, index) => (
+                      <tr key={index}>
+                        <td>{ponto.data || ponto.dia || `Dia ${index + 1}`}</td>
+                        <td>{ponto.eletiva || 0}</td>
+                        <td>{ponto.emergencia || 0}</td>
+                        <td>{ponto.urgencia || 0}</td>
+                        <td>{(ponto.eletiva || 0) + (ponto.emergencia || 0) + (ponto.urgencia || 0)}</td>
+                        <td>
+                          <S.StatusBadge status={getStatusEficiencia(ponto.taxa_crescimento || 0)}>
+                            {getStatusEficiencia(ponto.taxa_crescimento || 0)}
+                          </S.StatusBadge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </S.Table>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                  Nenhum dado de evolução disponível para o período selecionado
+                </div>
+              )
+            )}
+          </S.TableSection>
+
+          {/* Dados de Distribuição por Tipo de Cirurgia em formato tabular */}
+          <S.TableSection>
+            <S.TableTitle>Distribuição por Tipo de Cirurgia</S.TableTitle>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+              Tipos de cirurgias realizadas
+            </div>
+            {loading ? (
+              <S.ChartLoading>Carregando dados de distribuição...</S.ChartLoading>
+            ) : (
+              (dados.distribuicaoTipoCirurgia && dados.distribuicaoTipoCirurgia.length > 0) ? (
+                <S.Table>
+                  <thead>
+                    <tr>
+                      <th>Tipo de Cirurgia</th>
+                      <th>Percentual</th>
+                      <th>Quantidade</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dados.distribuicaoTipoCirurgia.map((tipo, index) => (
+                      <tr key={index}>
+                        <td>
+                          <strong>
+                            {tipo.tipo === 'ELETIVA' ? 'Cirurgia Eletiva' :
+                             tipo.tipo === 'EMERGENCIA' ? 'Cirurgia de Emergência' :
+                             tipo.tipo === 'URGENCIA' ? 'Cirurgia de Urgência' :
+                             tipo.tipo || `Tipo ${index + 1}`}
+                          </strong>
+                        </td>
+                        <td>
+                          <S.PercentValue value={tipo.percentual || 0}>
+                            {tipo.percentual || 0}%
+                          </S.PercentValue>
+                        </td>
+                        <td>{tipo.quantidade || 0}</td>
+                        <td>
+                          <S.StatusBadge status={getStatusEficiencia(tipo.percentual || 0)}>
+                            {getStatusEficiencia(tipo.percentual || 0)}
+                          </S.StatusBadge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </S.Table>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                  Nenhum dado de distribuição disponível
+                </div>
+              )
+            )}
+          </S.TableSection>
+
+          {/* Tabela de Especialidades Cirúrgicas */}
+          <S.TableSection>
+            <S.TableTitle>Desempenho por Especialidade Cirúrgica</S.TableTitle>
+            {loading ? (
+              <S.ChartLoading>Carregando dados da tabela...</S.ChartLoading>
             ) : (
               <S.Table>
                 <thead>
                   <tr>
                     <th>Especialidade</th>
                     <th>Total Cirurgias</th>
-                    <th>Eletivas</th>
-                    <th>Emergência</th>
-                    <th>Taxa Sucesso</th>
-                    <th>Tempo Médio</th>
+                    <th>Duração Média</th>
+                    <th>Taxa de Emergência</th>
+                    <th>Eficiência</th>
+                    <th>Status</th>
+                    <th>Tendência</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.cirurgiasPorEspecialidade?.map((especialidade, index) => (
-                    <tr key={index}>
-                      <td><strong>{especialidade.especialidade}</strong></td>
-                      <td>{especialidade.totalCirurgias}</td>
-                      <td>{especialidade.eletivas}</td>
-                      <td>{especialidade.emergencia}</td>
-                      <td>{especialidade.taxaSucesso}%</td>
-                      <td>{formatarDuracao(especialidade.tempoMedio)}</td>
+                  {dados.desempenhoEspecialidades && dados.desempenhoEspecialidades.length > 0 ? (
+                    dados.desempenhoEspecialidades.map((especialidade, index) => (
+                      <tr key={index}>
+                        <td>
+                          <strong>{especialidade.especialidade || 'Não informado'}</strong>
+                          {especialidade.taxaEmergencia > 30 && <S.EmergenciaBadge>ALTA EMERG</S.EmergenciaBadge>}
+                        </td>
+                        <td>{especialidade.totalCirurgias || 0}</td>
+                        <td>
+                          <S.DuracaoBadge duracao={especialidade.duracaoMedia || 0}>
+                            {formatarDuracao(especialidade.duracaoMedia)}
+                          </S.DuracaoBadge>
+                        </td>
+                        <td>{especialidade.taxaEmergencia || 0}%</td>
+                        <td>
+                          <S.PercentValue value={especialidade.eficiencia || 0}>
+                            {especialidade.eficiencia || 0}%
+                          </S.PercentValue>
+                        </td>
+                        <td>
+                          <S.StatusBadge status={getStatusEficiencia(especialidade.eficiencia || 0)}>
+                            {getStatusEficiencia(especialidade.eficiencia || 0)}
+                          </S.StatusBadge>
+                        </td>
+                        <td>
+                          <S.MetricTrend trend={especialidade.tendencia || 'neutral'}>
+                            {especialidade.tendencia === 'up' ? '+' : ''}{especialidade.variacao || '0%'}
+                          </S.MetricTrend>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum dado disponível para o período selecionado
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </S.Table>
             )}
           </S.TableSection>
 
-          {/* Cirurgiões com Maior Volume */}
+          {/* Tabela de Top Cirurgiões */}
           <S.TableSection>
             <S.TableTitle>Top Cirurgiões - Maior Volume</S.TableTitle>
             {loading ? (
-              <S.TableLoading>Carregando dados...</S.TableLoading>
+              <S.ChartLoading>Carregando dados...</S.ChartLoading>
             ) : (
               <S.Table>
                 <thead>
@@ -253,108 +394,94 @@ export default function AtividadeCirurgica() {
                     <th>Cirurgião</th>
                     <th>Especialidade</th>
                     <th>Cirurgias</th>
-                    <th>Taxa Sucesso</th>
-                    <th>Tempo Médio</th>
+                    <th>Duração Média</th>
+                    <th>Eficiência</th>
                     <th>Status</th>
+                    <th>Taxa Sucesso</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.topCirurgioes?.map((cirurgiao, index) => (
-                    <tr key={index}>
-                      <td><strong>{cirurgiao.nome}</strong></td>
-                      <td>{cirurgiao.especialidade}</td>
-                      <td>{cirurgiao.totalCirurgias}</td>
-                      <td>{cirurgiao.taxaSucesso}%</td>
-                      <td>{formatarDuracao(cirurgiao.tempoMedio)}</td>
-                      <td>
-                        <S.StatusBadge status={cirurgiao.disponivel ? 'ativo' : 'inativo'}>
-                          {cirurgiao.disponivel ? 'Ativo' : 'Inativo'}
-                        </S.StatusBadge>
+                  {dados.topCirurgioes && dados.topCirurgioes.length > 0 ? (
+                    dados.topCirurgioes.map((cirurgiao, index) => (
+                      <tr key={index}>
+                        <td>
+                          <strong>{cirurgiao.nome || 'Não informado'}</strong>
+                        </td>
+                        <td>{cirurgiao.especialidade || 'Não especificada'}</td>
+                        <td>{cirurgiao.totalCirurgias || 0}</td>
+                        <td>
+                          <S.DuracaoBadge duracao={cirurgiao.duracaoMedia || 0}>
+                            {formatarDuracao(cirurgiao.duracaoMedia)}
+                          </S.DuracaoBadge>
+                        </td>
+                        <td>
+                          <S.PercentValue value={cirurgiao.eficiencia || 0}>
+                            {cirurgiao.eficiencia || 0}%
+                          </S.PercentValue>
+                        </td>
+                        <td>
+                          <S.StatusBadge status={cirurgiao.disponivel ? 'alto' : 'baixo'}>
+                            {cirurgiao.disponivel ? 'Ativo' : 'Inativo'}
+                          </S.StatusBadge>
+                        </td>
+                        <td>
+                          <S.PercentValue value={cirurgiao.taxaSucesso || 0}>
+                            {cirurgiao.taxaSucesso || 0}%
+                          </S.PercentValue>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum cirurgião disponível para o período selecionado
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </S.Table>
             )}
           </S.TableSection>
 
-          {/* Métricas de Eficiência */}
+          {/* Estatísticas de Utilização */}
           <S.MetricsGrid>
             <S.MetricCard>
+              <S.MetricTitle>Horário de Pico</S.MetricTitle>
+              <S.MetricValue>{dados.metricas?.horarioPico || '08:00-12:00'}</S.MetricValue>
+              <S.MetricDetail>{dados.metricas?.periodoPico || 'Manhã'}</S.MetricDetail>
+            </S.MetricCard>
+
+            <S.MetricCard>
               <S.MetricTitle>Taxa de Cancelamento</S.MetricTitle>
-              <S.MetricValue>{dados.metricas.taxaCancelamento || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendCancelamento || 'neutral'}>
-                {dados.metricas.variacaoCancelamento || '0%'}
+              <S.MetricValue>{dados.metricas?.taxaCancelamento || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendCancelamento || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoCancelamento || 0)}
               </S.MetricTrend>
               <S.MetricDetail>Este período</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
-              <S.MetricTitle>Tempo de Preparação</S.MetricTitle>
-              <S.MetricValue>{formatarDuracao(dados.metricas.tempoPreparacao)}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendPreparacao || 'neutral'}>
-                {dados.metricas.variacaoPreparacao || '0min'}
-              </S.MetricTrend>
-              <S.MetricDetail>Médio por cirurgia</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
               <S.MetricTitle>Cirurgias de Emergência</S.MetricTitle>
-              <S.MetricValue>{dados.metricas.cirurgiasEmergencia || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendEmergencia || 'neutral'}>
-                {dados.metricas.variacaoEmergencia || '0'}
+              <S.MetricValue>{dados.metricas?.cirurgiasEmergencia || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendEmergencia || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoEmergencia || 0)}
               </S.MetricTrend>
-              <S.MetricDetail>{dados.metricas.percentualEmergencia || 0}% do total</S.MetricDetail>
+              <S.MetricDetail>Do total</S.MetricDetail>
             </S.MetricCard>
 
             <S.MetricCard>
-              <S.MetricTitle>Reintervenções</S.MetricTitle>
-              <S.MetricValue>{dados.metricas.reintervencoes || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas.trendReintervencoes || 'neutral'}>
-                {dados.metricas.variacaoReintervencoes || '0'}
+              <S.MetricTitle>Taxa de Complicações</S.MetricTitle>
+              <S.MetricValue>{dados.metricas?.taxaComplicacoes || 0}%</S.MetricValue>
+              <S.MetricTrend trend={dados.metricas?.trendComplicacoes || 'neutral'}>
+                {formatarPercentual(dados.metricas?.variacaoComplicacoes || 0)}
               </S.MetricTrend>
-              <S.MetricDetail>{dados.metricas.percentualReintervencoes || 0}% do total</S.MetricDetail>
+              <S.MetricDetail>Este período</S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
-
-          {/* Agendamentos Futuros */}
-          <S.TableSection>
-            <S.TableTitle>Próximas Cirurgias Agendadas</S.TableTitle>
-            {loading ? (
-              <S.TableLoading>Carregando dados...</S.TableLoading>
-            ) : (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Data/Hora</th>
-                    <th>Paciente</th>
-                    <th>Procedimento</th>
-                    <th>Cirurgião</th>
-                    <th>Sala</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.proximasCirurgias?.map((cirurgia, index) => (
-                    <tr key={index}>
-                      <td>{new Date(cirurgia.data_hora).toLocaleString('pt-BR')}</td>
-                      <td>{cirurgia.paciente_nome}</td>
-                      <td>{cirurgia.procedimento}</td>
-                      <td>{cirurgia.cirurgiao_nome}</td>
-                      <td>{cirurgia.n_sala}</td>
-                      <td>
-                        <S.StatusBadge status={cirurgia.status === 'agendada' ? 'agendada' : 'confirmada'}>
-                          {cirurgia.status === 'agendada' ? 'Agendada' : 'Confirmada'}
-                        </S.StatusBadge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </S.Table>
-            )}
-          </S.TableSection>
         </S.MainContent>
+
+        <Footer />
       </S.ConselhoPortalContainer>
-    </div>
+    </>
   );
 }

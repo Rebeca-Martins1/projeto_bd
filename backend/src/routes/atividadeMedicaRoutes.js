@@ -1,8 +1,8 @@
 import express from "express";
-import { getAtividadeMedica } from "../controllers/atividadeMedicaController.js";
+import { atividadeMedica } from "../controllers/atividadeMedicaController.js";
 
 const router = express.Router();
 
-router.get("/", getAtividadeMedica);
+router.get("/", atividadeMedica);
 
 export default router;

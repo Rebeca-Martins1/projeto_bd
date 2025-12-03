@@ -1,8 +1,8 @@
 import express from "express";
-import { getRecursosHumanos } from "../controllers/recursosHumanosController.js";
+import { recursosHumanos } from "../controllers/recursosHumanosController.js";
 
 const router = express.Router();
 
-router.get("/", getRecursosHumanos);
+router.get("/", recursosHumanos);
 
 export default router;

@@ -1,28 +1,31 @@
 import pool from "../config/db.js";
 
-export const getRecursosHumanos = async (req, res) => {
+export const recursosHumanos = async (req, res) => {
   const { periodo, departamento, turno } = req.query;
 
   try {
-    // Métricas principais
+    // Métricas principais 
     const metricasQuery = `
       SELECT 
         (SELECT COUNT(*) FROM public."MEDICO" WHERE ativo = true) as totalMedicos,
         (SELECT COUNT(*) FROM public."ENFERMEIRO" WHERE ativo = true) as totalEnfermeiros,
         (SELECT COUNT(*) FROM public."ENFERMEIRO" WHERE disponivel = false) as plantoesAtivos,
-        (SELECT COUNT(*) FROM public."ENFERMEIRO" WHERE disponivel = false AND EXTRACT(HOUR FROM inicio_plantao) BETWEEN 6 AND 18) as sobrecargaCount
+        (SELECT COUNT(*) FROM public."ENFERMEIRO" WHERE disponivel = false 
+          AND inicio_plantao IS NOT NULL 
+          AND EXTRACT(HOUR FROM inicio_plantao) BETWEEN 6 AND 18) as sobrecargaCount
     `;
 
     const metricasResult = await pool.query(metricasQuery);
+    const row = metricasResult.rows[0] || {};
 
     const metricas = {
       horasTrabalhadas: 8432,
       trendHoras: 'up',
       variacaoHoras: '+320h',
-      plantoesAtivos: parseInt(metricasResult.rows[0]?.plantoesativos) || 0,
+      plantoesAtivos: parseInt(row.plantoesativos) || 0,
       trendPlantoes: 'neutral',
       variacaoPlantoes: '0',
-      alertasSobrecarga: parseInt(metricasResult.rows[0]?.sobrecargacount) || 0,
+      alertasSobrecarga: parseInt(row.sobrecargacount) || 0,
       trendAlertas: 'down',
       variacaoAlertas: '-2',
       mediaEnfermeiro: 42,
@@ -71,12 +74,32 @@ export const getRecursosHumanos = async (req, res) => {
 
     const departamentosResult = await pool.query(departamentosQuery);
 
-    const distribuicaoDepartamentos = departamentosResult.rows.map(depto => ({
-      ...depto,
-      cor: depto.departamento === 'Enfermagem' ? '#3b82f6' : 
-           depto.departamento === 'Médicos' ? '#ef4444' : '#10b981',
-      percentual: Math.round((depto.plantoesativos / departamentosResult.rows.reduce((sum, d) => sum + parseInt(d.plantoesativos), 0)) * 100)
-    }));
+    // Calcular percentual
+    let totalPlantoes = 0;
+    departamentosResult.rows.forEach(depto => {
+      totalPlantoes += parseInt(depto.plantoesativos) || 0;
+    });
+    
+    const distribuicaoDepartamentos = departamentosResult.rows.map(depto => {
+      const plantoes = parseInt(depto.plantoesativos) || 0;
+      let percentual = 0;
+      if (totalPlantoes > 0) {
+        percentual = Math.round((plantoes / totalPlantoes) * 100);
+      }
+
+      let cor = '#10b981';
+      if (depto.departamento === 'Enfermagem') {
+        cor = '#3b82f6';
+      } else if (depto.departamento === 'Médicos') {
+        cor = '#ef4444';
+      }
+
+      return {
+        ...depto,
+        cor: cor,
+        percentual: percentual
+      };
+    });
 
     // Plantões ativos
     const plantoesQuery = `
@@ -86,7 +109,7 @@ export const getRecursosHumanos = async (req, res) => {
         e.inicio_folga,
         ee.especialidade
       FROM public."ENFERMEIRO" e
-      JOIN public."PESSOA" p ON e.cpf = p.cpf
+      LEFT JOIN public."PESSOA" p ON e.cpf = p.cpf
       LEFT JOIN public."ESPECIALIDADE_ENFERMEIRO" ee ON e.cpf = ee.cpf_enfermeiro
       WHERE e.disponivel = false
       AND e.ativo = true
@@ -94,6 +117,7 @@ export const getRecursosHumanos = async (req, res) => {
 
     const plantoesResult = await pool.query(plantoesQuery);
 
+    // Dados estáticos para plantões ativos
     const plantoesAtivos = [
       {
         setor: 'UTI Adulto',
@@ -124,15 +148,28 @@ export const getRecursosHumanos = async (req, res) => {
         72 as horasTrabalhadas,
         60 as limiteHoras,
         12 as excesso
-      FROM public."PESSOA" p
-      JOIN public."ENFERMEIRO" e ON p.cpf = e.cpf
+      FROM public."ENFERMEIRO" e
+      LEFT JOIN public."PESSOA" p ON e.cpf = p.cpf
       WHERE e.disponivel = false
+      AND e.ativo = true
       LIMIT 3
     `;
 
     const sobrecargaResult = await pool.query(sobrecargaQuery);
 
-    // Previsão de demandas
+    // Tratar valores nulos nos resultados
+    const funcionariosSobrecarga = sobrecargaResult.rows.map(row => {
+      return {
+        nome: row.nome || 'Funcionário não identificado',
+        cpf: row.cpf || '00000000000',
+        departamento: row.departamento || 'Enfermagem',
+        horasTrabalhadas: row.horastrabalhadas || 0,
+        limiteHoras: row.limitehoras || 0,
+        excesso: row.excesso || 0
+      };
+    });
+
+    // Previsão de demandas (dados estáticos)
     const previsaoDemandas = [
       {
         setor: 'Pronto Socorro',
@@ -152,7 +189,7 @@ export const getRecursosHumanos = async (req, res) => {
       }
     ];
 
-    // Evolução de horas
+    // Evolução de horas (dados estáticos)
     const evolucaoHoras = [
       { periodo: 'Jan', horas: 7800, variacao: '+5%' },
       { periodo: 'Fev', horas: 8200, variacao: '+3%' },
@@ -163,7 +200,7 @@ export const getRecursosHumanos = async (req, res) => {
       metricas,
       distribuicaoDepartamentos,
       plantoesAtivos,
-      funcionariosSobrecarga: sobrecargaResult.rows,
+      funcionariosSobrecarga,
       previsaoDemandas,
       evolucaoHoras
     };

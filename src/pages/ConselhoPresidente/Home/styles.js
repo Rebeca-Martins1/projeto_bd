@@ -1,184 +1,203 @@
-import styled, { createGlobalStyle, keyframes } from "styled-components";
+import styled, { createGlobalStyle } from 'styled-components';
 
+// Estilos globais (igual ao do médico)
 export const GlobalStyles = createGlobalStyle`
-  * {
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  html, body, #root {
+    width: 100%;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    background-color: #f3f4f6; 
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box; 
   }
-
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8fafc;
-    color: #334155;
-    line-height: 1.6;
-  }
-
-  html, body, #root {
-    height: 100%;
+  *, *:before, *:after {
+    box-sizing: inherit;
   }
 `;
 
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`;
+// Componentes base (iguais ao do médico)
+export const Container = styled.div`
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 
-const pulse = keyframes`
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+  @media (min-width: 1024px) {
+    max-width: 1024px; 
+  }
 `;
 
 export const ConselhoPortalContainer = styled.div`
+  width: 100%; 
   min-height: 100vh;
+  background-color: #f3f4f6;
   display: flex;
   flex-direction: column;
 `;
 
-export const MainContent = styled.main`
-  flex: 1;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
+// Cabeçalho superior (igual ao do médico)
+export const TopHeader = styled.header`
+  background-color: #1f2937;
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  flex-shrink: 0;
 `;
 
-export const PageHeader = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-
-  h1 {
-    font-size: 2.5rem;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-  }
-
-  p {
-    font-size: 1.1rem;
-    color: #64748b;
-  }
-`;
-
-export const LoadingMessage = styled.div`
-  text-align: center;
-  color: #3b82f6;
-  font-weight: 500;
-  margin-top: 1rem;
-`;
-
-export const FilterBar = styled.div`
+export const TopHeaderContent = styled(Container)`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 `;
 
-export const FilterGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-
-  label {
-    font-weight: 600;
-    color: #475569;
-    white-space: nowrap;
-  }
-`;
-
-export const Select = styled.select`
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  font-size: 0.9rem;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  &:hover {
-    border-color: #9ca3af;
-  }
-`;
-
-export const ExportButtons = styled.div`
-  display: flex;
-  gap: 0.75rem;
-`;
-
-export const ExportButton = styled.button`
+export const Logo = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid ${props => props.variant === 'secondary' ? '#d1d5db' : '#3b82f6'};
-  border-radius: 8px;
-  background: ${props => props.variant === 'secondary' ? 'white' : '#3b82f6'};
-  color: ${props => props.variant === 'secondary' ? '#374151' : 'white'};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: ${props => props.variant === 'secondary' ? '#f9fafb' : '#2563eb'};
-    border-color: ${props => props.variant === 'secondary' ? '#9ca3af' : '#2563eb'};
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  margin-bottom: 0.5rem;
+  @media (min-width: 768px) {
+    margin-bottom: 0;
   }
 `;
 
+export const LogoTitle = styled.span`
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+`;
+
+export const TopNav = styled.nav`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+
+  a {
+    color: #d1d5db;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  a:hover {
+    color: #ffffff;
+  }
+  a.font-semibold {
+    font-weight: 600;
+  }
+`;
+
+export const EmergencyButton = styled.a`
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #1d4ed8;
+  }
+`;
+
+export const MainNav = styled.nav`
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+`;
+
+export const MainNavContent = styled(Container)`
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 0;
+    gap: 1.5rem;
+  }
+  li a {
+    padding-bottom: 0.5rem; 
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    text-decoration: none;
+  }
+  li a:hover {
+    color: #111827;
+  }
+  li a.active {
+    color: #2563eb;
+    border-bottom: 2px solid #2563eb;
+  }
+  @media (min-width: 768px) {
+    ul {
+      justify-content: flex-start;
+      gap: 2rem;
+    }
+  }
+`;
+
+// Conteúdo principal
+export const MainContent = styled(Container)`
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  flex-grow: 1;
+`;
+
+export const PageHeader = styled.div`
+  margin-bottom: 2.5rem;
+  
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.25rem 0;
+  }
+  p {
+    font-size: 1.125rem;
+    color: #4b5563;
+    margin: 0;
+  }
+`;
+
+// Cards de relatórios (estilo igual aos cards do médico)
 export const ReportGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  grid-template-columns: 1fr;
+  gap: 2rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
   }
 `;
 
 export const ReportCard = styled.div`
-  background: white;
-  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #93c5fd;
+  border-radius: 0.5rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
-  position: relative;
-  opacity: ${props => props.disabled ? 0.7 : 1};
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.3s;
+  cursor: pointer;
 
   &:hover {
-    transform: ${props => props.disabled ? 'none' : 'translateY(-4px)'};
-    box-shadow: ${props => props.disabled ? '0 1px 3px rgba(0, 0, 0, 0.1)' : '0 8px 25px rgba(0, 0, 0, 0.15)'};
-    border-color: ${props => props.disabled ? '#e2e8f0' : '#3b82f6'};
-  }
-
-  &:active {
-    transform: ${props => props.disabled ? 'none' : 'translateY(-1px)'};
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border-color: #3b82f6;
+    transform: translateY(-2px);
   }
 `;
 
@@ -189,96 +208,126 @@ export const CardHeader = styled.div`
   margin-bottom: 1rem;
 
   svg {
-    color: #3b82f6;
-    width: 24px;
-    height: 24px;
+    color: #2563eb;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1e293b;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
     margin: 0;
   }
 `;
 
 export const CardContent = styled.div`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+
   p {
-    color: #64748b;
-    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin: 0 0 1.5rem 0;
     line-height: 1.5;
-    min-height: 3em;
   }
 `;
 
 export const ActionButton = styled.button`
+  background-color: #374151;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid #3b82f6;
-  border-radius: 6px;
-  background: transparent;
-  color: #3b82f6;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9rem;
+  margin-top: auto;
 
   &:hover {
-    background: #3b82f6;
-    color: white;
+    background-color: #1f2937;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
   }
 `;
 
-export const LoadingSpinner = styled.div`
-  width: 16px;
-  height: 16px;
-  border: 2px solid #f3f4f6;
-  border-top: 2px solid #3b82f6;
-  border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
-  margin-left: auto;
+// Rodapé (igual ao do médico)
+export const Footer = styled.footer`
+  background-color: #1f2937;
+  color: #d1d5db;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+  margin-top: 4rem;
+  flex-shrink: 0;
 `;
 
-export const StatsContainer = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-export const StatsTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #1e293b;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-weight: 700;
-`;
-
-export const StatsGrid = styled.div`
+export const FooterGrid = styled(Container)`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 `;
 
-export const StatCard = styled.div`
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 1.5rem;
+export const FooterCol = styled.div`
+  h5 {
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 0.75rem 0;
+  }
+  
+  p, li {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s;
+  }
+  
+  a:hover {
+    color: #ffffff;
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    color: #1f2937;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    border: none;
+  }
+  
+  input:focus {
+    outline: none;
+  }
+`;
+
+export const FooterBottom = styled(Container)`
+  border-top: 1px solid #374151;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
   text-align: center;
-  border: 1px solid #e2e8f0;
-`;
-
-export const StatNumber = styled.div`
-  font-size: 2rem;
-  font-weight: 800;
-  color: #3b82f6;
-  margin-bottom: 0.5rem;
-`;
-
-export const StatLabel = styled.div`
-  font-size: 0.9rem;
-  color: #64748b;
-  font-weight: 600;
+  font-size: 0.875rem;
 `;

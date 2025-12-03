@@ -1,402 +1,384 @@
-import styled from 'styled-components';
+import styled, { createGlobalStyle, keyframes } from 'styled-components';
 
-export const GlobalStyles = styled.div`
-  * {
+// Animações
+const pulse = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+`;
+
+// Estilos globais (igual ao do médico)
+export const GlobalStyles = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  html, body, #root {
+    width: 100%;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f3f4f6; 
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box; 
+  }
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+`;
+
+// Componentes base
+export const Container = styled.div`
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+
+  @media (min-width: 1024px) {
+    max-width: 1024px; 
   }
 `;
 
 export const ConselhoPortalContainer = styled.div`
+  width: 100%; 
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background-color: #f3f4f6;
+  display: flex;
+  flex-direction: column;
 `;
 
-export const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
+// Conteúdo principal
+export const MainContent = styled(Container)`
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  flex-grow: 1;
 `;
 
 export const BackButton = styled.button`
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background-color: #374151;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  }
-`;
-
-export const Title = styled.div`
-  text-align: center;
-  flex: 1;
-
-  h1 {
-    color: #2d3748;
-    font-size: 28px;
-    margin-bottom: 5px;
+    background-color: #1f2937;
   }
 
-  p {
-    color: #718096;
-    font-size: 14px;
+  svg {
+    width: 1rem;
+    height: 1rem;
   }
-`;
-
-export const LoadingMessage = styled.div`
-  color: #667eea;
-  font-weight: 600;
-  margin-top: 10px;
-  font-size: 14px;
 `;
 
 export const ExportButtons = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 0.75rem;
+  align-self: center;
 `;
 
 export const ExportBtn = styled.button`
-  background: ${props => props.disabled ? '#ccc' : 'linear-gradient(135deg, #48bb78, #38a169)'};
-  color: white;
+  background-color: #2563eb;
+  color: #ffffff;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &:hover {
-    transform: ${props => props.disabled ? 'none' : 'translateY(-2px)'};
-    box-shadow: ${props => props.disabled ? 'none' : '0 4px 15px rgba(72, 187, 120, 0.4)'};
+    background-color: #1d4ed8;
+  }
+
+  &:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
   }
 `;
 
+// Filtros
 export const FilterSection = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  margin-bottom: 2rem;
 `;
 
 export const FilterGroup = styled.div`
   display: flex;
-  align-items: center;
-  gap: 20px;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
 
   label {
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 14px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    white-space: nowrap;
   }
 `;
 
 export const Select = styled.select`
-  padding: 8px 12px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  color: #2d3748;
-  font-size: 14px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  color: #374151;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
+  min-width: 150px;
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  &:hover {
+    border-color: #9ca3af;
   }
 
   &:disabled {
-    background-color: #f7fafc;
+    background-color: #f3f4f6;
     cursor: not-allowed;
-    opacity: 0.6;
   }
 `;
 
-export const MainContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
+// Métricas
 export const MetricsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 `;
 
 export const MetricCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   text-align: center;
-  backdrop-filter: blur(10px);
-  transition: transform 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-  }
 `;
 
 export const MetricTitle = styled.h3`
-  color: #718096;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 `;
 
 export const MetricValue = styled.div`
-  color: #2d3748;
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
 `;
 
 export const MetricTrend = styled.div`
-  color: ${props => 
-    props.trend === 'up' ? '#48bb78' : 
-    props.trend === 'down' ? '#e53e3e' : 
-    '#718096'};
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
-  margin-bottom: 8px;
+  color: ${props => {
+    switch (props.trend) {
+      case 'up': return '#10b981';
+      case 'down': return '#ef4444';
+      default: return '#6b7280';
+    }
+  }};
+  margin: 0 0 0.25rem 0;
 `;
 
 export const MetricDetail = styled.div`
-  color: #a0aec0;
-  font-size: 12px;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
 `;
 
-export const OcupacaoStatus = styled.div`
+export const StatusBadge = styled.span`
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 600;
-  margin-top: 10px;
-  background: ${props => 
-    props.status === 'critico' ? '#fed7d7' : 
-    props.status === 'alerta' ? '#feebc8' : 
-    props.status === 'estavel' ? '#c6f6d5' : 
-    '#e2e8f0'};
-  color: ${props => 
-    props.status === 'critico' ? '#c53030' : 
-    props.status === 'alerta' ? '#d69e2e' : 
-    props.status === 'estavel' ? '#276749' : 
-    '#4a5568'};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  background-color: ${props => {
+    switch (props.status) {
+      case 'alto': return '#10b981';
+      case 'moderado': return '#fef3c7';
+      case 'baixo': return '#fee2e2';
+      case 'critico': return '#fee2e2';
+      case 'alerta': return '#fef3c7';
+      case 'estavel': return '#d1fae5';
+      case 'normal': return '#d1fae5';
+      default: return '#f3f4f6';
+    }
+  }};
+
+  color: ${props => {
+    switch (props.status) {
+      case 'alto': return '#065f46';
+      case 'moderado': return '#92400e';
+      case 'baixo': return '#dc2626';
+      case 'critico': return '#dc2626';
+      case 'alerta': return '#92400e';
+      case 'estavel': return '#065f46';
+      case 'normal': return '#065f46';
+      default: return '#374151';
+    }
+  }};
 `;
 
-export const ChartsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-`;
-
-export const ChartCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-`;
-
-export const ChartTitle = styled.h3`
-  color: #2d3748;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 20px;
-`;
-
-export const ChartLoading = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: #667eea;
-  font-weight: 600;
-`;
-
-export const ChartPlaceholder = styled.div`
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #f7fafc;
-  border: 2px dashed #e2e8f0;
-  border-radius: 8px;
-  color: #718096;
-  font-size: 14px;
-  text-align: center;
-`;
-
-export const ChartData = styled.div`
-  margin-top: 15px;
-  width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-`;
-
-export const ChartDataItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  font-size: 12px;
-  color: #4a5568;
-  border-bottom: 1px solid #e2e8f0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-export const ChartDataColor = styled.div`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: ${props => props.color || '#667eea'};
-`;
-
+// Tabela
 export const TableSection = styled.div`
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  margin-bottom: 2rem;
+  overflow-x: auto;
 `;
 
 export const TableTitle = styled.h3`
-  color: #2d3748;
-  font-size: 18px;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 20px;
-`;
-
-export const TableLoading = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100px;
-  color: #667eea;
-  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
 `;
 
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+  min-width: 800px;
 
   th {
-    background: #f7fafc;
-    color: #2d3748;
-    font-weight: 600;
-    padding: 15px;
+    background-color: #f9fafb;
+    padding: 0.75rem 1rem;
     text-align: left;
-    font-size: 14px;
-    border-bottom: 2px solid #e2e8f0;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
   }
 
   td {
-    padding: 15px;
-    border-bottom: 1px solid #e2e8f0;
-    color: #4a5568;
-    font-size: 14px;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #6b7280;
+    white-space: nowrap;
   }
 
   tr:hover {
-    background: #f7fafc;
+    background-color: #f9fafb;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
   }
 `;
 
-export const StatusBadge = styled.span`
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+export const PercentValue = styled.span`
   font-weight: 600;
-  background: ${props => 
-    props.status === 'critico' ? '#fed7d7' : 
-    props.status === 'alerta' ? '#feebc8' : 
-    props.status === 'normal' ? '#c6f6d5' : 
-    '#e2e8f0'};
-  color: ${props => 
-    props.status === 'critico' ? '#c53030' : 
-    props.status === 'alerta' ? '#d69e2e' : 
-    props.status === 'normal' ? '#276749' : 
-    '#4a5568'};
+  color: ${props => {
+    const percentual = props.value || 0;
+    if (percentual >= 90) return '#dc2626';
+    if (percentual >= 80) return '#d97706';
+    if (percentual >= 60) return '#059669';
+    return '#374151';
+  }};
 `;
 
-export const UTIBadge = styled.span`
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 10px;
+export const TurnoBadge = styled.span`
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: 600;
-  background: #fed7d7;
-  color: #c53030;
-  margin-left: 8px;
+  text-transform: uppercase;
+
+  background-color: ${props => {
+    switch (props.turno) {
+      case 'manha': return '#fef3c7';
+      case 'tarde': return '#dbeafe';
+      case 'noite': return '#e5e7eb';
+      case 'integral': return '#d1fae5';
+      default: return '#f3f4f6';
+    }
+  }};
+
+  color: ${props => {
+    switch (props.turno) {
+      case 'manha': return '#92400e';
+      case 'tarde': return '#1e40af';
+      case 'noite': return '#374151';
+      case 'integral': return '#065f46';
+      default: return '#374151';
+    }
+  }};
 `;
 
-export const OcupacaoPercentual = styled.span`
-  color: ${props => 
-    props.percentual >= 90 ? '#c53030' : 
-    props.percentual >= 80 ? '#d69e2e' : 
-    props.percentual >= 60 ? '#276749' : 
-    '#4a5568'};
+export const DepartamentoBadge = styled.span`
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: 600;
+  text-transform: uppercase;
+
+  background-color: ${props => {
+    switch (props.departamento) {
+      case 'medicos': return '#fee2e2';
+      case 'enfermagem': return '#dbeafe';
+      case 'administrativo': return '#fef3c7';
+      case 'tecnicos': return '#d1fae5';
+      case 'apoio': return '#e5e7eb';
+      default: return '#f3f4f6';
+    }
+  }};
+
+  color: ${props => {
+    switch (props.departamento) {
+      case 'medicos': return '#dc2626';
+      case 'enfermagem': return '#1e40af';
+      case 'administrativo': return '#92400e';
+      case 'tecnicos': return '#065f46';
+      case 'apoio': return '#374151';
+      default: return '#374151';
+    }
+  }};
 `;
 
-export const TableTrend = styled.span`
-  color: ${props => 
-    props.trend === 'up' ? '#48bb78' : 
-    props.trend === 'down' ? '#e53e3e' : 
-    '#718096'};
-  font-weight: 600;
-`;
-
-export const ActionButton = styled.button`
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  }
+export const ChartLoading = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  animation: ${pulse} 2s infinite;
 `;

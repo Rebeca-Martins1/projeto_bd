@@ -1,8 +1,8 @@
 import express from "express";
-import { getDashboard } from "../controllers/conselhoPresidenteController.js";
+import { conselhoPresidente } from "../controllers/conselhoPresidenteController.js";
 
 const router = express.Router();
 
-router.get("/", getDashboard);
+router.get("/", conselhoPresidente);
 
 export default router;
