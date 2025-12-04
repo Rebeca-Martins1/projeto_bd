@@ -131,11 +131,7 @@ export default function HistoricoPacientes() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
-              <ArrowLeft size={16} />
-              Voltar para Painel
-            </S.BackButton>
-            
+
             <div style={{ 
               textAlign: 'center',
               flex: 1,
@@ -248,57 +244,6 @@ export default function HistoricoPacientes() {
               </S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
-
-          {/* Evolução de Atendimentos em formato tabular */}
-          <S.TableSection>
-            <S.TableTitle>Evolução de Atendimentos</S.TableTitle>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Tendência mensal de atendimentos
-            </div>
-            {loading ? (
-              <S.ChartLoading>Carregando dados de evolução...</S.ChartLoading>
-            ) : dados.evolucaoAtendimentos && dados.evolucaoAtendimentos.length > 0 ? (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Mês</th>
-                    <th>Total Atendimentos</th>
-                    <th>Novos Pacientes</th>
-                    <th>Retornos</th>
-                    <th>Variação</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.evolucaoAtendimentos.map((ponto, index) => {
-                    const variacaoNum = parseFloat(ponto.variacao?.replace(/[^0-9.-]/g, '') || ponto.variacao || 0);
-                    return (
-                      <tr key={index}>
-                        <td>{ponto.mes || `Mês ${index + 1}`}</td>
-                        <td>{ponto.totalAtendimentos || 0}</td>
-                        <td>{ponto.novosPacientes || 0}</td>
-                        <td>{ponto.retornos || 0}</td>
-                        <td>
-                          <S.PercentValue value={variacaoNum}>
-                            {formatarVariacao(ponto.variacao)}
-                          </S.PercentValue>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={getStatusAtendimento(Math.abs(variacaoNum))}>
-                            {variacaoNum >= 0 ? 'Crescimento' : 'Queda'}
-                          </S.StatusBadge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </S.Table>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                Nenhum dado de evolução disponível para o período selecionado
-              </div>
-            )}
-          </S.TableSection>
 
           {/* Atendimentos por Especialidade */}
           <S.TableSection>
@@ -448,102 +393,6 @@ export default function HistoricoPacientes() {
               </S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
-
-          {/* Procedimentos Realizados */}
-          <S.TableSection>
-            <S.TableTitle>Procedimentos Mais Realizados</S.TableTitle>
-            {loading ? (
-              <S.ChartLoading>Carregando dados...</S.ChartLoading>
-            ) : dados.procedimentosRealizados && dados.procedimentosRealizados.length > 0 ? (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Procedimento</th>
-                    <th>Quantidade</th>
-                    <th>Especialidade</th>
-                    <th>Tempo Médio</th>
-                    <th>Taxa Crescimento</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.procedimentosRealizados.map((procedimento, index) => {
-                    const crescimentoNum = parseFloat(procedimento.taxaCrescimento?.replace(/[^0-9.-]/g, '') || procedimento.taxaCrescimento || 0);
-                    return (
-                      <tr key={index}>
-                        <td><strong>{procedimento.procedimento || 'Não informado'}</strong></td>
-                        <td>{procedimento.quantidade || 0}</td>
-                        <td>{procedimento.especialidade || 'Não especificada'}</td>
-                        <td>{procedimento.tempo_medio || 0} min</td>
-                        <td>
-                          <S.PercentValue value={crescimentoNum}>
-                            {formatarVariacao(procedimento.taxaCrescimento)}
-                          </S.PercentValue>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={getStatusAtendimento(crescimentoNum)}>
-                            {getStatusAtendimento(crescimentoNum)}
-                          </S.StatusBadge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </S.Table>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                Nenhum procedimento registrado para os filtros selecionados
-              </div>
-            )}
-          </S.TableSection>
-
-          {/* Origem dos Pacientes */}
-          <S.TableSection>
-            <S.TableTitle>Origem dos Pacientes - Período Selecionado</S.TableTitle>
-            {loading ? (
-              <S.ChartLoading>Carregando dados...</S.ChartLoading>
-            ) : dados.origemPacientes && dados.origemPacientes.length > 0 ? (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Origem</th>
-                    <th>Quantidade</th>
-                    <th>Percentual</th>
-                    <th>Taxa Crescimento</th>
-                    <th>Tipo Principal</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.origemPacientes.map((origem, index) => {
-                    const crescimentoNum = parseFloat(origem.taxaCrescimento?.replace(/[^0-9.-]/g, '') || origem.taxaCrescimento || 0);
-                    return (
-                      <tr key={index}>
-                        <td><strong>{origem.origem || 'Não informado'}</strong></td>
-                        <td>{origem.quantidade || 0}</td>
-                        <td>{origem.percentual || 0}%</td>
-                        <td>
-                          <S.PercentValue value={crescimentoNum}>
-                            {formatarVariacao(origem.taxaCrescimento)}
-                          </S.PercentValue>
-                        </td>
-                        <td>{origem.tipo_principal || 'Não especificado'}</td>
-                        <td>
-                          <S.StatusBadge status={getStatusAtendimento(crescimentoNum)}>
-                            {getStatusAtendimento(crescimentoNum)}
-                          </S.StatusBadge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </S.Table>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                Nenhum dado de origem disponível para os filtros selecionados
-              </div>
-            )}
-          </S.TableSection>
         </S.MainContent>
 
         <Footer />

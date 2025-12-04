@@ -112,12 +112,7 @@ export default function AtividadeCirurgica() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            {/* Botão Voltar à esquerda */}
-            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
-              <ArrowLeft size={16} />
-              Voltar para Painel
-            </S.BackButton>
-            
+
             {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
@@ -381,103 +376,6 @@ export default function AtividadeCirurgica() {
               </S.Table>
             )}
           </S.TableSection>
-
-          {/* Tabela de Top Cirurgiões */}
-          <S.TableSection>
-            <S.TableTitle>Top Cirurgiões - Maior Volume</S.TableTitle>
-            {loading ? (
-              <S.ChartLoading>Carregando dados...</S.ChartLoading>
-            ) : (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Cirurgião</th>
-                    <th>Especialidade</th>
-                    <th>Cirurgias</th>
-                    <th>Duração Média</th>
-                    <th>Eficiência</th>
-                    <th>Status</th>
-                    <th>Taxa Sucesso</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.topCirurgioes && dados.topCirurgioes.length > 0 ? (
-                    dados.topCirurgioes.map((cirurgiao, index) => (
-                      <tr key={index}>
-                        <td>
-                          <strong>{cirurgiao.nome || 'Não informado'}</strong>
-                        </td>
-                        <td>{cirurgiao.especialidade || 'Não especificada'}</td>
-                        <td>{cirurgiao.totalCirurgias || 0}</td>
-                        <td>
-                          <S.DuracaoBadge duracao={cirurgiao.duracaoMedia || 0}>
-                            {formatarDuracao(cirurgiao.duracaoMedia)}
-                          </S.DuracaoBadge>
-                        </td>
-                        <td>
-                          <S.PercentValue value={cirurgiao.eficiencia || 0}>
-                            {cirurgiao.eficiencia || 0}%
-                          </S.PercentValue>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={cirurgiao.disponivel ? 'alto' : 'baixo'}>
-                            {cirurgiao.disponivel ? 'Ativo' : 'Inativo'}
-                          </S.StatusBadge>
-                        </td>
-                        <td>
-                          <S.PercentValue value={cirurgiao.taxaSucesso || 0}>
-                            {cirurgiao.taxaSucesso || 0}%
-                          </S.PercentValue>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                        Nenhum cirurgião disponível para o período selecionado
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </S.Table>
-            )}
-          </S.TableSection>
-
-          {/* Estatísticas de Utilização */}
-          <S.MetricsGrid>
-            <S.MetricCard>
-              <S.MetricTitle>Horário de Pico</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.horarioPico || '08:00-12:00'}</S.MetricValue>
-              <S.MetricDetail>{dados.metricas?.periodoPico || 'Manhã'}</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Taxa de Cancelamento</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.taxaCancelamento || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendCancelamento || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoCancelamento || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>Este período</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Cirurgias de Emergência</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.cirurgiasEmergencia || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendEmergencia || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoEmergencia || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>Do total</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Taxa de Complicações</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.taxaComplicacoes || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendComplicacoes || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoComplicacoes || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>Este período</S.MetricDetail>
-            </S.MetricCard>
-          </S.MetricsGrid>
         </S.MainContent>
 
         <Footer />

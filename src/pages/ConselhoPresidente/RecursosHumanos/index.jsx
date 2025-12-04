@@ -115,11 +115,7 @@ export default function RecursosHumanos() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
-              <ArrowLeft size={16} />
-              Voltar para Painel
-            </S.BackButton>
-            
+
             <div style={{ 
               textAlign: 'center',
               flex: 1,
@@ -234,57 +230,6 @@ export default function RecursosHumanos() {
             </S.MetricCard>
           </S.MetricsGrid>
 
-          {/* Evolução de Horas em formato tabular */}
-          <S.TableSection>
-            <S.TableTitle>Evolução de Horas Trabalhadas</S.TableTitle>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Tendência ao longo do período
-            </div>
-            {loading ? (
-              <S.ChartLoading>Carregando dados de evolução...</S.ChartLoading>
-            ) : dados.evolucaoHoras && dados.evolucaoHoras.length > 0 ? (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Período</th>
-                    <th>Horas Totais</th>
-                    <th>Horas Extras</th>
-                    <th>Funcionários Ativos</th>
-                    <th>Variação</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.evolucaoHoras.map((ponto, index) => {
-                    const variacaoNum = parseFloat(ponto.variacao?.replace(/[^0-9.-]/g, '') || ponto.variacao || 0);
-                    return (
-                      <tr key={index}>
-                        <td>{ponto.periodo || `Período ${index + 1}`}</td>
-                        <td>{ponto.horasTotais || 0}h</td>
-                        <td>{ponto.horasExtras || 0}h</td>
-                        <td>{ponto.funcionariosAtivos || 0}</td>
-                        <td>
-                          <S.PercentValue value={variacaoNum}>
-                            {ponto.variacao || '0%'}
-                          </S.PercentValue>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={variacaoNum >= 0 ? 'alto' : 'baixo'}>
-                            {variacaoNum >= 0 ? 'Crescimento' : 'Queda'}
-                          </S.StatusBadge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </S.Table>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                Nenhum dado de evolução disponível para o período selecionado
-              </div>
-            )}
-          </S.TableSection>
-
           {/* Distribuição por Departamento */}
           <S.TableSection>
             <S.TableTitle>Distribuição por Departamento</S.TableTitle>
@@ -296,7 +241,6 @@ export default function RecursosHumanos() {
                   <tr>
                     <th>Departamento</th>
                     <th>Total Funcionários</th>
-                    <th>Horas Trabalhadas</th>
                     <th>Média Horas/Func.</th>
                     <th>Plantões Ativos</th>
                     <th>Capacidade</th>
@@ -310,7 +254,6 @@ export default function RecursosHumanos() {
                         <strong>{depto.departamento || 'Não informado'}</strong>
                       </td>
                       <td>{depto.totalFuncionarios || 0}</td>
-                      <td>{depto.horasTrabalhadas || 0}h</td>
                       <td>{depto.mediaHoras || 0}h</td>
                       <td>{depto.plantoesAtivos || 0}</td>
                       <td>
@@ -379,53 +322,6 @@ export default function RecursosHumanos() {
             )}
           </S.TableSection>
 
-          {/* Métricas Adicionais */}
-          <S.MetricsGrid>
-            <S.MetricCard>
-              <S.MetricTitle>Horas Extras</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.horasExtras || 0}h</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendHorasExtras || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoHorasExtras || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>
-                Este período
-              </S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Taxa Ociosidade</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.taxaOciosidade || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendOciosidade || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoOciosidade || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>
-                Capacidade não utilizada
-              </S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Alertas Sobrecarga</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.alertasSobrecarga || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendAlertas || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoAlertas || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>
-                Funcionários com excesso
-              </S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Média Salarial</S.MetricTitle>
-              <S.MetricValue>R$ {dados.metricas?.mediaSalarial || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendSalarial || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoSalarial || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>
-                Mensal por funcionário
-              </S.MetricDetail>
-            </S.MetricCard>
-          </S.MetricsGrid>
-
           {/* Funcionários em Sobrecarga */}
           <S.TableSection>
             <S.TableTitle>Alertas - Funcionários em Sobrecarga</S.TableTitle>
@@ -441,7 +337,6 @@ export default function RecursosHumanos() {
                     <th>Limite</th>
                     <th>Excesso</th>
                     <th>Status</th>
-                    <th>Ação</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -456,22 +351,6 @@ export default function RecursosHumanos() {
                         <S.StatusBadge status={getStatusSobrecarga(funcionario.excesso || 0)}>
                           {getStatusSobrecarga(funcionario.excesso || 0)}
                         </S.StatusBadge>
-                      </td>
-                      <td>
-                        <button
-                          onClick={() => alert(`Revisando carga horária de ${funcionario.nome || 'funcionário'}`)}
-                          style={{
-                            backgroundColor: '#2563eb',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Revisar
-                        </button>
                       </td>
                     </tr>
                   ))}

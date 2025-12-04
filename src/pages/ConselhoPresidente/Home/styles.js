@@ -148,24 +148,39 @@ export const MainNavContent = styled(Container)`
 
 // Conteúdo principal
 export const MainContent = styled(Container)`
-  padding-top: 3rem;
+  padding-top: 2.5rem;
   padding-bottom: 3rem;
   flex-grow: 1;
 `;
 
-export const PageHeader = styled.div`
-  margin-bottom: 2.5rem;
-  
+// Seção de boas-vindas - ESTILO ATUALIZADO (SEM CAIXA, APENAS TEXTO)
+export const WelcomeMessage = styled.div`
+  text-align: left;
+  margin-bottom: 3rem;
+
   h1 {
-    font-size: 1.875rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #1f2937;
     margin: 0 0 0.25rem 0;
+    letter-spacing: -0.025em;
   }
-  p {
+
+  .subtitle {
     font-size: 1.125rem;
     color: #4b5563;
     margin: 0;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+    }
   }
 `;
 
@@ -193,6 +208,7 @@ export const ReportCard = styled.div`
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   transition: all 0.3s;
   cursor: pointer;
+  height: 100%;
 
   &:hover {
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);

@@ -91,12 +91,7 @@ export default function OcupacaoLeitos() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            {/* Botão Voltar à esquerda */}
-            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
-              <ArrowLeft size={16} />
-              Voltar para Painel
-            </S.BackButton>
-            
+
             {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
@@ -372,39 +367,6 @@ export default function OcupacaoLeitos() {
               </S.Table>
             )}
           </S.TableSection>
-
-          {/* Métricas Adicionais */}
-          <S.MetricsGrid>
-            <S.MetricCard>
-              <S.MetricTitle>Tempo Médio Permanência</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.tempoMedioPermanencia || 0}d</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendPermanencia || 'neutral'}>
-                {dados.metricas?.variacaoPermanencia || '0d'}
-              </S.MetricTrend>
-              <S.MetricDetail>Média por paciente</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Taxa de Ocupação Ideal</S.MetricTitle>
-              <S.MetricValue>85%</S.MetricValue>
-              <S.MetricDetail>Meta do hospital</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Leitos Bloqueados</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.leitosBloqueados || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendBloqueados || 'neutral'}>
-                {dados.metricas?.variacaoBloqueados || '0'}
-              </S.MetricTrend>
-              <S.MetricDetail>Para manutenção</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Previsão Alta</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.previsaoAltas || 0}</S.MetricValue>
-              <S.MetricDetail>Próximas 24h</S.MetricDetail>
-            </S.MetricCard>
-          </S.MetricsGrid>
         </S.MainContent>
 
         <Footer />

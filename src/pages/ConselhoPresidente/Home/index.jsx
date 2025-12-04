@@ -79,6 +79,9 @@ export default function HomeConselhoPresidente() {
     }
   ];
 
+  // Obtém o usuário do localStorage (assumindo mesma estrutura que o primeiro código)
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+
   return (
     <>
       <S.GlobalStyles />
@@ -86,10 +89,11 @@ export default function HomeConselhoPresidente() {
         <Header />
 
         <S.MainContent>
-          <S.PageHeader>
-            <h1>Portal de Relatórios Gerenciais</h1>
-            <p>Conselho Presidente - Acesso aos relatórios institucionais</p>
-          </S.PageHeader>
+          {/* Seção de boas-vindas personalizada - ESTILO ATUALIZADO */}
+          <S.WelcomeMessage>
+            <h1>BEM-VINDO, {usuario?.nome || "PRESIDENTE"}</h1>
+            <p className="subtitle">Portal de Relatórios Gerenciais</p>
+          </S.WelcomeMessage>
 
           <S.ReportGrid>
             {reportCards.map((card) => (

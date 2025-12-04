@@ -196,12 +196,7 @@ export default function AtividadeMedica() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            {/* Botão Voltar à esquerda */}
-            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
-              <ArrowLeft size={16} />
-              Voltar para Painel
-            </S.BackButton>
-            
+
             {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
@@ -474,99 +469,6 @@ export default function AtividadeMedica() {
               </S.Table>
             )}
           </S.TableSection>
-
-          {/* Tabela de Top Médicos */}
-          <S.TableSection>
-            <S.TableTitle>Top Médicos - Maior Volume</S.TableTitle>
-            {loading ? (
-              <S.ChartLoading>Carregando dados...</S.ChartLoading>
-            ) : (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Médico</th>
-                    <th>Especialidade</th>
-                    <th>Consultas</th>
-                    <th>Tempo Médio</th>
-                    <th>Eficiência</th>
-                    <th>Status</th>
-                    <th>Avaliação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.topMedicos && dados.topMedicos.length > 0 ? (
-                    dados.topMedicos.map((medico, index) => (
-                      <tr key={index}>
-                        <td>
-                          <strong>{medico.nome || 'Não informado'}</strong>
-                        </td>
-                        <td>{medico.especialidade || 'Não especificada'}</td>
-                        <td>{medico.totalConsultas || 0}</td>
-                        <td>{formatarDuracao(medico.tempoMedio)}</td>
-                        <td>
-                          <S.EficienciaBadge eficiencia={medico.eficiencia || 0}>
-                            {medico.eficiencia || 0}%
-                          </S.EficienciaBadge>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={medico.disponivel ? 'alto' : 'baixo'}>
-                            {medico.disponivel ? 'Ativo' : 'Inativo'}
-                          </S.StatusBadge>
-                        </td>
-                        <td>
-                          <S.PercentValue value={medico.avaliacao || 0}>
-                            {medico.avaliacao || 0}%
-                          </S.PercentValue>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                        Nenhum médico disponível para os filtros selecionados
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </S.Table>
-            )}
-          </S.TableSection>
-
-          {/* Estatísticas de Utilização */}
-          <S.MetricsGrid>
-            <S.MetricCard>
-              <S.MetricTitle>Horário de Pico</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.horarioPico || '09:00-11:00'}</S.MetricValue>
-              <S.MetricDetail>{dados.metricas?.periodoPico || 'Manhã'}</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Taxa de Remarcação</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.taxaRemarcacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendRemarcacao || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoRemarcacao || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>Este período</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Consultas de Retorno</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.consultasRetorno || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendRetorno || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoRetorno || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>Do total</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Novos Pacientes</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.novosPacientes || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendNovosPacientes || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoNovosPacientes || 0)}
-              </S.MetricTrend>
-              <S.MetricDetail>Este período</S.MetricDetail>
-            </S.MetricCard>
-          </S.MetricsGrid>
         </S.MainContent>
 
         <Footer />

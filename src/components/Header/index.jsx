@@ -15,7 +15,7 @@ export default function Header({ isLogin = false }) {
     location.pathname === "/homemedico" || 
     location.pathname === "/homeenfermeiro" || 
     location.pathname === "/homeadm" || 
-    location.pathname === "/conselho";
+    location.pathname === "/conselhopresidente";
 
   const goToRegister = () => navigate("/cadastro");
 
@@ -52,9 +52,12 @@ export default function Header({ isLogin = false }) {
     } else if (
       path.includes("/ocupacaoleitos") ||
       path.includes("/ocupacaosalas") ||
-      path.includes("/atividademedica")
+      path.includes("/atividademedica") ||
+      path.includes("/atividadecirurgica") ||
+      path.includes("/historicopacientes") ||
+      path.includes("/recursoshumanos")
     ) {
-      navigate("/conselho");
+      navigate("/conselhopresidente");
     } 
   };
 

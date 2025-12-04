@@ -115,12 +115,7 @@ export default function OcupacaoSalas() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-            {/* Botão Voltar à esquerda */}
-            <S.BackButton onClick={() => navigate("/conselhopresidente")} style={{ alignSelf: 'center' }}>
-              <ArrowLeft size={16} />
-              Voltar para Painel
-            </S.BackButton>
-            
+     
             {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
@@ -451,41 +446,6 @@ export default function OcupacaoSalas() {
             )}
           </S.TableSection>
 
-          {/* Estatísticas de Utilização */}
-          <S.MetricsGrid>
-            <S.MetricCard>
-              <S.MetricTitle>Horário de Pico</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.horarioPico || '09:00-11:00'}</S.MetricValue>
-              <S.MetricDetail>Manhã</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Taxa de Ociosidade</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.taxaOciosidade || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendOciosidade || 'neutral'}>
-                {dados.metricas?.variacaoOciosidade || '0%'}
-              </S.MetricTrend>
-              <S.MetricDetail>Salas não utilizadas</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Média de Uso Diário</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.mediaUsoDiario || 0}h</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendUsoDiario || 'neutral'}>
-                {dados.metricas?.variacaoUsoDiario || '0h'}
-              </S.MetricTrend>
-              <S.MetricDetail>Por sala</S.MetricDetail>
-            </S.MetricCard>
-
-            <S.MetricCard>
-              <S.MetricTitle>Salas em Manutenção</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.salasManutencao || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendManutencao || 'neutral'}>
-                {dados.metricas?.variacaoManutencao || '0'}
-              </S.MetricTrend>
-              <S.MetricDetail>Fora de operação</S.MetricDetail>
-            </S.MetricCard>
-          </S.MetricsGrid>
         </S.MainContent>
 
         <Footer />
