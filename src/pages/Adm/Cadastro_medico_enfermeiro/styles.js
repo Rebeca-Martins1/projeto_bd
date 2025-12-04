@@ -59,7 +59,9 @@ export const FormContainer = styled.main`
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  background: #f4f4f4;     
+  background: #f4f4f4;   
+  margin-top: 50px;  
+  margin-block-end: 50px;  
 `;
 
 export const FormCard = styled.form`

@@ -107,9 +107,9 @@ export default function Cadastroadmcp() {
           style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
         >
           <option value="">Selecione o sexo</option>
-          <option value="F">Feminino</option>
-          <option value="M">Masculino</option>
-          <option value="O">Outro</option>
+          <option value="Feminino">Feminino</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Outro">Outro</option>
         </select>
 
         <input

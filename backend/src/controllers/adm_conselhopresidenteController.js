@@ -15,7 +15,7 @@ export async function cadastrarAdmCP(req, res) {
     await client.query("BEGIN");
 
     const existing = await client.query(
-      'SELECT 1 FROM public."ADMINISTRADOR" WHERE cpf = $1',
+      'SELECT 1 FROM public."CONSELHO_PRESIDENTE" WHERE cpf = $1',
       [cpf]
     );
 
@@ -34,7 +34,7 @@ export async function cadastrarAdmCP(req, res) {
 
     // Inserção na tabela CONSELHO_PRESIDENTE
     await client.query(
-      `INSERT INTO public."ADMINISTRADOR" (cpf)
+      `INSERT INTO public."CONSELHO_PRESIDENTE" (cpf)
        VALUES ($1)`,
       [cpf]
     );

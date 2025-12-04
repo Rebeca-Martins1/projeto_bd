@@ -9,7 +9,7 @@ import axios from "axios";
 export default function CadastroProfissional() {
   const navigate = useNavigate();
 
-  const [tipo, setTipo] = useState(""); // "medico" ou "enfermeiro"
+  const [tipo, setTipo] = useState("");
   const [formData, setFormData] = useState({
     cpf: "",
     nome: "",
@@ -61,7 +61,6 @@ export default function CadastroProfissional() {
         });
       }
 
-      alert(`${tipo === "medico" ? "Médico" : "Enfermeiro"} cadastrado com sucesso!`);
       navigate("/homeadm");
     } catch (err) {
       console.error("Erro ao cadastrar profissional:", err);
