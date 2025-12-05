@@ -12,6 +12,8 @@ import DesativarLeitos from './pages/Adm/Desativar_leitos'
 import DesativarSalas from './pages/Adm/Desativar_salas'
 import DesativarFuncionarios from './pages/Adm/Desativar_funcionarios'
 import Cadastroadmcp from './pages/Adm/CADASTRAADM_CP'
+import Perfiladm from './pages/Adm/Perfil'
+import Solicitacao from './pages/Adm/Solicitacao'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
@@ -56,6 +58,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/desativar_leitos" element={<DesativarLeitos/>} />
       <Route path="/desativar_salas" element={<DesativarSalas/>} />
       <Route path="/desativar_funcionarios" element={<DesativarFuncionarios/>} />
+      <Route path="/perfiladm" element={<Perfiladm/>}/>
+      <Route path="/solicitacao" element={<Solicitacao/>}/>
 
       <Route path="/conselhopresidente" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />

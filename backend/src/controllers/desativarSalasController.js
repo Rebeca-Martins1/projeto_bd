@@ -18,7 +18,8 @@ export const desativarSala = async (req, res) => {
   try {
     const hoje = new Date();
     const consultaCheck = await pool.query(
-      `SELECT 1 FROM "CONSULTA" 
+      `SELECT 1 
+       FROM "CONSULTA" 
        WHERE n_sala = $1 AND tipo_sala = $2 
        AND data_hora >= $3 LIMIT 1`,
       [n_sala, tipo, hoje]

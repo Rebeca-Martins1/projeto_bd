@@ -16,7 +16,7 @@ function ActionCard({ icon, title, description, onClick }) {
   );
 }
 
-export default function HomePaciente() {
+export default function HomeAdm() {
   const navigate = useNavigate();
   
   const items = [
@@ -66,14 +66,14 @@ export default function HomePaciente() {
       icon: <FaCut size={40} />,
       title: "SOLICITAÇÃO DE CIRURGIA",
       description: "Solicitações das cirurgias dos médicos tem que ser aprovadas e modificadas caso necessário",
-      route: " ",
+      route: "/solicitacao",
     },
 
     {
       icon: <FaUserCog size={40} />,
       title: "EDITAR PERFIL",
       description: "Atualize seus dados",
-      route: " ",
+      route: "/perfiladm",
     },
   ];
 
