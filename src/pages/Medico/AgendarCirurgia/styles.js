@@ -1,6 +1,4 @@
 import styled, { createGlobalStyle } from "styled-components";
-
-// Reutiliza o estilo global da Home
 export const GlobalStyles = createGlobalStyle`
   html, body, #root {
     width: 100%;
@@ -119,5 +117,36 @@ export const CancelButton = styled.button`
 
   &:hover {
     background-color: #4b5563;
+  }
+`;
+
+export const SelectionBox = styled.div`
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 150px; 
+  overflow-y: auto;  
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+
+  input {
+    width: 16px;
+    height: 16px;
+    accent-color: #007bff;
+  }
+
+  &:hover {
+    background-color: #eef;
   }
 `;

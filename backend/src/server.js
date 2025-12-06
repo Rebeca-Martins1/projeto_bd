@@ -20,6 +20,8 @@ import historicoPacientesRoutes from "./routes/historicoPacientesRoutes.js"
 import ocupacaoLeitosRoutes from "./routes/ocupacaoLeitosRoutes.js"
 import ocupacaoSalasRoutes from "./routes/ocupacaoSalasRoutes.js"
 import recursosHumanosRoutes from "./routes/recursosHumanosRoutes.js"
+import perfilMedicoRoutes from "./routes/perfilMedicoRoutes.js";
+import solicitacaoMedicoCirurgiaRoutes from "./routes/solicitacaoMedicoCirurgiaRoutes.js";
 
 import pool from "./config/db.js"; 
 import consultaRoutes from "./routes/consultaRoutes.js";
@@ -52,6 +54,8 @@ app.use("/recursoshumanos", recursosHumanosRoutes);
 
 app.use("/plantao", plantaoRoutes);
 app.use("/consultas", consultaRoutes);
+app.use("/perfilmedico", perfilMedicoRoutes);
+app.use("/solicitacaocirurgia", solicitacaoMedicoCirurgiaRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

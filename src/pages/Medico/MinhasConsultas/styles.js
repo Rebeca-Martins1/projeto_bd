@@ -4,13 +4,13 @@ export const GlobalStyles = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif; // (Ajuste a fonte se necessário)
+    font-family: 'Inter', sans-serif; 
   }
 
   body, html, #root {
     min-height: 100vh;
     width: 100%;
-    background-color: #f4f7f6; // Um cinza claro para o fundo
+    background-color: #f4f7f6; 
   }
 `;
 
@@ -21,9 +21,9 @@ export const MinhasConsultasContainer = styled.div`
 `;
 
 export const MainContent = styled.main`
-  flex: 1; // Faz o conteúdo principal crescer e ocupar o espaço
+  flex: 1; 
   width: 100%;
-  max-width: 1200px; // Limita a largura do conteúdo
+  max-width: 1200px; 
   margin: 0 auto;
   padding: 40px 20px;
 
@@ -42,11 +42,8 @@ export const MainContent = styled.main`
 
 export const ConsultaList = styled.div`
   display: grid;
-  /* Cria colunas responsivas:
-     - Tenta preencher com colunas de no mínimo 340px
-  */
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 24px; // Espaço entre os cards
+  gap: 24px; 
 `;
 
 export const CardContainer = styled.div`
@@ -56,7 +53,6 @@ export const CardContainer = styled.div`
   padding: 24px;
   display: flex;
   flex-direction: column;
-  /* Cor diferente para diferenciar de "Cirurgias" */
   border-left: 5px solid #007bff;
 `;
 
@@ -66,7 +62,7 @@ export const CardHeader = styled.div`
   padding-bottom: 16px;
 
   & > h3 {
-    font-size: 1.5rem; // Nome do paciente
+    font-size: 1.5rem; 
     color: #222;
     margin-bottom: 4px;
   }

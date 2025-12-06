@@ -87,3 +87,64 @@ export async function cadastrarMedico(req, res) {
     client.release();
   }
 }
+
+export async function listarConsultasDoMedico(req, res) {
+  const { cpf } = req.params;
+
+  try {
+    const query = `
+      SELECT 
+        c.data_hora,
+        c.tipo_consulta,
+        c.observacoes,
+        c.n_sala,
+        c.tipo_sala,
+        p.nome AS paciente
+      FROM "CONSULTA" c
+      JOIN "PESSOA" p ON p.cpf = c.cpf_paciente
+      WHERE c.cpf_medico = $1
+      ORDER BY c.data_hora;
+    `;
+
+    const result = await pool.query(query, [cpf]);
+
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("❌ Erro ao listar consultas do médico:", err);
+    return res.status(500).json({ erro: "Erro ao buscar consultas." });
+  }
+}
+
+export async function listarCirurgiasDoMedico(req, res) {
+  const { cpf } = req.params;
+
+  try {
+    const client = await pool.connect();
+    const query = `
+      SELECT 
+        c.data_hora,
+        c.n_sala,
+        c.tipo_sala,
+        c.duracao_minutos,
+        c.status,     -- Ex: 'SOLICITADA', 'REALIZADA'
+        c.aprovada,   -- true ou false
+        p.nome AS paciente_nome
+      FROM "CIRURGIA" c
+      JOIN "ALOCA_MEDICO_CIRURGIA" amc 
+        ON c.data_hora = amc.data_hora 
+        AND c.cpf_paciente = amc.cpf_paciente
+      JOIN "PESSOA" p 
+        ON p.cpf = c.cpf_paciente
+      WHERE amc.cpf_medico = $1
+      ORDER BY c.data_hora DESC
+    `;
+
+    const result = await client.query(query, [cpf]);
+    client.release();
+
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Erro ao listar cirurgias:", err);
+    return res.status(500).json({ error: "Erro ao buscar cirurgias." });
+  }
+}

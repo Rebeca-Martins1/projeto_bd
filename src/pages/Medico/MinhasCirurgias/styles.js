@@ -4,13 +4,13 @@ export const GlobalStyles = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif; // (Ajuste a fonte se necessário)
+    font-family: 'Inter', sans-serif; 
   }
 
   body, html, #root {
     min-height: 100vh;
     width: 100%;
-    background-color: #f4f7f6; // Um cinza claro para o fundo
+    background-color: #f4f7f6;
   }
 `;
 
@@ -21,9 +21,9 @@ export const MinhasCirurgiasContainer = styled.div`
 `;
 
 export const MainContent = styled.main`
-  flex: 1; // Faz o conteúdo principal crescer e ocupar o espaço
+  flex: 1; 
   width: 100%;
-  max-width: 1200px; // Limita a largura do conteúdo
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
 
@@ -42,12 +42,8 @@ export const MainContent = styled.main`
 
 export const CirurgiaList = styled.div`
   display: grid;
-  /* Cria colunas responsivas:
-     - Tenta preencher com colunas de no mínimo 350px
-     - 1fr faz com que elas se ajustem para preencher o espaço
-  */
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px; // Espaço entre os cards
+  gap: 24px; 
 `;
 
 export const CardContainer = styled.div`
@@ -57,7 +53,7 @@ export const CardContainer = styled.div`
   padding: 24px;
   display: flex;
   flex-direction: column;
-  border-left: 5px solid #007bff; // Uma borda colorida (azul)
+  border-left: 5px solid #007bff;
 `;
 
 export const CardHeader = styled.div`
@@ -66,14 +62,14 @@ export const CardHeader = styled.div`
   padding-bottom: 16px;
 
   & > h3 {
-    font-size: 1.5rem; // Nome do paciente
+    font-size: 1.5rem; 
     color: #222;
     margin-bottom: 4px;
   }
 
   & > p {
-    font-size: 1.1rem; // Procedimento
-    color: #007bff; // Destaca o procedimento
+    font-size: 1.1rem; 
+    color: #007bff; 
     font-weight: 500;
   }
 `;
@@ -116,4 +112,18 @@ export const TeamMember = styled.li`
   padding: 8px 12px;
   border-radius: 6px;
   margin-bottom: 6px;
+`;
+
+export const StatusBadge = styled.span`
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: white;
+  background-color: ${(props) => {
+    if (props.aprovada) return "#28a745"; 
+    if (props.status && props.status.includes("REJEITADA")) return "#dc3545"; 
+    return "#ffc107"; 
+  }};
+  color: ${(props) => (!props.aprovada && !props.status?.includes("REJEITADA") ? "#333" : "#fff")};
 `;

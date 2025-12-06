@@ -1,48 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; 
 import * as S from "./styles.js"; 
 import Header from "../../../components/Header"; 
 import Footer from "../../../components/Footer"; 
 
-//Dados ficticios
-const MOCK_CONSULTAS = [
-  {
-    id: 1,
-    paciente: "Carlos Santana",
-    data: "20/11/2025",
-    horario: "09:00",
-    sala: "Consultório 1A",
-  },
-  {
-    id: 2,
-    paciente: "Fernanda Lima",
-    data: "20/11/2025",
-    horario: "09:30",
-    sala: "Consultório 1A",
-  },
-  {
-    id: 3,
-    paciente: "Ricardo Alves",
-    data: "20/11/2025",
-    horario: "10:00",
-    sala: "Consultório 2B",
-  },
-  {
-    id: 4,
-    paciente: "Beatriz Mota",
-    data: "21/11/2025",
-    horario: "08:30",
-    sala: "Consultório 1A",
-  },
-  {
-    id: 5,
-    paciente: "Tiago Lacerda",
-    data: "21/11/2025",
-    horario: "09:00",
-    sala: "Consultório 3A",
-  },
-];
-
-//Componente de Card para cada Consulta
 function ConsultaCard({ consulta }) {
   return (
     <S.CardContainer>
@@ -51,17 +11,42 @@ function ConsultaCard({ consulta }) {
       </S.CardHeader>
 
       <S.CardDetalhes>
-        <p><strong>Data:</strong> {consulta.data}</p>
-        <p><strong>Horário:</strong> {consulta.horario}</p>
-        <p><strong>Sala:</strong> {consulta.sala}</p>
+        <p><strong>Data/Hora:</strong> {new Date(consulta.data_hora).toLocaleString()}</p>
+        <p><strong>Tipo:</strong> {consulta.tipo_consulta}</p>
+        <p><strong>Sala:</strong> {consulta.n_sala} - {consulta.tipo_sala}</p>
+        <p><strong>Obs:</strong> {consulta.observacoes}</p>
       </S.CardDetalhes>
     </S.CardContainer>
   );
 }
 
-
-//Componente Principal da Página
 export default function MinhasConsultas() {
+  const [consultas, setConsultas] = useState([]); 
+
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const cpfDoMedico = usuario ? usuario.cpf : "";
+
+  useEffect(() => {
+    async function carregar() {
+      if (!cpfDoMedico) return;
+      try {
+        const resp = await fetch(`http://localhost:5000/medico/${cpfDoMedico}/consultas`);
+        
+        if (!resp.ok) {
+           console.error("Erro ao buscar dados");
+           return;
+        }
+
+        const dados = await resp.json();
+        setConsultas(dados);
+      } catch (error) {
+        console.error("Erro de conexão:", error);
+      }
+    }
+
+    carregar();
+  }, []);
+
   return (
     <>
       <S.GlobalStyles />
@@ -73,9 +58,13 @@ export default function MinhasConsultas() {
           <p>Visualize aqui seus atendimentos agendados.</p>
 
           <S.ConsultaList>
-            {MOCK_CONSULTAS.map((consulta) => (
-              <ConsultaCard key={consulta.id} consulta={consulta} />
-            ))}
+            {consultas.length > 0 ? (
+              consultas.map((consulta, index) => (
+                <ConsultaCard key={index} consulta={consulta} />
+              ))
+            ) : (
+              <p>Nenhuma consulta encontrada ou carregando...</p>
+            )}
           </S.ConsultaList>
         </S.MainContent>
 

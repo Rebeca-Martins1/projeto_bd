@@ -3,6 +3,7 @@ import * as S from "./styles";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 import { useNavigate } from "react-router-dom";
+import { FaUserCog } from "react-icons/fa"; 
 import { IconCalendarPlus, IconCalendarCheck, IconClipboardList } from "../../../icons";
 
 function ActionCard({ icon, title, description, buttonText, path }) {
@@ -10,7 +11,7 @@ function ActionCard({ icon, title, description, buttonText, path }) {
 
   return (
     <S.ActionCardContainer>
-      <S.ActionCardIcon>{React.createElement(icon)}</S.ActionCardIcon>
+      <S.ActionCardIcon>{React.createElement(icon, { size: 40 })}</S.ActionCardIcon>
       <h3>{title}</h3>
       <p>{description}</p>
       <S.ActionCardButton 
@@ -24,6 +25,9 @@ function ActionCard({ icon, title, description, buttonText, path }) {
 }
 
 export default function HomeMedico() {
+  
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+
   return (
     <>
       <S.GlobalStyles />
@@ -32,7 +36,7 @@ export default function HomeMedico() {
 
         <S.MainContent>
           <S.WelcomeMessage>
-            <h1>BEM-VINDO, [NOME DO MÉDICO]</h1>
+            <h1>BEM-VINDO, {usuario?.nome || "Doutor(a)"}</h1>
             <p>Seu Portal Médico</p>
           </S.WelcomeMessage>
 
@@ -40,14 +44,14 @@ export default function HomeMedico() {
             <ActionCard 
               icon={IconCalendarPlus}
               title="AGENDAR CIRURGIA"
-              description="Programe novas intervenções com o médico"
+              description="Agende aqui suas próximas cirurgias"
               buttonText="IR PRA SESSÃO"
               path="/agendarcirurgia"
             />
             <ActionCard 
               icon={IconCalendarCheck}
               title="MINHAS CIRURGIAS"
-              description="Visualize suas cirurgias agendadas e passadas"
+              description="Visualize suas cirurgias agendadas"
               buttonText="IR PRA SESSÃO"
               path="/minhascirurgias"
             />
@@ -58,6 +62,14 @@ export default function HomeMedico() {
               buttonText="IR PRA SESSÃO"
               path="/minhasconsultas"
             />
+            <ActionCard 
+              icon={FaUserCog}
+              title="EDITAR PERFIL"
+              description="Atualize seus dados cadastrais e senha"
+              buttonText="IR PRA SESSÃO"
+              path="/perfilmedico"
+            />
+            
           </S.CardGrid>
         </S.MainContent>
 

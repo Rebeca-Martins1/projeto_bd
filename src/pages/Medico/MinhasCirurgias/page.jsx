@@ -1,69 +1,70 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import * as S from "./styles.js"; 
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
-//Dados ficticios
-const MOCK_CIRURGIAS = [
-  {
-    id: 1,
-    paciente: "Ana Silva",
-    procedimento: "Apendicectomia",
-    data: "20/11/2025",
-    horario: "08:00",
-    sala: "Sala 01",
-    equipe: ["Dr. Carlos (Anestesista)", "Enf. Beatriz", "Enf. Roberto"]
-  },
-  {
-    id: 2,
-    paciente: "Marcos Rocha",
-    procedimento: "Artroplastia de Quadril",
-    data: "22/11/2025",
-    horario: "10:30",
-    sala: "Sala 03",
-    equipe: ["Dr. Mendes (Anestesista)", "Enf. Clara", "Enf. Tiago"]
-  },
-  {
-    id: 3,
-    paciente: "Juliana Costa",
-    procedimento: "Colecistectomia",
-    data: "25/11/2025",
-    horario: "14:00",
-    sala: "Sala 02",
-    equipe: ["Dr. Carlos (Anestesista)", "Enf. Beatriz", "Enf. Sofia"]
-  },
-];
-
-//Componente de Card para cada Cirurgia
 function CirurgiaCard({ cirurgia }) {
+  
+  // Formatar data para ficar legível (DD/MM/AAAA HH:mm)
+  const dataFormatada = new Date(cirurgia.data_hora).toLocaleString('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
+
   return (
     <S.CardContainer>
       <S.CardHeader>
-        <h3>{cirurgia.paciente}</h3>
-        <p>{cirurgia.procedimento}</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+          <h3>{cirurgia.paciente_nome}</h3>
+          
+          <S.StatusBadge aprovada={cirurgia.aprovada} status={cirurgia.status}>
+            {cirurgia.aprovada ? "APROVADA" : "EM ANÁLISE / PENDENTE"}
+          </S.StatusBadge>
+        </div>
+        
+        <p style={{marginTop: "5px", color: "#666"}}>{cirurgia.status}</p>
       </S.CardHeader>
 
       <S.CardDetalhes>
-        <p><strong>Data:</strong> {cirurgia.data}</p>
-        <p><strong>Horário:</strong> {cirurgia.horario}</p>
-        <p><strong>Sala:</strong> {cirurgia.sala}</p>
+        <p><strong>Data/Hora:</strong> {dataFormatada}</p>
+        <p><strong>Duração Estimada:</strong> {cirurgia.duracao_minutos} min</p>
+        <p><strong>Sala:</strong> {cirurgia.n_sala === 0 ? "A definir" : `Sala ${cirurgia.n_sala} (${cirurgia.tipo_sala})`}</p>
       </S.CardDetalhes>
 
-      <S.TeamSection>
-        <strong>Equipe de Apoio:</strong>
-        <S.TeamList>
-          {cirurgia.equipe.map((membro, index) => (
-            <S.TeamMember key={index}>{membro}</S.TeamMember>
-          ))}
-        </S.TeamList>
-      </S.TeamSection>
     </S.CardContainer>
   );
 }
 
-
-//Componente Principal da Página
 export default function MinhasCirurgias() {
+  const [cirurgias, setCirurgias] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const cpfMedico = usuario ? usuario.cpf : "";
+
+  useEffect(() => {
+    async function carregarCirurgias() {
+      if (!cpfMedico) return;
+
+      try {
+        const resp = await fetch(`http://localhost:5000/medico/${cpfMedico}/cirurgias`);
+        
+        if (resp.ok) {
+          const dados = await resp.json();
+          setCirurgias(dados);
+        } else {
+          console.error("Erro ao buscar cirurgias");
+        }
+      } catch (error) {
+        console.error("Erro de conexão:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    carregarCirurgias();
+  }, [cpfMedico]);
+
   return (
     <>
       <S.GlobalStyles />
@@ -72,12 +73,18 @@ export default function MinhasCirurgias() {
 
         <S.MainContent>
           <h1>Minhas Cirurgias</h1>
-          <p>Visualize aqui seus procedimentos agendados.</p>
+          <p>Acompanhe o status dos seus procedimentos cirúrgicos.</p>
 
           <S.CirurgiaList>
-            {MOCK_CIRURGIAS.map((cirurgia) => (
-              <CirurgiaCard key={cirurgia.id} cirurgia={cirurgia} />
-            ))}
+            {loading ? (
+              <p>Carregando...</p>
+            ) : cirurgias.length > 0 ? (
+              cirurgias.map((cirurgia, index) => (
+                <CirurgiaCard key={index} cirurgia={cirurgia} />
+              ))
+            ) : (
+              <p>Nenhuma cirurgia agendada encontrada.</p>
+            )}
           </S.CirurgiaList>
         </S.MainContent>
 

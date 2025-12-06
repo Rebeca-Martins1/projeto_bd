@@ -30,6 +30,7 @@ import HistoricoPacientes from './pages/ConselhoPresidente/HistoricoPacientes/in
 import HomeEnfermeiro from './pages/Enfermeiro/Home/index'
 import Plantao from './pages/Enfermeiro/Plantao/index'
 import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
+import PerfilMedico from './pages/Medico/Perfil/page'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -47,6 +48,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
       <Route path="/minhascirurgias" element={<MinhasCirurgias/>} />
       <Route path="/minhasconsultas" element={<MinhasConsultas/>} />
+      <Route path="/perfilmedico" element={<PerfilMedico/>} />
 
       <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
       <Route path="/plantao" element={<Plantao/>} />
