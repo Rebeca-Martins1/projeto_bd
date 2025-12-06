@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import axios from "axios";
-import { ArrowLeft, Download, FileText } from "lucide-react";
+import { ArrowLeft, Download, FileText, RefreshCw } from "lucide-react";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
+import { ExportSalasService } from "../../../services/exportSalasService";
 
 export default function OcupacaoSalas() {
   const navigate = useNavigate();
   const [periodo, setPeriodo] = useState('mes');
   const [tipoSala, setTipoSala] = useState('todas');
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState({ pdf: false, excel: false });
   const [dados, setDados] = useState({
     metricas: {},
     detalhamentoEspecialidades: [],
@@ -53,21 +55,32 @@ export default function OcupacaoSalas() {
 
   const handleExport = async (format) => {
     try {
-      const response = await axios.get(`http://localhost:5000/exportsalas`, {
-        params: { format, periodo, tipoSala },
-        responseType: 'blob'
+      console.log(`🔄 Iniciando exportação de ${format}...`);
+      console.log('Dados atuais:', dados);
+      console.log('Período:', periodo);
+      console.log('Tipo Sala:', tipoSala);
+      
+      setExporting(prev => ({ ...prev, [format]: true }));
+      
+      // Adicione um timeout para evitar bloqueio infinito
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout - Exportação demorou muito')), 30000);
       });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `ocupacao-salas-${periodo}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const exportPromise = ExportSalasService.exportData(format, dados, periodo, tipoSala);
+      
+      await Promise.race([exportPromise, timeoutPromise]);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
+      console.log(`✅ ${format.toUpperCase()} exportado com sucesso!`);
+      
     } catch (error) {
-      console.error("Erro ao exportar:", error);
-      alert("Erro ao exportar relatório");
+      console.error(`❌ Erro ao exportar ${format}:`, error);
+      
+      // Mostrar erro detalhado
+      alert(`Erro ao exportar ${format.toUpperCase()}:\n\n${error.message}\n\nVerifique o console (F12) para mais detalhes.`);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
     }
   };
 
@@ -76,6 +89,16 @@ export default function OcupacaoSalas() {
     if (percentual >= 80) return 'alerta';
     if (percentual >= 60) return 'estavel';
     return 'baixa';
+  };
+
+  const getStatusText = (status) => {
+    const map = {
+      critico: 'Crítico',
+      alerta: 'Alerta',
+      estavel: 'Estável',
+      baixa: 'Baixa'
+    };
+    return map[status] || status;
   };
 
   const formatarHorario = (dataHora) => {
@@ -106,7 +129,7 @@ export default function OcupacaoSalas() {
         <Header />
 
         <S.MainContent>
-          {/* Header da página - TÍTULO CENTRALIZADO E EXPORTAR À DIREITA */}
+          {/* Header da página */}
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -115,7 +138,6 @@ export default function OcupacaoSalas() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-     
             {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
@@ -137,20 +159,74 @@ export default function OcupacaoSalas() {
               }}>
                 Relatório detalhado da utilização das salas hospitalares
               </p>
-              {loading && <div style={{ color: '#3b82f6', marginTop: '0.5rem', fontSize: '0.875rem' }}>Carregando dados...</div>}
+              {loading && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px',
+                  color: '#3b82f6', 
+                  marginTop: '0.5rem', 
+                  fontSize: '0.875rem' 
+                }}>
+                  <RefreshCw size={16} className="spinner" />
+                  Carregando dados...
+                </div>
+              )}
             </div>
             
             {/* Botões de exportar à direita */}
-            <S.ExportButtons style={{ alignSelf: 'center' }}>
-              <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem',
+              alignSelf: 'center'
+            }}>
+              <button
+                onClick={() => handleExport('pdf')}
+                disabled={loading || exporting.pdf}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.pdf) ? 0.6 : 1
+                }}
+              >
                 <FileText size={16} />
-                Exportar PDF
-              </S.ExportBtn>
-              <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
+                {exporting.pdf ? 'Gerando...' : 'Exportar PDF'}
+              </button>
+              
+              <button
+                onClick={() => handleExport('excel')}
+                disabled={loading || exporting.excel}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#198754',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.excel) ? 0.6 : 1
+                }}
+              >
                 <Download size={16} />
-                Exportar Excel
-              </S.ExportBtn>
-            </S.ExportButtons>
+                {exporting.excel ? 'Gerando...' : 'Exportar Excel'}
+              </button>
+            </div>
           </div>
 
           {/* Filtros */}
@@ -178,162 +254,201 @@ export default function OcupacaoSalas() {
             <S.MetricCard>
               <S.MetricTitle>Consultórios</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.consultorios?.ocupacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.consultorios?.tendencia || 'neutral'}>
-                {dados.metricas?.consultorios?.variacao || '0%'}
-              </S.MetricTrend>
               <S.MetricDetail>
                 {(dados.metricas?.consultorios?.ocupadas || 0)}/{(dados.metricas?.consultorios?.total || 0)} consultórios ocupados
               </S.MetricDetail>
               <S.StatusBadge status={getStatusOcupacao(dados.metricas?.consultorios?.ocupacao || 0)}>
-                {getStatusOcupacao(dados.metricas?.consultorios?.ocupacao || 0)}
+                {getStatusText(getStatusOcupacao(dados.metricas?.consultorios?.ocupacao || 0))}
               </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Salas de Cirurgia</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.cirurgia?.ocupacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.cirurgia?.tendencia || 'neutral'}>
-                {dados.metricas?.cirurgia?.variacao || '0%'}
-              </S.MetricTrend>
               <S.MetricDetail>
                 {(dados.metricas?.cirurgia?.ocupadas || 0)}/{(dados.metricas?.cirurgia?.total || 0)} salas ocupadas
               </S.MetricDetail>
               <S.StatusBadge status={getStatusOcupacao(dados.metricas?.cirurgia?.ocupacao || 0)}>
-                {getStatusOcupacao(dados.metricas?.cirurgia?.ocupacao || 0)}
+                {getStatusText(getStatusOcupacao(dados.metricas?.cirurgia?.ocupacao || 0))}
               </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Total Geral</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.total?.ocupacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.total?.tendencia || 'neutral'}>
-                {dados.metricas?.total?.variacao || '0%'}
-              </S.MetricTrend>
               <S.MetricDetail>
                 {(dados.metricas?.total?.ocupadas || 0)}/{(dados.metricas?.total?.total || 0)} salas ocupadas
               </S.MetricDetail>
               <S.StatusBadge status={getStatusOcupacao(dados.metricas?.total?.ocupacao || 0)}>
-                {getStatusOcupacao(dados.metricas?.total?.ocupacao || 0)}
+                {getStatusText(getStatusOcupacao(dados.metricas?.total?.ocupacao || 0))}
               </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
-              <S.MetricTitle>Taxa de Utilização</S.MetricTitle>
-              <S.MetricValue>{dados.metricas?.taxaUtilizacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendUtilizacao || 'neutral'}>
-                {dados.metricas?.variacaoUtilizacao || '0%'}
-              </S.MetricTrend>
-              <S.MetricDetail>Horas produtivas/dia</S.MetricDetail>
+              <S.MetricTitle>Salas Disponíveis</S.MetricTitle>
+              <S.MetricValue>
+                {((dados.metricas?.total?.total || 0) - (dados.metricas?.total?.ocupadas || 0))}
+              </S.MetricValue>
+              <S.MetricDetail>Total de salas livres</S.MetricDetail>
             </S.MetricCard>
           </S.MetricsGrid>
 
-          {/* Dados de Ocupação por Turno em formato tabular */}
+          {/* Informações de Exportação */}
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            border: '1px solid #dee2e6'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Download size={16} color="#0d6efd" />
+              <strong style={{ color: '#0d6efd' }}>Exportação de Relatórios</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#6c757d' }}>
+              Os relatórios PDF e Excel são gerados com dados atualizados do banco de dados em tempo real.
+              Período selecionado: <strong>{periodo === 'semana' ? 'Última Semana' : periodo === 'mes' ? 'Último Mês' : periodo === 'trimestre' ? 'Último Trimestre' : 'Último Ano'}</strong> | 
+              Tipo de Sala: <strong>{tipoSala === 'todas' ? 'Todas' : tipoSala}</strong>
+            </p>
+          </div>
+
+          {/* Ocupação por Turno */}
           <S.TableSection>
             <S.TableTitle>Ocupação por Turno</S.TableTitle>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Percentual de ocupação por período do dia
-            </div>
             {loading ? (
               <S.ChartLoading>Carregando dados de turnos...</S.ChartLoading>
             ) : (
-              dados.ocupacaoPorTurno && dados.ocupacaoPorTurno.length > 0 ? (
-                <S.Table>
-                  <thead>
-                    <tr>
-                      <th>Turno</th>
-                      <th>Percentual de Ocupação</th>
-                      <th>Status</th>
-                      <th>Salas Ocupadas</th>
-                      <th>Salas Totais</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dados.ocupacaoPorTurno.map((turno, index) => (
+              <S.Table>
+                <thead>
+                  <tr>
+                    <th>Turno</th>
+                    <th>Percentual de Ocupação</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.ocupacaoPorTurno && dados.ocupacaoPorTurno.length > 0 ? (
+                    dados.ocupacaoPorTurno.map((turno, index) => (
                       <tr key={index}>
                         <td>
                           <strong>{turno.turno || `Turno ${index + 1}`}</strong>
                         </td>
                         <td>
-                          <S.PercentValue value={turno.percentual || 0}>
-                            {turno.percentual || 0}%
-                          </S.PercentValue>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <span>{turno.percentual || 0}%</span>
+                            <div style={{
+                              width: '80px',
+                              height: '8px',
+                              backgroundColor: '#e5e7eb',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${Math.min(turno.percentual || 0, 100)}%`,
+                                height: '100%',
+                                backgroundColor: turno.cor || '#3b82f6'
+                              }} />
+                            </div>
+                          </div>
                         </td>
                         <td>
                           <S.StatusBadge status={getStatusOcupacao(turno.percentual || 0)}>
-                            {getStatusOcupacao(turno.percentual || 0)}
+                            {getStatusText(getStatusOcupacao(turno.percentual || 0))}
                           </S.StatusBadge>
                         </td>
-                        <td>{turno.salas_ocupadas || 0}</td>
-                        <td>{turno.salas_totais || 0}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </S.Table>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                  Nenhum dado de turnos disponível
-                </div>
-              )
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum dado de turnos disponível
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </S.Table>
             )}
           </S.TableSection>
 
-          {/* Dados de Evolução da Ocupação em formato tabular */}
+          {/* Evolução da Ocupação */}
           <S.TableSection>
             <S.TableTitle>Evolução da Ocupação</S.TableTitle>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Tendência da ocupação ao longo do período
-            </div>
             {loading ? (
               <S.ChartLoading>Carregando dados de evolução...</S.ChartLoading>
             ) : (
-              dados.evolucaoOcupacao && dados.evolucaoOcupacao.length > 0 ? (
-                <S.Table>
-                  <thead>
-                    <tr>
-                      <th>Data/Dia</th>
-                      <th>Ocupação Consultórios</th>
-                      <th>Ocupação Salas Cirurgia</th>
-                      <th>Ocupação Total</th>
-                      <th>Status Geral</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dados.evolucaoOcupacao.slice(0, 8).map((ponto, index) => (
+              <S.Table>
+                <thead>
+                  <tr>
+                    <th>Período</th>
+                    <th>Ocupação</th>
+                    <th>Status</th>
+                    <th>Variação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.evolucaoOcupacao && dados.evolucaoOcupacao.length > 0 ? (
+                    dados.evolucaoOcupacao.map((item, index) => (
                       <tr key={index}>
-                        <td>{ponto.data || ponto.dia || `Dia ${index + 1}`}</td>
                         <td>
-                          <S.PercentValue value={ponto.consultorios || 0}>
-                            {ponto.consultorios || 0}%
-                          </S.PercentValue>
+                          <strong>{item.periodo || `Período ${index + 1}`}</strong>
                         </td>
                         <td>
-                          <S.PercentValue value={ponto.cirurgia || 0}>
-                            {ponto.cirurgia || 0}%
-                          </S.PercentValue>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <span>{item.ocupacao || 0}%</span>
+                            <div style={{
+                              width: '80px',
+                              height: '8px',
+                              backgroundColor: '#e5e7eb',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${Math.min(item.ocupacao || 0, 100)}%`,
+                                height: '100%',
+                                backgroundColor: (item.ocupacao || 0) > 85 ? '#dc3545' : 
+                                              (item.ocupacao || 0) > 70 ? '#ffc107' : '#28a745'
+                              }} />
+                            </div>
+                          </div>
                         </td>
                         <td>
-                          <S.PercentValue value={ponto.total || 0}>
-                            {ponto.total || 0}%
-                          </S.PercentValue>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={getStatusOcupacao(ponto.total || 0)}>
-                            {getStatusOcupacao(ponto.total || 0)}
+                          <S.StatusBadge status={getStatusOcupacao(item.ocupacao || 0)}>
+                            {getStatusText(getStatusOcupacao(item.ocupacao || 0))}
                           </S.StatusBadge>
                         </td>
+                        <td>
+                          {index > 0 ? (
+                            <span style={{
+                              color: (item.ocupacao || 0) > dados.evolucaoOcupacao[index-1].ocupacao ? '#198754' : '#dc3545'
+                            }}>
+                              {(item.ocupacao || 0) > dados.evolucaoOcupacao[index-1].ocupacao ? '▲' : '▼'} 
+                              {Math.abs((item.ocupacao || 0) - dados.evolucaoOcupacao[index-1].ocupacao).toFixed(1)}%
+                            </span>
+                          ) : 'N/A'}
+                        </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </S.Table>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                  Nenhum dado de evolução disponível
-                </div>
-              )
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum dado de evolução disponível
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </S.Table>
             )}
           </S.TableSection>
 
-          {/* Tabela Detalhada - Especialidades */}
+          {/* Detalhamento por Especialidade */}
           <S.TableSection>
             <S.TableTitle>Detalhamento por Especialidade</S.TableTitle>
             {loading ? (
@@ -346,7 +461,6 @@ export default function OcupacaoSalas() {
                     <th>Salas Totais</th>
                     <th>Salas Ocupadas</th>
                     <th>Ocupação</th>
-                    <th>Turno Mais Ocupado</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -355,27 +469,62 @@ export default function OcupacaoSalas() {
                     dados.detalhamentoEspecialidades.map((especialidade, index) => (
                       <tr key={index}>
                         <td>
-                          <strong>{especialidade.especialidade || 'Não informado'}</strong>
-                          {especialidade.tipo_sala === 'CIRURGIA' && <S.CirurgiaBadge>CIR</S.CirurgiaBadge>}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: especialidade.cor || '#6b7280'
+                            }} />
+                            <strong>{especialidade.especialidade || 'Não informado'}</strong>
+                            {especialidade.tipo_sala === 'CIRURGIA' && (
+                              <span style={{
+                                fontSize: '0.7rem',
+                                backgroundColor: '#dc3545',
+                                color: 'white',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontWeight: 'bold'
+                              }}>
+                                CIR
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td>{especialidade.salas_totais || 0}</td>
                         <td>{especialidade.salas_ocupadas || 0}</td>
                         <td>
-                          <S.PercentValue value={especialidade.ocupacao || 0}>
-                            {especialidade.ocupacao || 0}%
-                          </S.PercentValue>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <span>{especialidade.ocupacao || 0}%</span>
+                            <div style={{
+                              width: '60px',
+                              height: '8px',
+                              backgroundColor: '#e5e7eb',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${Math.min(especialidade.ocupacao || 0, 100)}%`,
+                                height: '100%',
+                                backgroundColor: especialidade.cor || '#3b82f6'
+                              }} />
+                            </div>
+                          </div>
                         </td>
-                        <td>{getTurnoMaisOcupado(especialidade.turnos)}</td>
                         <td>
                           <S.StatusBadge status={getStatusOcupacao(especialidade.ocupacao || 0)}>
-                            {getStatusOcupacao(especialidade.ocupacao || 0)}
+                            {getStatusText(getStatusOcupacao(especialidade.ocupacao || 0))}
                           </S.StatusBadge>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
                         Nenhuma especialidade disponível para os filtros selecionados
                       </td>
                     </tr>
@@ -385,7 +534,7 @@ export default function OcupacaoSalas() {
             )}
           </S.TableSection>
 
-          {/* Tabela Detalhada - Salas de Cirurgia */}
+          {/* Salas de Cirurgia - Agendamentos */}
           <S.TableSection>
             <S.TableTitle>Salas de Cirurgia - Agendamentos</S.TableTitle>
             {loading ? (
@@ -395,11 +544,10 @@ export default function OcupacaoSalas() {
                 <thead>
                   <tr>
                     <th>Sala</th>
-                    <th>Tipo</th>
                     <th>Cirurgias Hoje</th>
                     <th>Status</th>
-                    <th>Próxima Cirurgia</th>
-                    <th>Especialidade</th>
+                    <th>Especialidade Principal</th>
+                    <th>Capacidade Diária</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -407,14 +555,32 @@ export default function OcupacaoSalas() {
                     dados.salasCirurgia.map((sala, index) => (
                       <tr key={index}>
                         <td>
-                          <strong>{sala.n_sala || 'N/A'}</strong>
+                          <strong>Sala {sala.n_sala || 'N/A'}</strong>
                         </td>
                         <td>
-                          <S.TipoSala tipo={sala.tipo || 'CONSULTORIO'}>
-                            {sala.tipo === 'CIRURGIA' ? 'Cirurgia' : 'Consultório'}
-                          </S.TipoSala>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <span>{sala.cirurgias_hoje || 0}</span>
+                            <div style={{
+                              width: '80px',
+                              height: '8px',
+                              backgroundColor: '#e5e7eb',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${Math.min(((sala.cirurgias_hoje || 0) / (sala.capacidade_diaria || 1)) * 100, 100)}%`,
+                                height: '100%',
+                                backgroundColor: (sala.cirurgias_hoje || 0) >= (sala.capacidade_diaria || 1) ? '#dc3545' : 
+                                              (sala.cirurgias_hoje || 0) >= ((sala.capacidade_diaria || 1) * 0.8) ? '#ffc107' : '#28a745'
+                              }} />
+                            </div>
+                            <span>/ {sala.capacidade_diaria || 0}</span>
+                          </div>
                         </td>
-                        <td>{(sala.cirurgias_hoje || 0)}/{(sala.capacidade_diaria || 0)}</td>
                         <td>
                           <S.StatusBadge status={sala.status || 'disponivel'}>
                             {sala.status === 'ocupada' ? 'Ocupada' :
@@ -422,21 +588,13 @@ export default function OcupacaoSalas() {
                              sala.status === 'manutencao' ? 'Manutenção' : 'Livre'}
                           </S.StatusBadge>
                         </td>
-                        <td>
-                          {sala.proxima_cirurgia ? (
-                            <>
-                              {formatarHorario(sala.proxima_cirurgia?.data_hora)} - {sala.proxima_cirurgia?.tipo || 'N/A'}
-                            </>
-                          ) : (
-                            'Nenhuma agendada'
-                          )}
-                        </td>
                         <td>{sala.especialidade_principal || 'Não especificada'}</td>
+                        <td>{sala.capacidade_diaria || 0} cirurgias</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
                         Nenhuma sala de cirurgia disponível para os filtros selecionados
                       </td>
                     </tr>
@@ -450,6 +608,26 @@ export default function OcupacaoSalas() {
 
         <Footer />
       </S.ConselhoPortalContainer>
+
+      <style jsx="true">{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+        
+        button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+      `}</style>
     </>
   );
 }

@@ -4,7 +4,7 @@ export const ocupacaoLeitos = async (req, res) => {
   const { periodo, unidade } = req.query;
 
   try {
-    // Métricas principais - SEM COALESCE
+    // Métricas principais 
     const metricasQuery = `
       SELECT 
         tipo,
@@ -90,7 +90,7 @@ export const ocupacaoLeitos = async (req, res) => {
       }
     };
 
-    // Detalhamento por setor - SEM COALESCE
+    // Detalhamento por setor 
     const setoresQuery = `
       SELECT 
         CONCAT('Leito ', n_sala) as setor,
@@ -150,7 +150,7 @@ export const ocupacaoLeitos = async (req, res) => {
       enfermaria: Math.round(Math.random() * 100)
     }));
 
-    // Total de leitos sem COALESCE
+    // Total de leitos
     const totalLeitosQuery = `
       SELECT COUNT(*) as total_leitos 
       FROM public."LEITOS" 
@@ -164,7 +164,7 @@ export const ocupacaoLeitos = async (req, res) => {
       totalLeitosGeral = parseInt(totalLeitosResult.rows[0].total_leitos) || 1;
     }
 
-    // Distribuição por unidades - SEM COALESCE
+    // Distribuição por unidades
     const distribuicaoQuery = `
       SELECT 
         tipo,
@@ -217,15 +217,124 @@ export const ocupacaoLeitos = async (req, res) => {
 };
 
 export const exportLeitos = async (req, res) => {
+  const { formato, periodo, unidade } = req.query;
+
   try {
-    const { format, periodo, unidade } = req.query;
+    // Buscar os mesmos dados da consulta principal
+    const metricasQuery = `
+      SELECT 
+        tipo,
+        COUNT(*) as total,
+        SUM(quant_paciente) as ocupados,
+        CASE 
+          WHEN COUNT(*) = 0 THEN 0
+          ELSE ROUND((SUM(quant_paciente) * 100.0 / COUNT(*)), 2)
+        END as ocupacao
+      FROM public."LEITOS" 
+      WHERE ativo = true
+      ${unidade !== 'todas' ? `AND tipo = '${unidade}'` : ''}
+      GROUP BY tipo
+    `;
+
+    const metricasResult = await pool.query(metricasQuery);
     
-    res.setHeader('Content-Disposition', `attachment; filename=ocupacao-leitos-${periodo}.${format}`);
-    res.setHeader('Content-Type', 'application/octet-stream');
+    // Processar resultados
+    let totalOcupados = 0;
+    let totalLeitos = 0;
+    let somaOcupacao = 0;
+    let countTipos = 0;
+
+    metricasResult.rows.forEach(row => {
+      const ocupados = parseInt(row.ocupados) || 0;
+      const total = parseInt(row.total) || 0;
+      const ocupacao = parseFloat(row.ocupacao) || 0;
+      
+      totalOcupados += ocupados;
+      totalLeitos += total;
+      somaOcupacao += ocupacao;
+      countTipos++;
+    });
+
+    const ocupacaoMedia = countTipos > 0 ? somaOcupacao / countTipos : 0;
+
+    // Buscar detalhes dos setores
+    const setoresQuery = `
+      SELECT 
+        CONCAT('Leito ', n_sala) as setor,
+        tipo,
+        capacidade as leitos_totais,
+        quant_paciente as leitos_ocupados,
+        (capacidade - quant_paciente) as leitos_livres,
+        CASE 
+          WHEN capacidade = 0 THEN 0
+          ELSE ROUND((quant_paciente * 100.0 / capacidade), 2)
+        END as ocupacao
+      FROM public."LEITOS" 
+      WHERE ativo = true
+      ${unidade !== 'todas' ? `AND tipo = '${unidade}'` : ''}
+      ORDER BY tipo, n_sala
+    `;
+
+    const setoresResult = await pool.query(setoresQuery);
+
+    // Buscar distribuição por unidades
+    const totalLeitosQuery = `
+      SELECT COUNT(*) as total_leitos 
+      FROM public."LEITOS" 
+      WHERE ativo = true
+    `;
+
+    const totalLeitosResult = await pool.query(totalLeitosQuery);
+    let totalLeitosGeral = 1;
     
-    res.send('Relatório de leitos exportado');
+    if (totalLeitosResult.rows.length > 0 && totalLeitosResult.rows[0].total_leitos) {
+      totalLeitosGeral = parseInt(totalLeitosResult.rows[0].total_leitos) || 1;
+    }
+
+    const distribuicaoQuery = `
+      SELECT 
+        tipo,
+        COUNT(*) as leitos,
+        CASE 
+          WHEN ${totalLeitosGeral} = 0 THEN 0
+          ELSE ROUND((COUNT(*) * 100.0 / ${totalLeitosGeral}), 2)
+        END as percentual
+      FROM public."LEITOS" 
+      WHERE ativo = true
+      GROUP BY tipo
+    `;
+
+    const distribuicaoResult = await pool.query(distribuicaoQuery);
+
+    // Preparar dados para exportação
+    const dadosExportacao = {
+      periodo: periodo || 'mes',
+      unidade: unidade || 'todas',
+      dataGeracao: new Date().toISOString(),
+      metricas: {
+        totalOcupados,
+        totalLeitos,
+        ocupacaoMedia,
+        tipos: metricasResult.rows
+      },
+      setores: setoresResult.rows,
+      distribuicao: distribuicaoResult.rows
+    };
+
+    if (formato === 'json') {
+      res.json(dadosExportacao);
+    } else if (formato === 'excel') {
+      // O Excel será gerado no frontend com os dados JSON
+      res.json(dadosExportacao);
+    } else if (formato === 'pdf') {
+      // O PDF será gerado no frontend com os dados JSON
+      res.json(dadosExportacao);
+    } else {
+      res.status(400).json({ error: 'Formato inválido' });
+    }
+
   } catch (error) {
     console.error('Erro ao exportar dados de leitos:', error);
-    res.status(500).json({ error: 'Erro ao exportar relatório' });
+    res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };
