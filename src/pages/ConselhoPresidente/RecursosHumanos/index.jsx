@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import axios from "axios";
-import { ArrowLeft, Download, FileText, Users, Clock, AlertCircle, TrendingUp, Calendar } from "lucide-react";
+import { ArrowLeft, Download, FileText, Users, Clock, AlertCircle, TrendingUp, Calendar, RefreshCw } from "lucide-react";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
+import { ExportRecursosHumanosService } from "../../../services/exportRecursosHumanosService";
 
 export default function RecursosHumanos() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function RecursosHumanos() {
   const [departamento, setDepartamento] = useState('todos');
   const [turno, setTurno] = useState('todos');
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState({ pdf: false, excel: false });
   const [dados, setDados] = useState({
     metricas: {},
     distribuicaoDepartamentos: [],
@@ -57,21 +59,33 @@ export default function RecursosHumanos() {
 
   const handleExport = async (format) => {
     try {
-      const response = await axios.get(`http://localhost:5000/exportrh`, {
-        params: { format, periodo, departamento, turno },
-        responseType: 'blob'
+      console.log(`🔄 Iniciando exportação de ${format}...`);
+      console.log('Dados atuais:', dados);
+      console.log('Período:', periodo);
+      console.log('Departamento:', departamento);
+      console.log('Turno:', turno);
+      
+      setExporting(prev => ({ ...prev, [format]: true }));
+      
+      // Adicione um timeout para evitar bloqueio infinito
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout - Exportação demorou muito')), 30000);
       });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `recursos-humanos-${periodo}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const exportPromise = ExportRecursosHumanosService.exportData(format, dados, periodo, departamento, turno);
+      
+      await Promise.race([exportPromise, timeoutPromise]);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
+      console.log(`✅ ${format.toUpperCase()} exportado com sucesso!`);
+      
     } catch (error) {
-      console.error("Erro ao exportar:", error);
-      alert("Erro ao exportar relatório");
+      console.error(`❌ Erro ao exportar ${format}:`, error);
+      
+      // Mostrar erro detalhado
+      alert(`Erro ao exportar ${format.toUpperCase()}:\n\n${error.message}\n\nVerifique o console (F12) para mais detalhes.`);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
     }
   };
 
@@ -115,7 +129,7 @@ export default function RecursosHumanos() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-
+            {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
               flex: 1,
@@ -136,19 +150,74 @@ export default function RecursosHumanos() {
               }}>
                 Relatório detalhado da força de trabalho e distribuição de plantões
               </p>
-              {loading && <div style={{ color: '#3b82f6', marginTop: '0.5rem', fontSize: '0.875rem' }}>Carregando dados...</div>}
+              {loading && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px',
+                  color: '#3b82f6', 
+                  marginTop: '0.5rem', 
+                  fontSize: '0.875rem' 
+                }}>
+                  <RefreshCw size={16} className="spinner" />
+                  Carregando dados...
+                </div>
+              )}
             </div>
             
-            <S.ExportButtons style={{ alignSelf: 'center' }}>
-              <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
+            {/* Botões de exportar à direita */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem',
+              alignSelf: 'center'
+            }}>
+              <button
+                onClick={() => handleExport('pdf')}
+                disabled={loading || exporting.pdf}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.pdf) ? 0.6 : 1
+                }}
+              >
                 <FileText size={16} />
-                Exportar PDF
-              </S.ExportBtn>
-              <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
+                {exporting.pdf ? 'Gerando...' : 'Exportar PDF'}
+              </button>
+              
+              <button
+                onClick={() => handleExport('excel')}
+                disabled={loading || exporting.excel}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#198754',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.excel) ? 0.6 : 1
+                }}
+              >
                 <Download size={16} />
-                Exportar Excel
-              </S.ExportBtn>
-            </S.ExportButtons>
+                {exporting.excel ? 'Gerando...' : 'Exportar Excel'}
+              </button>
+            </div>
           </div>
 
           {/* Filtros */}
@@ -182,6 +251,26 @@ export default function RecursosHumanos() {
               </S.Select>
             </S.FilterGroup>
           </S.FilterSection>
+
+          {/* Informações de Exportação */}
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            border: '1px solid #dee2e6'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Download size={16} color="#0d6efd" />
+              <strong style={{ color: '#0d6efd' }}>Exportação de Relatórios</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#6c757d' }}>
+              Os relatórios PDF e Excel são gerados com dados atualizados em tempo real.
+              Período selecionado: <strong>{periodo === 'semana' ? 'Última Semana' : periodo === 'mes' ? 'Último Mês' : periodo === 'trimestre' ? 'Último Trimestre' : 'Último Ano'}</strong> | 
+              Departamento: <strong>{departamento === 'todos' ? 'Todos' : departamento}</strong> | 
+              Turno: <strong>{turno === 'todos' ? 'Todos' : turno}</strong>
+            </p>
+          </div>
 
           {/* Métricas Principais */}
           <S.MetricsGrid>
@@ -412,6 +501,26 @@ export default function RecursosHumanos() {
 
         <Footer />
       </S.ConselhoPortalContainer>
+
+      <style jsx="true">{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+        
+        button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+      `}</style>
     </>
   );
 }

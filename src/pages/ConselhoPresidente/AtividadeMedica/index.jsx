@@ -2,98 +2,23 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import axios from "axios";
-import { ArrowLeft, Download, FileText } from "lucide-react";
+import { ArrowLeft, Download, FileText, RefreshCw } from "lucide-react";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
+import { ExportAtividadeMedicaService } from "../../../services/exportAtividadeMedicaService";
 
 export default function AtividadeMedica() {
   const navigate = useNavigate();
   const [periodo, setPeriodo] = useState('mes');
   const [especialidade, setEspecialidade] = useState('todas');
   const [loading, setLoading] = useState(true);
-  const [loadingEspecialidades, setLoadingEspecialidades] = useState(true);
-  const [especialidadesLista, setEspecialidadesLista] = useState([]);
+  const [exporting, setExporting] = useState({ pdf: false, excel: false });
   const [dados, setDados] = useState({
     metricas: {},
-    desempenhoEspecialidades: [],
+    especialidades: [],
     topMedicos: [],
-    evolucaoConsultas: [],
-    distribuicaoTipoConsulta: []
+    evolucaoMensal: []
   });
-
-  const fetchEspecialidades = async () => {
-    try {
-      setLoadingEspecialidades(true);
-      const response = await axios.get('http://localhost:5000/especialidades');
-      
-      if (response.data) {
-        if (Array.isArray(response.data)) {
-          setEspecialidadesLista(response.data);
-        } else if (response.data.especialidades && Array.isArray(response.data.especialidades)) {
-          setEspecialidadesLista(response.data.especialidades);
-        } else if (response.data.nomes && Array.isArray(response.data.nomes)) {
-          setEspecialidadesLista(response.data.nomes);
-        } else {
-          const arrays = Object.values(response.data).filter(Array.isArray);
-          if (arrays.length > 0) {
-            setEspecialidadesLista(arrays[0]);
-          } else {
-            throw new Error("Formato de dados não reconhecido");
-          }
-        }
-      }
-    } catch (error) {
-      console.warn("Endpoint /especialidades não encontrado, tentando buscar do endpoint de atividade médica:", error);
-      
-      try {
-        const atividadeResponse = await axios.get('http://localhost:5000/atividademedica', {
-          params: { periodo: 'mes', especialidade: 'todas' }
-        });
-        
-        if (atividadeResponse.data?.desempenhoEspecialidades) {
-          const especialidadesUnicas = [
-            ...new Set(
-              atividadeResponse.data.desempenhoEspecialidades
-                .filter(e => e.especialidade && e.especialidade.trim() !== '')
-                .map(e => e.especialidade)
-            )
-          ];
-          setEspecialidadesLista(especialidadesUnicas);
-        } else {
-          const especialidadesPadrao = [
-            'Cardiologia',
-            'Ortopedia', 
-            'Pediatria',
-            'Dermatologia',
-            'Neurologia',
-            'Ginecologia',
-            'Oftalmologia',
-            'Urologia'
-          ];
-          setEspecialidadesLista(especialidadesPadrao);
-        }
-      } catch (error2) {
-        console.error("Não foi possível carregar especialidades:", error2);
-        const especialidadesPadrao = [
-          'Cardiologia',
-          'Ortopedia', 
-          'Pediatria',
-          'Dermatologia',
-          'Neurologia',
-          'Ginecologia',
-          'Oftalmologia',
-          'Urologia'
-        ];
-        setEspecialidadesLista(especialidadesPadrao);
-      }
-    } finally {
-      setLoadingEspecialidades(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchEspecialidades();
-  }, []);
 
   useEffect(() => {
     fetchDadosMedicos();
@@ -107,34 +32,18 @@ export default function AtividadeMedica() {
       });
       setDados(response.data || {
         metricas: {},
-        desempenhoEspecialidades: [],
+        especialidades: [],
         topMedicos: [],
-        evolucaoConsultas: [],
-        distribuicaoTipoConsulta: []
+        evolucaoMensal: []
       });
-      
-      if (response.data?.desempenhoEspecialidades && (especialidadesLista.length === 0 || especialidadesLista.length < 3)) {
-        const especialidadesDoDados = [
-          ...new Set(
-            response.data.desempenhoEspecialidades
-              .filter(e => e.especialidade && e.especialidade.trim() !== '')
-              .map(e => e.especialidade)
-          )
-        ];
-        const listaUnificada = [...new Set([...especialidadesLista, ...especialidadesDoDados])];
-        if (listaUnificada.length > especialidadesLista.length) {
-          setEspecialidadesLista(listaUnificada);
-        }
-      }
     } catch (error) {
       console.error("Erro ao buscar dados médicos:", error);
       alert("Erro ao carregar dados da atividade médica");
       setDados({
         metricas: {},
-        desempenhoEspecialidades: [],
+        especialidades: [],
         topMedicos: [],
-        evolucaoConsultas: [],
-        distribuicaoTipoConsulta: []
+        evolucaoMensal: []
       });
     } finally {
       setLoading(false);
@@ -143,43 +52,77 @@ export default function AtividadeMedica() {
 
   const handleExport = async (format) => {
     try {
-      const response = await axios.get(`http://localhost:5000/exportatividademedica`, {
-        params: { format, periodo, especialidade },
-        responseType: 'blob'
+      console.log(`🔄 Iniciando exportação de ${format}...`);
+      console.log('Dados atuais:', dados);
+      console.log('Período:', periodo);
+      console.log('Especialidade:', especialidade);
+      
+      setExporting(prev => ({ ...prev, [format]: true }));
+      
+      // Adicione um timeout para evitar bloqueio infinito
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout - Exportação demorou muito')), 30000);
       });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `atividade-medica-${periodo}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const exportPromise = ExportAtividadeMedicaService.exportData(format, dados, periodo, especialidade);
+      
+      await Promise.race([exportPromise, timeoutPromise]);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
+      console.log(`✅ ${format.toUpperCase()} exportado com sucesso!`);
+      
     } catch (error) {
-      console.error("Erro ao exportar:", error);
-      alert("Erro ao exportar relatório");
+      console.error(`❌ Erro ao exportar ${format}:`, error);
+      
+      // Mostrar erro detalhado
+      alert(`Erro ao exportar ${format.toUpperCase()}:\n\n${error.message}\n\nVerifique o console (F12) para mais detalhes.`);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
     }
   };
 
+  const getStatusOcupacao = (percentual) => {
+    if (percentual >= 90) return 'critico';
+    if (percentual >= 80) return 'alerta';
+    if (percentual >= 60) return 'estavel';
+    return 'baixa';
+  };
+
+  const getStatusText = (status) => {
+    const map = {
+      critico: 'Crítico',
+      alerta: 'Alerta',
+      estavel: 'Estável',
+      baixa: 'Baixa'
+    };
+    return map[status] || status;
+  };
+
   const formatarDuracao = (minutos) => {
-    if (!minutos) return '0 min';
-    if (minutos < 60) return `${minutos} min`;
-    const horas = Math.floor(minutos / 60);
-    const mins = minutos % 60;
-    return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
+    if (!minutos && minutos !== 0) return '0 min';
+    
+    // Garantir que estamos trabalhando com minutos
+    let minutosCorrigidos = minutos;
+    
+    // Se o valor for menor que 60 (provavelmente está em horas)
+    if (minutos < 60 && minutos > 0) {
+      // Converter horas para minutos
+      minutosCorrigidos = minutos * 60;
+    }
+    
+    // Arredondar para o número inteiro mais próximo
+    const minutosInt = Math.round(minutosCorrigidos);
+    
+    // Se for menos de 60 minutos, mostrar apenas minutos
+    if (minutosInt < 60) return `${minutosInt} min`;
+    
+    // Para 60 minutos ou mais, converter para horas
+    const horas = Math.floor(minutosInt / 60);
+    const mins = minutosInt % 60;
+    
+    if (mins === 0) return `${horas}h`;
+    return `${horas}h ${mins}min`;
   };
-
-  const getStatusEficiencia = (valor) => {
-    if (valor >= 90) return 'alto';
-    if (valor >= 80) return 'moderado';
-    if (valor >= 70) return 'estavel';
-    return 'baixo';
-  };
-
-  const formatarPercentual = (valor) => {
-    return `${valor >= 0 ? '+' : ''}${valor}%`;
-  };
-
   return (
     <>
       <S.GlobalStyles />
@@ -187,7 +130,7 @@ export default function AtividadeMedica() {
         <Header />
 
         <S.MainContent>
-          {/* Header da página - TÍTULO CENTRALIZADO E EXPORTAR À DIREITA */}
+          {/* Header da página */}
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -196,7 +139,6 @@ export default function AtividadeMedica() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-
             {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
@@ -218,20 +160,74 @@ export default function AtividadeMedica() {
               }}>
                 Relatório detalhado das consultas e atendimentos médicos
               </p>
-              {loading && <div style={{ color: '#3b82f6', marginTop: '0.5rem', fontSize: '0.875rem' }}>Carregando dados...</div>}
+              {loading && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px',
+                  color: '#3b82f6', 
+                  marginTop: '0.5rem', 
+                  fontSize: '0.875rem' 
+                }}>
+                  <RefreshCw size={16} className="spinner" />
+                  Carregando dados...
+                </div>
+              )}
             </div>
             
             {/* Botões de exportar à direita */}
-            <S.ExportButtons style={{ alignSelf: 'center' }}>
-              <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem',
+              alignSelf: 'center'
+            }}>
+              <button
+                onClick={() => handleExport('pdf')}
+                disabled={loading || exporting.pdf}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.pdf) ? 0.6 : 1
+                }}
+              >
                 <FileText size={16} />
-                Exportar PDF
-              </S.ExportBtn>
-              <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
+                {exporting.pdf ? 'Gerando...' : 'Exportar PDF'}
+              </button>
+              
+              <button
+                onClick={() => handleExport('excel')}
+                disabled={loading || exporting.excel}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#198754',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.excel) ? 0.6 : 1
+                }}
+              >
                 <Download size={16} />
-                Exportar Excel
-              </S.ExportBtn>
-            </S.ExportButtons>
+                {exporting.excel ? 'Gerando...' : 'Exportar Excel'}
+              </button>
+            </div>
           </div>
 
           {/* Filtros */}
@@ -248,24 +244,11 @@ export default function AtividadeMedica() {
               <label>Especialidade:</label>
               <S.Select value={especialidade} onChange={(e) => setEspecialidade(e.target.value)} disabled={loading}>
                 <option value="todas">Todas as Especialidades</option>
-                {loadingEspecialidades ? (
-                  <option disabled>Carregando especialidades...</option>
-                ) : especialidadesLista.length > 0 ? (
-                  especialidadesLista.map((esp, index) => (
-                    <option key={index} value={esp}>
-                      {esp}
-                    </option>
-                  ))
-                ) : (
-                  <>
-                    <option value="Cardiologia">Cardiologia</option>
-                    <option value="Ortopedia">Ortopedia</option>
-                    <option value="Pediatria">Pediatria</option>
-                    <option value="Dermatologia">Dermatologia</option>
-                    <option value="Neurologia">Neurologia</option>
-                    <option value="Ginecologia">Ginecologia</option>
-                  </>
-                )}
+                <option value="Cardiologia">Cardiologia</option>
+                <option value="Ortopedia">Ortopedia</option>
+                <option value="Pediatria">Pediatria</option>
+                <option value="Ginecologia">Ginecologia</option>
+                <option value="Dermatologia">Dermatologia</option>
               </S.Select>
             </S.FilterGroup>
           </S.FilterSection>
@@ -275,144 +258,120 @@ export default function AtividadeMedica() {
             <S.MetricCard>
               <S.MetricTitle>Total de Consultas</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.totalConsultas || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendConsultas || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoConsultas || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
-                Este período vs anterior
+                Período selecionado
               </S.MetricDetail>
-              <S.StatusBadge status={getStatusEficiencia(dados.metricas?.taxaCrescimento || 0)}>
-                {getStatusEficiencia(dados.metricas?.taxaCrescimento || 0)}
+              <S.StatusBadge status={dados.metricas?.trendConsultas === 'up' ? 'alerta' : 'estavel'}>
+                {dados.metricas?.trendConsultas === 'up' ? 'Crescendo' : 'Estável'}
               </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Tempo Médio</S.MetricTitle>
-              <S.MetricValue>{formatarDuracao(dados.metricas?.tempoMedio)}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendTempo || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoTempo || 0)}
-              </S.MetricTrend>
+              <S.MetricValue>{formatarDuracao(dados.metricas?.tempoMedio || 0)}</S.MetricValue>
               <S.MetricDetail>
                 Por consulta
               </S.MetricDetail>
+              <S.StatusBadge status={dados.metricas?.trendTempo === 'up' ? 'alerta' : 'estavel'}>
+                {dados.metricas?.trendTempo === 'up' ? 'Aumentando' : 'Estável'}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Taxa de Comparecimento</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.taxaComparecimento || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendComparecimento || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoComparecimento || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Consultas realizadas
               </S.MetricDetail>
+              <S.StatusBadge status={getStatusOcupacao(dados.metricas?.taxaComparecimento || 0)}>
+                {getStatusText(getStatusOcupacao(dados.metricas?.taxaComparecimento || 0))}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Médicos Ativos</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.medicosAtivos || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendMedicos || 'neutral'}>
-                {formatarPercentual(dados.metricas?.variacaoMedicos || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Este período
               </S.MetricDetail>
+              <S.StatusBadge status="estavel">
+                Ativo
+              </S.StatusBadge>
             </S.MetricCard>
           </S.MetricsGrid>
 
-          {/* Dados de Evolução de Consultas em formato tabular */}
-          <S.TableSection>
-            <S.TableTitle>Evolução de Consultas</S.TableTitle>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Tendência ao longo do período
+          {/* Informações de Exportação */}
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            border: '1px solid #dee2e6'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Download size={16} color="#0d6efd" />
+              <strong style={{ color: '#0d6efd' }}>Exportação de Relatórios</strong>
             </div>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#6c757d' }}>
+              Os relatórios PDF e Excel são gerados com dados atualizados do banco de dados em tempo real.
+              Período selecionado: <strong>{periodo === 'semana' ? 'Última Semana' : periodo === 'mes' ? 'Último Mês' : periodo === 'trimestre' ? 'Último Trimestre' : 'Último Ano'}</strong> | 
+              Especialidade: <strong>{especialidade === 'todas' ? 'Todas' : especialidade}</strong>
+            </p>
+          </div>
+
+          {/* Evolução Mensal */}
+          <S.TableSection>
+            <S.TableTitle>Evolução Mensal de Consultas</S.TableTitle>
             {loading ? (
               <S.ChartLoading>Carregando dados de evolução...</S.ChartLoading>
             ) : (
-              dados.evolucaoConsultas && dados.evolucaoConsultas.length > 0 ? (
-                <S.Table>
-                  <thead>
-                    <tr>
-                      <th>Data/Dia</th>
-                      <th>Consultas Primeira Vez</th>
-                      <th>Consultas de Retorno</th>
-                      <th>Total de Consultas</th>
-                      <th>Taxa de Crescimento</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dados.evolucaoConsultas.slice(0, 8).map((ponto, index) => (
-                      <tr key={index}>
-                        <td>{ponto.data || ponto.dia || `Dia ${index + 1}`}</td>
-                        <td>{ponto.primeira_vez || 0}</td>
-                        <td>{ponto.retorno || 0}</td>
-                        <td>{(ponto.primeira_vez || 0) + (ponto.retorno || 0)}</td>
-                        <td>
-                          <S.PercentValue value={ponto.taxa_crescimento || 0}>
-                            {ponto.taxa_crescimento || 0}%
-                          </S.PercentValue>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </S.Table>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                  Nenhum dado de evolução disponível para o período selecionado
-                </div>
-              )
-            )}
-          </S.TableSection>
-
-          {/* Dados de Distribuição por Tipo de Consulta em formato tabular */}
-          <S.TableSection>
-            <S.TableTitle>Distribuição por Tipo de Consulta</S.TableTitle>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-              Tipos de consultas realizadas
-            </div>
-            {loading ? (
-              <S.ChartLoading>Carregando dados de distribuição...</S.ChartLoading>
-            ) : (
-              (dados.distribuicaoTipoConsulta && dados.distribuicaoTipoConsulta.length > 0) ? (
-                <S.Table>
-                  <thead>
-                    <tr>
-                      <th>Tipo de Consulta</th>
-                      <th>Percentual</th>
-                      <th>Quantidade</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dados.distribuicaoTipoConsulta.map((tipo, index) => (
+              <S.Table>
+                <thead>
+                  <tr>
+                    <th>Mês</th>
+                    <th>Consultas</th>
+                    <th>Status</th>
+                    <th>Variação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.evolucaoMensal && dados.evolucaoMensal.length > 0 ? (
+                    dados.evolucaoMensal.map((item, index) => (
                       <tr key={index}>
                         <td>
-                          <strong>{tipo.tipo || `Tipo ${index + 1}`}</strong>
+                          <strong>{item.mes || `Mês ${index + 1}`}</strong>
                         </td>
+                        <td>{item.consultas || 0}</td>
                         <td>
-                          <S.PercentValue value={tipo.percentual || 0}>
-                            {tipo.percentual || 0}%
-                          </S.PercentValue>
-                        </td>
-                        <td>{tipo.quantidade || 0}</td>
-                        <td>
-                          <S.StatusBadge status={getStatusEficiencia(tipo.percentual || 0)}>
-                            {getStatusEficiencia(tipo.percentual || 0)}
+                          <S.StatusBadge status={getStatusOcupacao((item.consultas || 0) / 10)}>
+                            {getStatusText(getStatusOcupacao((item.consultas || 0) / 10))}
                           </S.StatusBadge>
                         </td>
+                        <td>
+                          {index > 0 ? (
+                            <span style={{
+                              color: (item.consultas || 0) > dados.evolucaoMensal[index-1].consultas ? '#198754' : '#dc3545'
+                            }}>
+                              {(item.consultas || 0) > dados.evolucaoMensal[index-1].consultas ? '▲' : '▼'} 
+                              {Math.abs((item.consultas || 0) - dados.evolucaoMensal[index-1].consultas).toFixed(0)}
+                            </span>
+                          ) : 'N/A'}
+                        </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </S.Table>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                  Nenhum dado de distribuição disponível
-                </div>
-              )
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum dado de evolução disponível
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </S.Table>
             )}
           </S.TableSection>
 
-          {/* Tabela de Especialidades */}
+          {/* Especialidades */}
           <S.TableSection>
             <S.TableTitle>Desempenho por Especialidade</S.TableTitle>
             {loading ? (
@@ -424,44 +383,96 @@ export default function AtividadeMedica() {
                     <th>Especialidade</th>
                     <th>Total Consultas</th>
                     <th>Tempo Médio</th>
-                    <th>Taxa Comparecimento</th>
-                    <th>Eficiência</th>
+                    <th>Comparecimento</th>
+                    <th>Crescimento</th>
                     <th>Status</th>
-                    <th>Tendência</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.desempenhoEspecialidades && dados.desempenhoEspecialidades.length > 0 ? (
-                    dados.desempenhoEspecialidades.map((especialidade, index) => (
+                  {dados.especialidades && dados.especialidades.length > 0 ? (
+                    dados.especialidades.map((especialidade, index) => (
                       <tr key={index}>
                         <td>
-                          <strong>{especialidade.especialidade || 'Não informado'}</strong>
-                          {especialidade.tipo === 'CIRURGIA' && <S.EspecialidadeBadge>CIR</S.EspecialidadeBadge>}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: especialidade.cor || '#6b7280'
+                            }} />
+                            <strong>{especialidade.especialidade || 'Não informado'}</strong>
+                          </div>
                         </td>
                         <td>{especialidade.totalConsultas || 0}</td>
                         <td>{formatarDuracao(especialidade.tempoMedio)}</td>
                         <td>{especialidade.taxaComparecimento || 0}%</td>
                         <td>
-                          <S.PercentValue value={especialidade.eficiencia || 0}>
-                            {especialidade.eficiencia || 0}%
+                          <S.PercentValue value={especialidade.crescimento || 0}>
+                            {especialidade.crescimento || 0}%
                           </S.PercentValue>
                         </td>
                         <td>
-                          <S.StatusBadge status={getStatusEficiencia(especialidade.eficiencia || 0)}>
-                            {getStatusEficiencia(especialidade.eficiencia || 0)}
+                          <S.StatusBadge status={getStatusOcupacao(especialidade.taxaComparecimento || 0)}>
+                            {getStatusText(getStatusOcupacao(especialidade.taxaComparecimento || 0))}
                           </S.StatusBadge>
-                        </td>
-                        <td>
-                          <S.MetricTrend trend={especialidade.tendencia || 'neutral'}>
-                            {especialidade.tendencia === 'up' ? '+' : ''}{especialidade.variacao || '0%'}
-                          </S.MetricTrend>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                        Nenhum dado disponível para os filtros selecionados
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhuma especialidade disponível para os filtros selecionados
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </S.Table>
+            )}
+          </S.TableSection>
+
+          {/* Top Médicos */}
+          <S.TableSection>
+            <S.TableTitle>Top Médicos - Maior Número de Consultas</S.TableTitle>
+            {loading ? (
+              <S.ChartLoading>Carregando dados...</S.ChartLoading>
+            ) : (
+              <S.Table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Especialidade</th>
+                    <th>Consultas</th>
+                    <th>Tempo Médio</th>
+                    <th>Eficiência</th>
+                    <th>Disponível</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dados.topMedicos && dados.topMedicos.length > 0 ? (
+                    dados.topMedicos.map((medico, index) => (
+                      <tr key={index}>
+                        <td>
+                          <strong>{medico.nome || 'Médico não identificado'}</strong>
+                        </td>
+                        <td>{medico.especialidade || 'Não especificada'}</td>
+                        <td>{medico.totalConsultas || 0}</td>
+                        <td>{formatarDuracao(medico.tempoMedio)}</td>
+                        <td>
+                          <S.PercentValue value={medico.eficiencia || 0}>
+                            {medico.eficiencia || 0}%
+                          </S.PercentValue>
+                        </td>
+                        <td>
+                          <S.StatusBadge status={medico.disponivel ? 'estavel' : 'baixa'}>
+                            {medico.disponivel ? 'Sim' : 'Não'}
+                          </S.StatusBadge>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum médico disponível para os filtros selecionados
                       </td>
                     </tr>
                   )}
@@ -473,6 +484,26 @@ export default function AtividadeMedica() {
 
         <Footer />
       </S.ConselhoPortalContainer>
+
+      <style jsx="true">{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+        
+        button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+      `}</style>
     </>
   );
 }

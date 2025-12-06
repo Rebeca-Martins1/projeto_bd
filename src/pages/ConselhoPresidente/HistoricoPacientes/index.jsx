@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
 import axios from "axios";
-import { ArrowLeft, Download, FileText, Calendar, User, Clock, TrendingUp, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, FileText, RefreshCw } from "lucide-react";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
+import { ExportHistoricoPacientesService } from "../../../services/exportHistoricoPacientesService";
 
 export default function HistoricoPacientes() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function HistoricoPacientes() {
   const [tipoAtendimento, setTipoAtendimento] = useState('todos');
   const [faixaEtaria, setFaixaEtaria] = useState('todas');
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState({ pdf: false, excel: false });
   const [dados, setDados] = useState({
     metricas: {},
     atendimentosPorEspecialidade: [],
@@ -60,21 +62,33 @@ export default function HistoricoPacientes() {
 
   const handleExport = async (format) => {
     try {
-      const response = await axios.get(`http://localhost:5000/exporthistoricopacientes`, {
-        params: { format, periodo, tipoAtendimento, faixaEtaria },
-        responseType: 'blob'
+      console.log(`🔄 Iniciando exportação de ${format}...`);
+      console.log('Dados atuais:', dados);
+      console.log('Período:', periodo);
+      console.log('Tipo Atendimento:', tipoAtendimento);
+      console.log('Faixa Etária:', faixaEtaria);
+      
+      setExporting(prev => ({ ...prev, [format]: true }));
+      
+      // Adicione um timeout para evitar bloqueio infinito
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout - Exportação demorou muito')), 30000);
       });
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `historico-pacientes-${periodo}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const exportPromise = ExportHistoricoPacientesService.exportData(format, dados, periodo, tipoAtendimento, faixaEtaria);
+      
+      await Promise.race([exportPromise, timeoutPromise]);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
+      console.log(`✅ ${format.toUpperCase()} exportado com sucesso!`);
+      
     } catch (error) {
-      console.error("Erro ao exportar:", error);
-      alert("Erro ao exportar relatório");
+      console.error(`❌ Erro ao exportar ${format}:`, error);
+      
+      // Mostrar erro detalhado
+      alert(`Erro ao exportar ${format.toUpperCase()}:\n\n${error.message}\n\nVerifique o console (F12) para mais detalhes.`);
+      
+      setExporting(prev => ({ ...prev, [format]: false }));
     }
   };
 
@@ -108,6 +122,18 @@ export default function HistoricoPacientes() {
     return 'baixo';
   };
 
+  const getStatusText = (status) => {
+    const map = {
+      critico: 'Crítico',
+      alerta: 'Alerta',
+      estavel: 'Estável',
+      baixo: 'Baixo',
+      alto: 'Alto',
+      moderado: 'Moderado'
+    };
+    return map[status] || status;
+  };
+
   const getStatusPermanencia = (dias) => {
     if (dias >= 30) return 'critico';
     if (dias >= 15) return 'alerta';
@@ -131,7 +157,7 @@ export default function HistoricoPacientes() {
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
-
+            {/* Título centralizado */}
             <div style={{ 
               textAlign: 'center',
               flex: 1,
@@ -152,19 +178,74 @@ export default function HistoricoPacientes() {
               }}>
                 Relatório detalhado dos atendimentos e métricas de pacientes
               </p>
-              {loading && <div style={{ color: '#3b82f6', marginTop: '0.5rem', fontSize: '0.875rem' }}>Carregando dados...</div>}
+              {loading && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px',
+                  color: '#3b82f6', 
+                  marginTop: '0.5rem', 
+                  fontSize: '0.875rem' 
+                }}>
+                  <RefreshCw size={16} className="spinner" />
+                  Carregando dados...
+                </div>
+              )}
             </div>
             
-            <S.ExportButtons style={{ alignSelf: 'center' }}>
-              <S.ExportBtn onClick={() => handleExport('pdf')} disabled={loading}>
+            {/* Botões de exportar à direita */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem',
+              alignSelf: 'center'
+            }}>
+              <button
+                onClick={() => handleExport('pdf')}
+                disabled={loading || exporting.pdf}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.pdf) ? 0.6 : 1
+                }}
+              >
                 <FileText size={16} />
-                Exportar PDF
-              </S.ExportBtn>
-              <S.ExportBtn onClick={() => handleExport('excel')} disabled={loading}>
+                {exporting.pdf ? 'Gerando...' : 'Exportar PDF'}
+              </button>
+              
+              <button
+                onClick={() => handleExport('excel')}
+                disabled={loading || exporting.excel}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#198754',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.3s',
+                  opacity: (loading || exporting.excel) ? 0.6 : 1
+                }}
+              >
                 <Download size={16} />
-                Exportar Excel
-              </S.ExportBtn>
-            </S.ExportButtons>
+                {exporting.excel ? 'Gerando...' : 'Exportar Excel'}
+              </button>
+            </div>
           </div>
 
           {/* Filtros */}
@@ -203,9 +284,6 @@ export default function HistoricoPacientes() {
             <S.MetricCard>
               <S.MetricTitle>Total Atendidos</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.totalAtendidos || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendAtendidos || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoAtendidos || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Este período
               </S.MetricDetail>
@@ -214,43 +292,63 @@ export default function HistoricoPacientes() {
             <S.MetricCard>
               <S.MetricTitle>Taxa de Remarcação</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.taxaRemarcacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendRemarcacao || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoRemarcacao || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Consultas remarcadas
               </S.MetricDetail>
+              <S.StatusBadge status={getStatusAtendimento(dados.metricas?.taxaRemarcacao || 0)}>
+                {getStatusText(getStatusAtendimento(dados.metricas?.taxaRemarcacao || 0))}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Permanência Média</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.permanenciaMedia || 0} dias</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendPermanencia || 'neutral'}>
-                {dados.metricas?.variacaoPermanencia || '0 dias'}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Internação
               </S.MetricDetail>
+              <S.StatusBadge status={getStatusPermanencia(dados.metricas?.permanenciaMedia || 0)}>
+                {getStatusText(getStatusPermanencia(dados.metricas?.permanenciaMedia || 0))}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Taxa de Retorno</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.taxaRetorno || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendRetorno || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoRetorno || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Pacientes recorrentes
               </S.MetricDetail>
+              <S.StatusBadge status={getStatusAtendimento(dados.metricas?.taxaRetorno || 0)}>
+                {getStatusText(getStatusAtendimento(dados.metricas?.taxaRetorno || 0))}
+              </S.StatusBadge>
             </S.MetricCard>
           </S.MetricsGrid>
+
+          {/* Informações de Exportação */}
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '2rem',
+            border: '1px solid #dee2e6'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <Download size={16} color="#0d6efd" />
+              <strong style={{ color: '#0d6efd' }}>Exportação de Relatórios</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#6c757d' }}>
+              Os relatórios PDF e Excel são gerados com dados atualizados do banco de dados em tempo real.
+              Período: <strong>{periodo === 'semana' ? 'Última Semana' : periodo === 'mes' ? 'Último Mês' : periodo === 'trimestre' ? 'Último Trimestre' : 'Último Ano'}</strong> | 
+              Atendimento: <strong>{tipoAtendimento === 'todos' ? 'Todos' : tipoAtendimento === 'consulta' ? 'Consultas' : tipoAtendimento === 'emergencia' ? 'Emergência' : tipoAtendimento === 'internacao' ? 'Internação' : 'Cirurgias'}</strong> | 
+              Faixa Etária: <strong>{faixaEtaria === 'todas' ? 'Todas' : faixaEtaria === 'criancas' ? '0-12 anos' : faixaEtaria === 'adolescentes' ? '13-17 anos' : faixaEtaria === 'adultos' ? '18-59 anos' : '60+ anos'}</strong>
+            </p>
+          </div>
 
           {/* Atendimentos por Especialidade */}
           <S.TableSection>
             <S.TableTitle>Atendimentos por Especialidade</S.TableTitle>
             {loading ? (
               <S.ChartLoading>Carregando dados da tabela...</S.ChartLoading>
-            ) : dados.atendimentosPorEspecialidade && dados.atendimentosPorEspecialidade.length > 0 ? (
+            ) : (
               <S.Table>
                 <thead>
                   <tr>
@@ -264,36 +362,40 @@ export default function HistoricoPacientes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {dados.atendimentosPorEspecialidade.map((especialidade, index) => {
-                    const crescimentoNum = parseFloat(especialidade.taxaCrescimento?.replace(/[^0-9.-]/g, '') || especialidade.taxaCrescimento || 0);
-                    return (
-                      <tr key={index}>
-                        <td>
-                          <strong>{especialidade.especialidade || 'Não informado'}</strong>
-                        </td>
-                        <td>{especialidade.totalAtendimentos || 0}</td>
-                        <td>{especialidade.novosPacientes || 0}</td>
-                        <td>{especialidade.retornos || 0}</td>
-                        <td>{especialidade.mediaIdade || 0} anos</td>
-                        <td>
-                          <S.PercentValue value={crescimentoNum}>
-                            {formatarVariacao(especialidade.taxaCrescimento)}
-                          </S.PercentValue>
-                        </td>
-                        <td>
-                          <S.StatusBadge status={getStatusAtendimento(crescimentoNum)}>
-                            {getStatusAtendimento(crescimentoNum)}
-                          </S.StatusBadge>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {dados.atendimentosPorEspecialidade && dados.atendimentosPorEspecialidade.length > 0 ? (
+                    dados.atendimentosPorEspecialidade.map((especialidade, index) => {
+                      const crescimentoNum = parseFloat(especialidade.crescimento?.toString().replace(/[^0-9.-]/g, '') || especialidade.crescimento || 0);
+                      return (
+                        <tr key={index}>
+                          <td>
+                            <strong>{especialidade.especialidade || 'Não informado'}</strong>
+                          </td>
+                          <td>{especialidade.totalAtendimentos || 0}</td>
+                          <td>{especialidade.novosPacientes || 0}</td>
+                          <td>{especialidade.retornos || 0}</td>
+                          <td>{especialidade.mediaIdade || 0} anos</td>
+                          <td>
+                            <S.PercentValue value={crescimentoNum}>
+                              {formatarVariacao(especialidade.crescimento)}
+                            </S.PercentValue>
+                          </td>
+                          <td>
+                            <S.StatusBadge status={getStatusAtendimento(crescimentoNum)}>
+                              {getStatusText(getStatusAtendimento(crescimentoNum))}
+                            </S.StatusBadge>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                        Nenhum atendimento registrado para os filtros selecionados
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </S.Table>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                Nenhum atendimento registrado para os filtros selecionados
-              </div>
             )}
           </S.TableSection>
 
@@ -302,48 +404,68 @@ export default function HistoricoPacientes() {
             <S.TableTitle>Internações Ativas - Hoje</S.TableTitle>
             {loading ? (
               <S.ChartLoading>Carregando dados...</S.ChartLoading>
-            ) : dados.internacoesAtivas && dados.internacoesAtivas.length > 0 ? (
-              <S.Table>
-                <thead>
-                  <tr>
-                    <th>Paciente</th>
-                    <th>Idade</th>
-                    <th>Setor</th>
-                    <th>Diagnóstico</th>
-                    <th>Dias Internado</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dados.internacoesAtivas.map((internacao, index) => (
-                    <tr key={index}>
-                      <td><strong>{internacao.paciente_nome || 'Não informado'}</strong></td>
-                      <td>{calcularIdade(internacao.data_nascimento)} anos</td>
-                      <td>
-                        {internacao.tipo_leito === 'UTI' ? 
-                          <S.UTIBadge>UTI</S.UTIBadge> : 
-                          `Enfermaria ${internacao.n_sala || 'N/A'}`
-                        }
-                      </td>
-                      <td>{internacao.diagnostico_principal || 'Em observação'}</td>
-                      <td>
-                        <S.DuracaoBadge duracao={internacao.dias_internado || 0}>
-                          {internacao.dias_internado || 0} dias
-                        </S.DuracaoBadge>
-                      </td>
-                      <td>
-                        <S.StatusBadge status={getStatusPermanencia(internacao.dias_internado || 0)}>
-                          {getStatusPermanencia(internacao.dias_internado || 0)}
-                        </S.StatusBadge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </S.Table>
             ) : (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                Nenhuma internação ativa para os filtros selecionados
-              </div>
+              dados.internacoesAtivas && dados.internacoesAtivas.length > 0 ? (
+                <S.Table>
+                  <thead>
+                    <tr>
+                      <th>Paciente</th>
+                      <th>Idade</th>
+                      <th>Setor</th>
+                      <th>Diagnóstico</th>
+                      <th>Dias Internado</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dados.internacoesAtivas.map((internacao, index) => (
+                      <tr key={index}>
+                        <td><strong>{internacao.paciente_nome || 'Não informado'}</strong></td>
+                        <td>{calcularIdade(internacao.data_nascimento)} anos</td>
+                        <td>
+                          {internacao.tipo_leito === 'UTI' ? 
+                            <S.UTIBadge>UTI</S.UTIBadge> : 
+                            `Enfermaria ${internacao.n_sala || 'N/A'}`
+                          }
+                        </td>
+                        <td>{internacao.diagnostico_principal || 'Em observação'}</td>
+                        <td>
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+                            <span>{internacao.dias_internado || 0} dias</span>
+                            <div style={{
+                              width: '60px',
+                              height: '8px',
+                              backgroundColor: '#e5e7eb',
+                              borderRadius: '4px',
+                              overflow: 'hidden'
+                            }}>
+                              <div style={{
+                                width: `${Math.min((internacao.dias_internado || 0) * 5, 100)}%`,
+                                height: '100%',
+                                backgroundColor: (internacao.dias_internado || 0) >= 30 ? '#dc3545' : 
+                                              (internacao.dias_internado || 0) >= 15 ? '#ffc107' : '#28a745'
+                              }} />
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <S.StatusBadge status={getStatusPermanencia(internacao.dias_internado || 0)}>
+                            {getStatusText(getStatusPermanencia(internacao.dias_internado || 0))}
+                          </S.StatusBadge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </S.Table>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                  Nenhuma internação ativa para os filtros selecionados
+                </div>
+              )
             )}
           </S.TableSection>
 
@@ -352,20 +474,17 @@ export default function HistoricoPacientes() {
             <S.MetricCard>
               <S.MetricTitle>Taxa de Ocupação Leitos</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.taxaOcupacaoLeitos || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendOcupacao || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoOcupacao || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Atual
               </S.MetricDetail>
+              <S.StatusBadge status={getStatusAtendimento(dados.metricas?.taxaOcupacaoLeitos || 0)}>
+                {getStatusText(getStatusAtendimento(dados.metricas?.taxaOcupacaoLeitos || 0))}
+              </S.StatusBadge>
             </S.MetricCard>
 
             <S.MetricCard>
               <S.MetricTitle>Altas no Período</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.totalAltas || 0}</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendAltas || 'neutral'}>
-                {dados.metricas?.variacaoAltas || '0'}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Pacientes
               </S.MetricDetail>
@@ -374,9 +493,6 @@ export default function HistoricoPacientes() {
             <S.MetricCard>
               <S.MetricTitle>Tempo Médio Espera</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.tempoMedioEspera || 0} min</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendEspera || 'neutral'}>
-                {dados.metricas?.variacaoEspera || '0 min'}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Pronto Socorro
               </S.MetricDetail>
@@ -385,18 +501,39 @@ export default function HistoricoPacientes() {
             <S.MetricCard>
               <S.MetricTitle>Taxa de Satisfação</S.MetricTitle>
               <S.MetricValue>{dados.metricas?.taxaSatisfacao || 0}%</S.MetricValue>
-              <S.MetricTrend trend={dados.metricas?.trendSatisfacao || 'neutral'}>
-                {formatarVariacao(dados.metricas?.variacaoSatisfacao || 0)}
-              </S.MetricTrend>
               <S.MetricDetail>
                 Pesquisa pacientes
               </S.MetricDetail>
+              <S.StatusBadge status={getStatusAtendimento(dados.metricas?.taxaSatisfacao || 0)}>
+                {getStatusText(getStatusAtendimento(dados.metricas?.taxaSatisfacao || 0))}
+              </S.StatusBadge>
             </S.MetricCard>
           </S.MetricsGrid>
+
         </S.MainContent>
 
         <Footer />
       </S.ConselhoPortalContainer>
+
+      <style jsx="true">{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+        
+        button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        
+        button:active:not(:disabled) {
+          transform: translateY(0);
+        }
+      `}</style>
     </>
   );
 }
