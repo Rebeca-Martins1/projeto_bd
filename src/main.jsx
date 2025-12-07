@@ -18,7 +18,9 @@ import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
-import MinhasCirurgias from './pages/Medico/MinhasCirurgias/page'
+import MinhasCirurgias from './pages/Medico/MinhasCirurgias/page' 
+import MinhasCirurgiasPaciente from './pages/Paciente/MinhasCirurgias/MinhasCirurgias.jsx'  
+import MinhasConsultasPaciente from './pages/Paciente/MinhasConsultas/page.jsx'  
 import MinhasConsultas from './pages/Medico/MinhasConsultas/page'
 import ConselhoPresidente from './pages/ConselhoPresidente/Home/index'
 import OcupacaoSalas from './pages/ConselhoPresidente/OcupacaoSalas/index'
@@ -40,21 +42,27 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       
+      {/* 🚀 ROTAS DO PACIENTE */}
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
       <Route path="/perfilpaciente" element={<PerfilPaciente/>} />
-
+      <Route path="/minhascirurgiaspaciente" element={<MinhasCirurgiasPaciente/>} /> 
+      <Route path="/minhasconsultaspaciente" element={<MinhasConsultasPaciente/>} />
+      {/* 🧑‍⚕️ ROTAS DO MÉDICO */}
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
       <Route path="/minhascirurgias" element={<MinhasCirurgias/>} />
       <Route path="/minhasconsultas" element={<MinhasConsultas/>} />
       <Route path="/perfilmedico" element={<PerfilMedico/>} />
 
+      {/* 👩‍⚕️ ROTAS DO ENFERMEIRO */}
       <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
       <Route path="/plantao" element={<Plantao/>} />
 
+      {/* 💻 ROTAS DO ADMINISTRADOR */}
       <Route path="/homeadm" element={<HomeAdm/>} />
-      <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
+      {/* CORRIGIDO: Rota para o cadastro de profissionais */}
+      <Route path="/cadastro_profissionais" element={<CadastroProfissional/>} />
       <Route path="/cadastro_leitos" element={<CadastroLeitos/>} />
       <Route path="/cadastro_salas" element={<CadastroSalas/>} />
       <Route path="/desativar_leitos" element={<DesativarLeitos/>} />
@@ -63,6 +71,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/perfiladm" element={<Perfiladm/>}/>
       <Route path="/solicitacao" element={<Solicitacao/>}/>
 
+      {/* 👑 ROTAS DO CONSELHO PRESIDENTE */}
       <Route path="/conselhopresidente" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />
       <Route path="/ocupacaosalas" element={<OcupacaoSalas/>} />

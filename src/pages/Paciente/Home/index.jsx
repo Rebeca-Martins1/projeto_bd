@@ -1,64 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "./styles";
-import { FaCalendarAlt, FaCut, FaUserCog } from "react-icons/fa";
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
-function ActionCard({ icon, title, description, onClick }) {
+// Importando os ícones no mesmo estilo do Médico
+import { FaUserCog } from "react-icons/fa"; 
+import { IconCalendarPlus, IconCalendarCheck, IconClipboardList } from "../../../icons";
+
+// Componente de Card padronizado (Igual ao do Médico)
+function ActionCard({ icon, title, description, buttonText, path }) {
+  const navigate = useNavigate();
+
   return (
-    <S.ActionCardContainer onClick={onClick}>
-      <S.ActionCardIcon>{icon}</S.ActionCardIcon>
+    <S.ActionCardContainer>
+      {/* React.createElement permite renderizar tanto ícones do react-icons quanto os personalizados */}
+      <S.ActionCardIcon>{React.createElement(icon, { size: 40 })}</S.ActionCardIcon>
       <h3>{title}</h3>
       <p>{description}</p>
-      <S.ActionCardButton>IR PRA SEÇÃO</S.ActionCardButton>
+      <S.ActionCardButton 
+        aria-label={title} 
+        onClick={() => navigate(path)}
+      >
+        {buttonText}
+      </S.ActionCardButton>
     </S.ActionCardContainer>
   );
 }
 
-export default function PortalPaciente() {
+export default function HomePaciente() {
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null); // ✅ estado inicial
+  const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-    // roda apenas uma vez
     const dadosSalvos = localStorage.getItem("usuarioLogado");
     if (dadosSalvos) {
       setUsuario(JSON.parse(dadosSalvos));
     } else {
-      navigate("/login"); // mais seguro que window.location.href
+      navigate("/login");
     }
   }, [navigate]);
 
   if (!usuario) {
-    // enquanto o usuário não é carregado, evita renderizar
-    return <p>Carregando...</p>;
-  }
-
-  const items = [
-    {
-      icon: <FaCalendarAlt size={40} />,
-      title: "CONSULTAS",
-      description: "Marque sua próxima visita",
-      route: "/MarcarConsulta",
-    },
-    {
-      icon: <FaCut size={40} />,
-      title: "CIRURGIAS",
-      description: "Histórico e agendamentos",
-      route: "/cirurgias",
-    },
-    {
-      icon: <FaUserCog size={40} />,
-      title: "EDITAR PERFIL",
-      description: "Atualize seus dados",
-      route: "/perfilpaciente",
-    },
-  ];
-
-  function logout() {
-    localStorage.removeItem("usuarioLogado");
-    navigate("/login");
+    return <p style={{padding: "20px"}}>Carregando...</p>;
   }
 
   return (
@@ -66,6 +50,7 @@ export default function PortalPaciente() {
       <S.GlobalStyles />
       <S.PacientePortalContainer>
         <Header />
+
         <S.MainContent>
           <S.WelcomeMessage>
             <h1>BEM-VINDO, {usuario.nome}</h1>
@@ -73,17 +58,46 @@ export default function PortalPaciente() {
           </S.WelcomeMessage>
 
           <S.CardGrid>
-            {items.map((item, i) => (
-              <ActionCard
-                key={i}
-                icon={item.icon}
-                title={item.title}
-                description={item.description}
-                onClick={() => navigate(item.route)}
-              />
-            ))}
+            
+            {/* 1. AGENDAR CONSULTA */}
+            <ActionCard 
+              icon={IconCalendarPlus}
+              title="MARCAR CONSULTA"
+              description="Agende um novo atendimento"
+              buttonText="IR PRA SEÇÃO"
+              path="/MarcarConsulta"
+            />
+
+            {/* 2. MINHAS CONSULTAS (Novo Card) */}
+            <ActionCard 
+              icon={IconClipboardList}
+              title="MINHAS CONSULTAS"
+              description="Histórico e agendamentos futuros"
+              buttonText="IR PRA SEÇÃO"
+              path="/minhasconsultaspaciente"
+            />
+
+            {/* 3. MINHAS CIRURGIAS */}
+            <ActionCard 
+              icon={IconCalendarCheck}
+              title="MINHAS CIRURGIAS"
+              description="Acompanhe seus procedimentos"
+              buttonText="IR PRA SEÇÃO"
+              path="/minhascirurgiaspaciente"
+            />
+
+            {/* 4. EDITAR PERFIL */}
+            <ActionCard 
+              icon={FaUserCog}
+              title="EDITAR PERFIL"
+              description="Atualize seus dados pessoais"
+              buttonText="IR PRA SEÇÃO"
+              path="/perfilpaciente"
+            />
+            
           </S.CardGrid>
         </S.MainContent>
+
         <Footer />
       </S.PacientePortalContainer>
     </>

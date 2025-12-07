@@ -60,21 +60,18 @@ export async function criarSolicitacaoCirurgia(req, res) {
     necessidades,
     dataPreferencial,
     n_sala,
-    equipeMedica,     
-    equipeEnfermagem,
-    // NOVOS CAMPOS DO FRONTEND
-    tipoLeito,       // 'UTI', 'ENFERMARIA' ou '' (vazio)
-    numeroLeito,     // n_sala do leito
-    diasInternacao   // Quantidade de dias para calcular a data_saida
+    cpfMedicoResponsavel, 
+    equipeMedica,         
+    equipeEnfermagem,     
+    tipoLeito,       
+    numeroLeito,     
+    diasInternacao,
+    tipo_sala             
   } = req.body;
 
   try {
     await client.query("BEGIN");
 
-    // ... (Validações de Sala e Horário que fizemos antes continuam aqui) ...
-    // ... (Código de verificação de disponibilidade da cirurgia) ...
-
-    // 1. CRIA A CIRURGIA
     const queryCirurgia = `
       INSERT INTO "CIRURGIA" 
       (data_hora, cpf_paciente, n_sala, tipo_sala, duracao_minutos, status, aprovada)
@@ -85,21 +82,56 @@ export async function criarSolicitacaoCirurgia(req, res) {
       dataPreferencial,
       cpfPaciente,
       n_sala,
-      'CIRURGIA',
+      tipo_sala || 'CIRURGIA',
       duracao,
-      `SOLICITADA: ${grauUrgencia} - ${tipoProcedimento}`,
-      false 
+      `SOLICITADA: ${grauUrgencia} - ${tipoProcedimento}`, 
+      false
     ]);
+    // ============================================================
+    // 2. ALOCAR MÉDICOS (RESPONSÁVEL + EQUIPE)
+    // ============================================================
+    
+    // A. Aloca o Médico Responsável (quem está logado)
+    if (cpfMedicoResponsavel) {
+      await client.query(
+        `INSERT INTO "ALOCA_MEDICO_CIRURGIA" (data_hora, cpf_paciente, cpf_medico)
+         VALUES ($1, $2, $3)`,
+        [dataPreferencial, cpfPaciente, cpfMedicoResponsavel]
+      );
+    }
 
-    // ... (Aloca Médicos e Enfermeiros continua igual) ...
+    // B. Aloca a Equipe Médica (Auxiliares)
+    if (equipeMedica && equipeMedica.length > 0) {
+      for (const cpfMedico of equipeMedica) {
+        // Evita duplicar se o médico selecionou a si mesmo na lista
+        if (cpfMedico !== cpfMedicoResponsavel) {
+          await client.query(
+            `INSERT INTO "ALOCA_MEDICO_CIRURGIA" (data_hora, cpf_paciente, cpf_medico)
+             VALUES ($1, $2, $3)`,
+            [dataPreferencial, cpfPaciente, cpfMedico]
+          );
+        }
+      }
+    }
 
-    // 2. NOVA LÓGICA: ALOCAR LEITO (Se o médico escolheu um)
+    // ============================================================
+    // 3. ALOCAR ENFERMEIROS
+    // ============================================================
+    if (equipeEnfermagem && equipeEnfermagem.length > 0) {
+      for (const cpfEnfermeiro of equipeEnfermagem) {
+        await client.query(
+          `INSERT INTO "ALOCA_ENFERMEIRO_CIRURGIA" (data_hora, cpf_paciente, cpf_enfermeiro)
+           VALUES ($1, $2, $3)`,
+          [dataPreferencial, cpfPaciente, cpfEnfermeiro]
+        );
+      }
+    }
+
+    // ============================================================
+    // 4. ALOCAR LEITO (Lógica que você já tinha)
+    // ============================================================
     if (tipoLeito && numeroLeito && diasInternacao) {
-      
-      // Converte dataPreferencial (timestamp) para Date (YYYY-MM-DD) para entrada
       const dataEntrada = new Date(dataPreferencial);
-      
-      // Calcula Data de Saída
       const dataSaida = new Date(dataEntrada);
       dataSaida.setDate(dataSaida.getDate() + parseInt(diasInternacao));
 
@@ -126,13 +158,17 @@ export async function criarSolicitacaoCirurgia(req, res) {
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Erro na transação:", error);
-    // ... (Tratamento de erros igual ao anterior) ...
+    
+    // Tratamento de erro específico (duplicidade)
+    if (error.code === '23505') {
+       return res.status(400).json({ error: "Horário ou sala já ocupados." });
+    }
+
     res.status(500).json({ error: "Erro ao processar solicitação: " + error.message });
   } finally {
     client.release();
   }
 }
-
 export async function listarSalas(req, res) {
   try {
     const result = await pool.query(`

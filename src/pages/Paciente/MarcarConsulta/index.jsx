@@ -1,75 +1,81 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import * as S from "./style";
+import * as S from "./style"; 
 import { FaHeartbeat, FaCalendarAlt } from "react-icons/fa";
 
 export default function MarcarConsulta() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  // Pegar CPF do paciente logado
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const cpfPaciente = usuario ? usuario.cpf : "";
+
+  // 🆕 Estado inicial separado para facilitar o reset
+  const initialFormState = {
     data: "",
     hora: "",
     tipoConsulta: "",
     especialidade: "",
-    medico: "",
+    cpf_medico: "", 
     observacoes: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
 
   const [especialidades, setEspecialidades] = useState([]);
-  const [medicos, setMedicos] = useState([]);
+  const [medicos, setMedicos] = useState([]); 
   const [horarios, setHorarios] = useState([]);
 
-  // 🔹 Simulação de dados (futuro: backend)
+  // 1. Carregar Especialidades do Backend
   useEffect(() => {
-    setEspecialidades([
-      "Cardiologia",
-      "Ortopedia",
-      "Dermatologia",
-      "Pediatria",
-      "Neurologia",
-    ]);
+    async function fetchEspecialidades() {
+      try {
+        const res = await fetch("http://localhost:5000/consultas/especialidades");
+        if (res.ok) {
+          const data = await res.json();
+          setEspecialidades(data);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar especialidades:", error);
+      }
+    }
+    fetchEspecialidades();
   }, []);
 
-  // 🔹 Filtra médicos pela especialidade
+  // 2. Carregar Médicos quando a Especialidade mudar
   useEffect(() => {
-    if (!formData.especialidade) {
-      setMedicos([]);
-      setFormData((prev) => ({ ...prev, medico: "", hora: "" }));
-      return;
+    async function fetchMedicos() {
+      if (!formData.especialidade) {
+        setMedicos([]);
+        setFormData((prev) => ({ ...prev, cpf_medico: "" }));
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/consultas/medicos/${formData.especialidade}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMedicos(data); 
+        }
+      } catch (error) {
+        console.error("Erro ao buscar médicos:", error);
+      }
     }
-
-    const todosMedicos = [
-      { nome: "Dr. João Silva", especialidade: "Cardiologia" },
-      { nome: "Dra. Maria Souza", especialidade: "Dermatologia" },
-      { nome: "Dr. Paulo Lima", especialidade: "Ortopedia" },
-      { nome: "Dra. Fernanda Alves", especialidade: "Pediatria" },
-      { nome: "Dr. Rafael Nunes", especialidade: "Neurologia" },
-    ];
-
-    const filtrados = todosMedicos.filter(
-      (m) => m.especialidade === formData.especialidade
-    );
-    setMedicos(filtrados);
+    fetchMedicos();
   }, [formData.especialidade]);
 
-  // 🔹 Gera horários disponíveis quando o médico é selecionado
+  // 3. Gerar horários fixos 
   useEffect(() => {
-    if (!formData.medico) {
+    if (!formData.cpf_medico) {
       setHorarios([]);
-      setFormData((prev) => ({ ...prev, hora: "" }));
       return;
     }
-
     const horariosDisponiveis = [
-      "08:00",
-      "09:00",
-      "10:30",
-      "13:00",
-      "14:30",
-      "16:00",
+      "08:00", "09:00", "10:00", "11:00", 
+      "13:00", "14:00", "15:00", "16:00", "17:00"
     ];
     setHorarios(horariosDisponiveis);
-  }, [formData.medico]);
+  }, [formData.cpf_medico]);
 
   const handleChange = (e) => {
     setFormData({
@@ -78,38 +84,57 @@ export default function MarcarConsulta() {
     });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const response = await fetch("http://localhost:5000/consultas ", {  
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Consulta marcada com sucesso!");
-      navigate("/homepaciente");
-    } else {
-      alert("Erro: " + data.error);
+    if (!cpfPaciente) {
+      alert("Erro: Usuário não identificado. Faça login novamente.");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao conectar com o servidor.");
-  }
-};
+
+    const payload = {
+      data: formData.data,
+      hora: formData.hora,
+      tipoConsulta: formData.tipoConsulta,
+      cpf_medico: formData.cpf_medico,
+      cpf_paciente: cpfPaciente,
+      observacoes: formData.observacoes
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/consultas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("✅ Consulta marcada com sucesso!");
+        
+        // 🆕 LÓGICA DE LIMPEZA DO FORMULÁRIO
+        setFormData(initialFormState); // Reseta os campos
+        setMedicos([]); // Limpa a lista de médicos
+        setHorarios([]); // Limpa a lista de horários
+        
+      } else {
+        // 🆕 Exibe a mensagem de erro específica vinda do Backend
+        // (Ex: "Você já possui uma consulta marcada neste horário.")
+        alert("Atenção: " + (data.error || "Falha ao agendar"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao conectar com o servidor.");
+    }
+  };
 
   return (
     <S.PageContainer>
       <S.GlobalStyles />
 
-      {/* 🔹 Cabeçalho */}
       <S.TopHeader>
         <S.TopHeaderContent>
           <S.Logo>
@@ -120,15 +145,15 @@ const handleSubmit = async (e) => {
         </S.TopHeaderContent>
       </S.TopHeader>
 
-      {/* 🔹 Conteúdo principal */}
       <S.FormContainer>
         <S.FormCard onSubmit={handleSubmit}>
           <S.FormHeader>
             <FaCalendarAlt size={32} color="#1c2541" />
             <h2>Marcar Consulta</h2>
-            <p>Preencha os dados abaixo para agendar</p>
+            <p>Selecione os dados abaixo</p>
           </S.FormHeader>
 
+          {/* DATA */}
           <S.InputGroup>
             <label>Data</label>
             <input
@@ -136,10 +161,12 @@ const handleSubmit = async (e) => {
               name="data"
               value={formData.data}
               onChange={handleChange}
+              min={new Date().toISOString().split("T")[0]} 
               required
             />
           </S.InputGroup>
 
+          {/* TIPO CONSULTA */}
           <S.InputGroup>
             <label>Tipo de Consulta</label>
             <select
@@ -155,6 +182,7 @@ const handleSubmit = async (e) => {
             </select>
           </S.InputGroup>
 
+          {/* ESPECIALIDADE */}
           <S.InputGroup>
             <label>Especialidade</label>
             <select
@@ -172,53 +200,53 @@ const handleSubmit = async (e) => {
             </select>
           </S.InputGroup>
 
+          {/* MÉDICO */}
           <S.InputGroup>
             <label>Médico</label>
             <select
-              name="medico"
-              value={formData.medico}
+              name="cpf_medico"
+              value={formData.cpf_medico}
               onChange={handleChange}
               disabled={!formData.especialidade}
               required
             >
               <option value="">
                 {formData.especialidade
-                  ? "Selecione..."
+                  ? "Selecione o médico..."
                   : "Escolha uma especialidade primeiro"}
               </option>
               {medicos.map((m, i) => (
-                <option key={i} value={m.nome}>
+                <option key={i} value={m.cpf}>
                   {m.nome}
                 </option>
               ))}
             </select>
           </S.InputGroup>
 
-          {/* 🔹 Campo horário (só aparece depois de selecionar médico) */}
-          {formData.medico && (
-            <S.InputGroup>
-              <label>Horário</label>
-              <select
-                name="hora"
-                value={formData.hora}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Selecione um horário...</option>
-                {horarios.map((h, i) => (
-                  <option key={i} value={h}>
-                    {h}
-                  </option>
-                ))}
-              </select>
-            </S.InputGroup>
-          )}
+          {/* HORÁRIO */}
+          <S.InputGroup>
+            <label>Horário</label>
+            <select
+              name="hora"
+              value={formData.hora}
+              onChange={handleChange}
+              disabled={!formData.cpf_medico}
+              required
+            >
+              <option value="">Selecione um horário...</option>
+              {horarios.map((h, i) => (
+                <option key={i} value={h}>
+                  {h}
+                </option>
+              ))}
+            </select>
+          </S.InputGroup>
 
           <S.InputGroup>
             <label>Observações</label>
             <textarea
               name="observacoes"
-              placeholder="Ex: sintomas, preferências..."
+              placeholder="Ex: Sintomas, alergias..."
               value={formData.observacoes}
               onChange={handleChange}
             />
@@ -227,15 +255,13 @@ const handleSubmit = async (e) => {
           <S.SubmitBtn type="submit">Confirmar Consulta</S.SubmitBtn>
         </S.FormCard>
       </S.FormContainer>
-
-      {/* 🔹 Rodapé */}
+      
       <S.Footer>
         <S.FooterGrid>
           <S.FooterCol>
             <h5>Sobre nós</h5>
             <p>Informações sobre o Hospital.</p>
           </S.FooterCol>
-
           <S.FooterCol>
             <h5>Contato</h5>
             <ul>
