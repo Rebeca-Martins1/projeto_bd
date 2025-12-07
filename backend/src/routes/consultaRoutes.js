@@ -1,8 +1,14 @@
 import express from "express";
-import { marcarConsulta } from "../controllers/consultaController.js";
+import { 
+  listarEspecialidades, 
+  listarMedicosPorEspecialidade, 
+  agendarConsulta 
+} from "../controllers/consultaController.js"; // <--- O erro dizia que agendarConsulta não vinha daqui
 
 const router = express.Router();
 
-router.post("/", marcarConsulta);
+router.get("/especialidades", listarEspecialidades);
+router.get("/medicos/:especialidade", listarMedicosPorEspecialidade);
+router.post("/", agendarConsulta); 
 
 export default router;
