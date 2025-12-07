@@ -35,6 +35,8 @@ import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
 import PerfilMedico from './pages/Medico/Perfil/page'
 import EditarPerfil from './pages/Enfermeiro/EditarPerfil'
 import EditarPerilEnfermeiro from './pages/Enfermeiro/EditarPerfil'
+import MinhaEscala from './pages/Enfermeiro/MinhasCirurgias/index.jsx'
+import MeusLeitos from './pages/Enfermeiro/Leitos/index.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -44,7 +46,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       
-      {/* 🚀 ROTAS DO PACIENTE */}
       <Route path="/homepaciente" element={<HomePaciente/>} />
       <Route path="/marcarconsulta" element={<MarcarConsulta/>} />
       <Route path="/perfilpaciente" element={<PerfilPaciente/>} />
@@ -57,10 +58,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/minhasconsultas" element={<MinhasConsultas/>} />
       <Route path="/perfilmedico" element={<PerfilMedico/>} />
 
-      {/* 👩‍⚕️ ROTAS DO ENFERMEIRO */}
       <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
       <Route path="/plantao" element={<Plantao/>} />
       <Route path="/editarperfil" element={<EditarPerfil/>} />
+      <Route path="/cirurgiasenfermeiro" element={<MinhaEscala/>} />
+       <Route path="/leitos" element={<MeusLeitos/>} />
 
       {/* 💻 ROTAS DO ADMINISTRADOR */}
       <Route path="/homeadm" element={<HomeAdm/>} />
