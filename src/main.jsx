@@ -31,6 +31,7 @@ import HomeEnfermeiro from './pages/Enfermeiro/Home/index'
 import Plantao from './pages/Enfermeiro/Plantao/index'
 import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
 import PerfilMedico from './pages/Medico/Perfil/page'
+import EditarPerfil from './pages/Enfermeiro/EditarPerfil'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -52,6 +53,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
       <Route path="/plantao" element={<Plantao/>} />
+      <Route path="/editarperfl" element={<EditarPerfil/>} />
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
