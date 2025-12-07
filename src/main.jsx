@@ -34,12 +34,13 @@ import Plantao from './pages/Enfermeiro/Plantao/index'
 import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
 import PerfilMedico from './pages/Medico/Perfil/page'
 import EditarPerfil from './pages/Enfermeiro/EditarPerfil'
+import EditarPerilEnfermeiro from './pages/Enfermeiro/EditarPerfil'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <MyGlobalStyles />
     <Routes>
-      <Route path="/" element={< HomeEnfermeiro />} />
+      <Route path="/" element={< Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       
@@ -49,7 +50,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/perfilpaciente" element={<PerfilPaciente/>} />
       <Route path="/minhascirurgiaspaciente" element={<MinhasCirurgiasPaciente/>} /> 
       <Route path="/minhasconsultaspaciente" element={<MinhasConsultasPaciente/>} />
-      {/* 🧑‍⚕️ ROTAS DO MÉDICO */}
+     
       <Route path="/homemedico" element={<HomeMedico/>} />
       <Route path="/agendarcirurgia" element={<AgendarCirurgia/>} />
       <Route path="/minhascirurgias" element={<MinhasCirurgias/>} />

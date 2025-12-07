@@ -16,7 +16,9 @@ export const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding-top: 30px;
+  padding-bottom: 50px; /* Adicionado para dar espaço antes do footer */
 `;
+
 export const BackButton = styled.button`
   background: #e2e8f0;
   color: #1c2541;
@@ -71,14 +73,14 @@ export const InputGroup = styled.div`
     color: #334155;
   }
 
-  input, textarea, select { /* <-- ADICIONADO 'select' aqui */
+  input, textarea, select {
     padding: 12px;
     border-radius: 10px;
     border: 1px solid #cbd5e1;
     font-size: 15px;
     outline: none;
     transition: .2s;
-    background-color: white; /* Garante que o select não fique transparente */
+    background-color: white;
 
     &:focus {
       border-color: #1c2541;

@@ -3,90 +3,51 @@ import { useNavigate } from "react-router-dom";
 import {
   GlobalStyles,
   PageContainer,
-  BackButton,
   FormCard,
   SectionTitle,
   InputGroup,
   SubmitBtn
 } from "./styles";
 
-// Mantendo Header e Footer do modelo original, caso você precise deles na estrutura
 import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 
-// O nome do componente foi mudado de PatientProfile para EditarPerilEnfermeiro
 const EditarPerilEnfermeiro = () => {
-  // Configurado como 'true' por padrão para que o formulário esteja pronto para preenchimento
   const [isEditing, setIsEditing] = useState(true); 
   const navigate = useNavigate();
 
-  // Dados iniciais (vazios), focados nas especificações do Enfermeiro
+  // Dados iniciais vazios
   const [formData, setFormData] = useState({
     nome: "",
     telefone: "",
     email: "",
-    sexo: "" // Inicializado vazio para forçar a seleção
+    sexo: ""
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleToggleEdit = () => setIsEditing(!isEditing);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Simulação de envio para o Banco de Dados (sem alert() de sucesso)
-    console.log("Enviando dados do Enfermeiro para o BD:", formData); 
+    console.log("Dados do Enfermeiro salvos no BD:", formData); 
     
-    alert("✅ Cadastro realizado com sucesso!"); 
-    setIsEditing(false); // Desativa a edição após o cadastro
+    alert("✅ Atualização realizada com sucesso!"); 
+    setIsEditing(false); 
   };
 
   return (
     <>
-      <Header />
+      <Header /> {/* O header agora tem o botão VOLTAR */}
       <GlobalStyles />
       <PageContainer>
         <div style={{ padding: "20px", textAlign: "center" }}>
-          <h2>Cadastro do Enfermeiro</h2> 
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "10px",
-              marginTop: "10px"
-            }}
-          >
-            <button
-              onClick={handleToggleEdit}
-              style={{
-                background: "#1c2541",
-                color: "#fff",
-                border: "none",
-                padding: "8px 15px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600"
-              }}
-            >
-              {isEditing ? "Cancelar" : "Editar"}
-            </button>
-
-            {/* Mantendo o estilo do botão Voltar do modelo original, mas ajustando a rota */}
-            <BackButton
-              onClick={() => navigate("/home")} 
-              style={{ backgroundColor: "#8d99ae", color: "#1c2541" }}
-            >
-              Voltar
-            </BackButton>
-          </div>
+          <h2>Editar Informações do Enfermeiro</h2> 
         </div>
 
         <FormCard onSubmit={handleSubmit}>
-          <SectionTitle>Dados de Cadastro</SectionTitle>
+          <SectionTitle>Dados para serem atualizados</SectionTitle>
 
           {[
             ["nome", "Nome do Enfermeiro"],
@@ -121,10 +82,9 @@ const EditarPerilEnfermeiro = () => {
               <option value="Prefiro não informar">Prefiro não informar</option>
             </select>
           </InputGroup>
-
-          {/* Os campos de Histórico Clínico foram removidos */}
           
-          {isEditing && <SubmitBtn type="submit">Cadastrar Enfermeiro</SubmitBtn>}
+          {/* Botão de Submissão para salvar os dados */}
+          {isEditing && <SubmitBtn type="submit">Salvar Alterações</SubmitBtn>}
         </FormCard>
       </PageContainer>
       <Footer />
