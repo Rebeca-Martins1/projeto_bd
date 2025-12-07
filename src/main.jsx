@@ -37,7 +37,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <MyGlobalStyles />
     <Routes>
-      <Route path="/" element={< Login />} />
+      <Route path="/" element={< HomeEnfermeiro />} />
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       
@@ -53,7 +53,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <Route path="/homeenfermeiro" element={<HomeEnfermeiro/>} />
       <Route path="/plantao" element={<Plantao/>} />
-      <Route path="/editarperfl" element={<EditarPerfil/>} />
+      <Route path="/editarperfil" element={<EditarPerfil/>} />
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_medico_paciente" element={<CadastroProfissional/>} />
