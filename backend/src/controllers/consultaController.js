@@ -61,7 +61,7 @@ export async function agendarConsulta(req, res) {
     }
 
     const salaQuery = await client.query(
-      `SELECT n_sala, tipo FROM "SALAS" WHERE tipo = 'CONSULTORIO' AND ativo = true LIMIT 1`
+      `SELECT n_sala, tipo FROM "SALAS" WHERE tipo = 'Consultorio' AND ativo = true LIMIT 1`
     );
 
     if (salaQuery.rows.length === 0) {

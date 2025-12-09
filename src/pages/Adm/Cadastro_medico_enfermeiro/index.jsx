@@ -144,9 +144,9 @@ export default function CadastroProfissional() {
             <label>Sexo</label>
             <select name="sexo" value={formData.sexo} onChange={handleChange} required>
               <option value="">Selecione...</option>
-              <option value="F">Feminino</option>
-              <option value="M">Masculino</option>
-              <option value="O">Outro</option>
+              <option value="Feminino">Feminino</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Outro">Outro</option>
             </select>
           </S.InputGroup>
 

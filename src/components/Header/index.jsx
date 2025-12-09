@@ -36,7 +36,7 @@ export default function Header() {
     "/leitos": "/homeenfermeiro",
 
     // Administrador
-    "/cadastro_medico_paciente": "/homeadm",
+    "/cadastro_profissionais": "/homeadm",
     "/cadastro_leitos": "/homeadm",
     "/cadastro_salas": "/homeadm",
     "/desativar_leitos": "/homeadm",
