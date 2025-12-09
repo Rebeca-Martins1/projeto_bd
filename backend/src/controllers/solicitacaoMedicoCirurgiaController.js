@@ -174,7 +174,7 @@ export async function listarSalas(req, res) {
     const result = await pool.query(`
       SELECT n_sala, tipo 
       FROM "SALAS" 
-      WHERE UPPER(tipo) = 'Cirurgia' AND ativo = true
+      WHERE tipo = 'Cirurgia' AND ativo = true
       ORDER BY n_sala
     `);
     
