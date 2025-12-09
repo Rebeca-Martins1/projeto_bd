@@ -24,7 +24,7 @@ export default function HomeAdm() {
       icon: <FaCalendarAlt size={40} />,
       title: "CADASTRO DE FUNCIONARIOS",
       description: "Cadastro de médicos e enfermeiros",
-      route: "/cadastro_medico_paciente",
+      route: "/cadastro_profissionais",
     },
 
     {
@@ -67,6 +67,13 @@ export default function HomeAdm() {
       title: "SOLICITAÇÃO DE CIRURGIA",
       description: "Solicitações das cirurgias dos médicos tem que ser aprovadas e modificadas caso necessário",
       route: "/solicitacao",
+    },
+
+    {
+      icon: <FaUserCog size={40} />,
+      title: "ALOCA ENFERMEIRO LEITO",
+      description: "Aloca o enfermeiro no leito que irá trabalhar naquele dia",
+      route: "/aloca_enfermeiro_leito",
     },
 
     {
