@@ -8,7 +8,6 @@ export default function Header() {
   const navigate = useNavigate();
   const path = location.pathname;
 
-  /** Páginas principais (que mostram "Sair") */
   const homePages = [
     "/homepaciente",
     "/homemedico",
@@ -42,6 +41,7 @@ export default function Header() {
     "/desativar_funcionarios": "/homeadm",
     "/perfiladm": "/homeadm",
     "/solicitacao": "/homeadm",
+    "/aloca_enfermeiro_leito": "/homeadm",
 
     // Conselho
     "/ocupacaoleitos": "/conselhopresidente",
@@ -52,12 +52,9 @@ export default function Header() {
     "/recursoshumanos": "/conselhopresidente"
   };
 
-  /** 🔙 Botão voltar */
   const goBack = () => {
-    // === Regra especial ===
     if (path.includes("/marcarconsulta")) return navigate(-1); // volta realmente de onde veio
 
-    // busca rota correspondente
     const redirect = Object.entries(backRoutes).find(([route]) =>
       path.includes(route)
     );

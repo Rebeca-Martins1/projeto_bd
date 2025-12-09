@@ -17,6 +17,7 @@ import Solicitacao from './pages/Adm/Solicitacao'
 import MarcarConsulta from './pages/Paciente/MarcarConsulta/index'
 import MyGlobalStyles from './styles/globalStyles'
 import CadastroProfissional from './pages/Adm/Cadastro_medico_enfermeiro/index'
+import AlocaEnfermeiroLeito from './pages/Adm/Aloca_enfermeiro_leito'
 import AgendarCirurgia from './pages/Medico/AgendarCirurgia/page'
 import MinhasCirurgias from './pages/Medico/MinhasCirurgias/page' 
 import MinhasCirurgiasPaciente from './pages/Paciente/MinhasCirurgias/MinhasCirurgias.jsx'  
@@ -64,9 +65,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/cirurgiasenfermeiro" element={<MinhaEscala/>} />
        <Route path="/leitos" element={<MeusLeitos/>} />
 
-      {/* 💻 ROTAS DO ADMINISTRADOR */}
       <Route path="/homeadm" element={<HomeAdm/>} />
-      {/* CORRIGIDO: Rota para o cadastro de profissionais */}
       <Route path="/cadastro_profissionais" element={<CadastroProfissional/>} />
       <Route path="/cadastro_leitos" element={<CadastroLeitos/>} />
       <Route path="/cadastro_salas" element={<CadastroSalas/>} />
@@ -75,8 +74,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/desativar_funcionarios" element={<DesativarFuncionarios/>} />
       <Route path="/perfiladm" element={<Perfiladm/>}/>
       <Route path="/solicitacao" element={<Solicitacao/>}/>
+      <Route path="/aloca_enfermeiro_leito" element={<AlocaEnfermeiroLeito/>}/>
 
-      {/* 👑 ROTAS DO CONSELHO PRESIDENTE */}
       <Route path="/conselhopresidente" element={<ConselhoPresidente/>} />
       <Route path="/ocupacaoleitos" element={<OcupacaoLeitos/>} />
       <Route path="/ocupacaosalas" element={<OcupacaoSalas/>} />
