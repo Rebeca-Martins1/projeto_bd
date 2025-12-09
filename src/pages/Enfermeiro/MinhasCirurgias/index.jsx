@@ -4,7 +4,7 @@ import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 import { useNavigate } from "react-router-dom"; 
 
-// Renomeado de CirurgiaCard para EscalaCard
+// Componente do Card (Botões removidos aqui)
 function EscalaCard({ procedimento }) {
     
     // Formatar data para ficar legível (DD/MM/AAAA HH:mm)
@@ -21,9 +21,8 @@ function EscalaCard({ procedimento }) {
                     {/* Foco no Paciente */}
                     <h3>{procedimento.paciente_nome || "Paciente"}</h3>
                     
-                    {/* O StatusBadge agora usa a propriedade 'status' da cirurgia */}
+                    {/* Status Badge */}
                     <S.StatusBadge status={procedimento.status}>
-                        {/* Exibe o status da cirurgia (ex: EM PREPARO, CONCLUÍDO) */}
                         {procedimento.status ? procedimento.status.toUpperCase() : "AGENDADO"}
                     </S.StatusBadge>
                 </div>
@@ -35,28 +34,22 @@ function EscalaCard({ procedimento }) {
             <S.CardDetalhes>
                 <p><strong>Data/Hora:</strong> {dataFormatada}</p>
                 <p><strong>Duração Estimada:</strong> {procedimento.duracao_minutos} min</p>
-                {/* n_sala e tipo_sala são chaves do seu BD */}
                 <p><strong>Local:</strong> Sala {procedimento.n_sala} ({procedimento.tipo_sala})</p>
             </S.CardDetalhes>
             
-            {/* Adiciona área de ação específica para o Enfermeiro */}
-            <S.ActionArea>
-                <S.ActionBtn secondary>Ver Checklist</S.ActionBtn>
-                <S.ActionBtn>Marcar Preparo</S.ActionBtn>
-            </S.ActionArea>
+            {/* A área de botões (ActionArea) foi removida completamente aqui */}
 
         </S.CardContainer>
     );
 }
 
-// Renomeado de MinhasCirurgias para MinhaEscala
+// Componente Principal da Tela
 export default function MinhaEscala() {
     const [procedimentos, setProcedimentos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate(); // Adicionado para futura navegação (ex: login, detalhes)
+    const navigate = useNavigate(); 
 
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-    // Altera a chave de busca para cpfEnfermeiro
     const cpfEnfermeiro = usuario ? usuario.cpf : ""; 
 
     useEffect(() => {
@@ -64,7 +57,7 @@ export default function MinhaEscala() {
             if (!cpfEnfermeiro) return;
 
             try {
-                // Altera a rota para buscar a escala do enfermeiro
+                // Certifique-se que esta rota corresponde ao seu backend (Opção A ou B discutida anteriormente)
                 const resp = await fetch(`http://localhost:5000/enfermeiro/${cpfEnfermeiro}/escala`);
                 
                 if (resp.ok) {
@@ -81,12 +74,11 @@ export default function MinhaEscala() {
         }
 
         carregarEscala();
-    }, [cpfEnfermeiro]); // Dependência ajustada para cpfEnfermeiro
+    }, [cpfEnfermeiro]); 
 
     return (
         <>
             <S.GlobalStyles />
-            {/* Renomeado para MinhaEscalaContainer */}
             <S.MinhaEscalaContainer>
                 <Header />
 
@@ -98,7 +90,7 @@ export default function MinhaEscala() {
                         {loading ? (
                             <p>Carregando...</p>
                         ) : procedimentos.length > 0 ? (
-                            // Mapeia para EscalaCard
+                            // Renderiza os cards sem os botões
                             procedimentos.map((proc, index) => (
                                 <EscalaCard key={index} procedimento={proc} />
                             ))

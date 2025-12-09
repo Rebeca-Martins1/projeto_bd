@@ -287,3 +287,62 @@ export async function getProcedimentosDia(req, res) {
     res.status(500).json({ erro: "Erro ao buscar cirurgias do dia." });
   }
 }
+export async function getEscalaEnfermeiro(req, res) {
+    const { cpf } = req.params;
+
+    try {
+        const query = `
+            SELECT DISTINCT
+                -- Dados da Cirurgia
+                c.data_hora,
+                c.duracao_minutos,
+                c.status,
+                c.n_sala,
+                c.tipo_sala,
+                
+                -- Nome do Paciente
+                pes_paciente.nome AS paciente_nome,
+                
+                -- Nome do Médico Responsável
+                -- Se o JOIN encontrar um médico, mostra o nome. Se não, mostra 'A definir'.
+                COALESCE(pes_medico.nome, 'A definir') AS medico_responsavel_nome
+
+            FROM "ALOCA_ENFERMEIRO_CIRURGIA" aec
+            
+            -- 1. Trazemos os dados da cirurgia baseados na alocação do enfermeiro
+            JOIN "CIRURGIA" c 
+                ON aec.data_hora = c.data_hora 
+                AND aec.cpf_paciente = c.cpf_paciente
+            
+            -- 2. Buscamos o nome do Paciente
+            JOIN "PACIENTE" pac ON c.cpf_paciente = pac.cpf
+            JOIN "PESSOA" pes_paciente ON pac.cpf = pes_paciente.cpf
+            
+            -- 3. Buscamos o Médico ALOCADO (Aqui estava o ponto crítico)
+            -- Fazemos LEFT JOIN com a tabela de alocação de médicos usando a chave composta (data + paciente)
+            LEFT JOIN "ALOCA_MEDICO_CIRURGIA" amc 
+                ON c.data_hora = amc.data_hora 
+                AND c.cpf_paciente = amc.cpf_paciente
+            
+            -- 4. Buscamos o nome do Médico na tabela PESSOA usando o CPF da alocação
+            LEFT JOIN "PESSOA" pes_medico 
+                ON amc.cpf_medico = pes_medico.cpf
+            
+            -- Filtros: Apenas para este enfermeiro logado
+            WHERE aec.cpf_enfermeiro = $1
+            
+            -- Opcional: Ocultar cirurgias canceladas
+            AND (c.status IS NULL OR c.status NOT IN ('CANCELADO', 'RECUSADO'))
+            
+            ORDER BY c.data_hora ASC
+        `;
+
+        const resultado = await pool.query(query, [cpf]);
+
+        res.status(200).json(resultado.rows);
+
+    } catch (err) {
+        console.error("Erro ao buscar escala do enfermeiro:", err);
+        res.status(500).json({ error: "Erro interno ao buscar escala." });
+    }
+}

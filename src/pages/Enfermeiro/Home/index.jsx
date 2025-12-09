@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react"; // 1. Adicionado useEffect e useState
 import { useNavigate } from "react-router-dom"; 
 import * as S from "./styles";
 import Footer from "../../../components/Footer";
@@ -19,6 +19,24 @@ function ActionCard({ icon, title, description, buttonText, onClick }) {
 
 export default function HomeEnfermeiro() {
     const navigate = useNavigate(); 
+    // 2. Estado para armazenar o usuário logado
+    const [usuario, setUsuario] = useState(null);
+
+    // 3. Efeito para buscar os dados no localStorage ao carregar a página
+    useEffect(() => {
+        const dadosSalvos = localStorage.getItem("usuarioLogado");
+        if (dadosSalvos) {
+            setUsuario(JSON.parse(dadosSalvos));
+        } else {
+            // Se não tiver usuário logado, manda de volta pro login
+            navigate("/login");
+        }
+    }, [navigate]);
+
+    // 4. Se o usuário ainda não carregou, exibe carregando (evita erro de null)
+    if (!usuario) {
+        return <p style={{padding: "20px"}}>Carregando...</p>;
+    }
 
     return (
         <>
@@ -28,8 +46,8 @@ export default function HomeEnfermeiro() {
 
                 <S.MainContent>
                     <S.WelcomeMessage>
-                        {/* Dica: Depois você pode trocar isso por uma variável de estado com o nome real */}
-                        <h1>BEM-VINDO, ENFERMEIRO</h1> 
+                        {/* 5. Agora exibe o nome dinâmico vindo do banco/login */}
+                        <h1>BEM-VINDO, {usuario.nome ? usuario.nome.toUpperCase() : "ENFERMEIRO"}</h1> 
                         <p>Portal do Enfermeiro</p>
                     </S.WelcomeMessage>
 
@@ -41,17 +59,15 @@ export default function HomeEnfermeiro() {
                             title="EDITAR PERFIL"
                             description="Atualize suas informações"
                             buttonText="IR PRA SEÇÃO"
-                            // CORRIGIDO: Rota deve ser igual ao main.jsx (/editarperfil)
                             onClick={() => navigate("/editarperfil")} 
                         />
                         
-                        {/* 2. MINHAS CIRURGIAS (ESCALA) */}
+                        {/* 2. MINHAS CIRURGIAS */}
                         <ActionCard 
                             icon={IconScissors}
-                            title="MINHA ESCALA"
+                            title="MINHAS CIRURGIAS"
                             description="Visualize seus procedimentos agendados"
                             buttonText="IR PRA SEÇÃO"
-                            // CORRIGIDO: Rota deve ser igual ao main.jsx (/cirurgiasenfermeiro)
                             onClick={() => navigate("/cirurgiasenfermeiro")} 
                         />
                         
@@ -61,7 +77,6 @@ export default function HomeEnfermeiro() {
                             title="LEITOS DE RESPONSABILIDADE"
                             description="Veja suas ocupações e os detalhes dos leitos"
                             buttonText="IR PRA SEÇÃO"
-                            // CORRIGIDO: Rota deve ser igual ao main.jsx (/leitos)
                             onClick={() => navigate("/leitos")} 
                         />
 
@@ -71,7 +86,6 @@ export default function HomeEnfermeiro() {
                             title="PLANTÃO"
                             description="Cadastre e veja seu plantão aqui"
                             buttonText="IR PRA SEÇÃO"
-                            // CORRIGIDO: Rota deve ser igual ao main.jsx (/plantao)
                             onClick={() => navigate("/plantao")} 
                         />
                     </S.CardGrid>
