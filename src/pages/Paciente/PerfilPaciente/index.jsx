@@ -108,7 +108,7 @@ const PatientProfile = () => {
       });
 
       if (resp.ok) {
-        alert("✅ Dados atualizados com sucesso!");
+        alert("Dados atualizados com sucesso!");
         setIsEditing(false);
       } else {
         alert("Erro ao atualizar perfil.");

@@ -71,7 +71,7 @@ export default function PerfilMedico() {
       setSuccess("Perfil atualizado com sucesso!");
       setTimeout(() => {
         navigate("/homemedico"); 
-      }, 1500);
+      });
       
     } catch (error) {
       console.error("Erro ao atualizar:", error);
@@ -89,7 +89,6 @@ export default function PerfilMedico() {
         </h1>
 
         {erro && <Error>{erro}</Error>}
-        {success && <Success>{success}</Success>}
         <div style={{ display: "flex", gap: "20px" }}>
             <InputGroup style={{ flex: 1 }}>
             <label>CPF</label>

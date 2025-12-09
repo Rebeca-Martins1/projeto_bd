@@ -39,7 +39,7 @@ export default function Perfil() {
         }
 
         const data = await req.json();
-        setDados(data); // Agora data é um OBJETO
+        setDados(data); 
       } catch (error) {
         console.error("ERRO NO FETCH:", error);
         setErro("Erro ao carregar dados do servidor.");
@@ -66,8 +66,14 @@ export default function Perfil() {
     if (!req.ok) {
       throw new Error("Erro ao atualizar perfil");
     }
+    const usuarioAtualizado = { ...usuario, nome: dados.nome };
+      localStorage.setItem("usuarioLogado", JSON.stringify(usuarioAtualizado));
+
+      setSuccess("Perfil atualizado com sucesso!");
+      setTimeout(() => {
+        navigate("/homeadm"); 
+      });
     setSuccess("Perfil atualizado com sucesso!");
-    navigate("/homeadm");
   } catch (error) {
     console.error("Erro ao atualizar:", error);
     setErro("Erro ao salvar alterações.");
