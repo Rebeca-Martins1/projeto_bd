@@ -34,11 +34,7 @@ function LeitoCard({ leito }) {
                 <p><strong>Ocupação Atual:</strong> {leito.quant_paciente} pacientes</p>
             </S.CardDetalhes>
             
-            <S.ActionArea>
-                {/* Ações específicas para gerenciar o leito */}
-                <S.ActionBtn secondary>Ver Pacientes</S.ActionBtn>
-                <S.ActionBtn>Relatório de Plantão</S.ActionBtn>
-            </S.ActionArea>
+    
 
         </S.CardContainer>
     );
