@@ -1,113 +1,100 @@
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 
-export const GlobalStyles = createGlobalStyle`
-  body {
-    background: #f8fafc;
-    font-family: "Inter", sans-serif;
-    margin: 0;
-    padding: 0;
+export const GlobalStyles = styled.div`
+  /* Reset básico se necessário */
+`;
+
+export const EnfermeiroPortalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+`;
+
+export const MainContent = styled.main`
+  flex: 1;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+`;
+
+export const WelcomeMessage = styled.div`
+  margin-bottom: 40px;
+  text-align: center;
+
+  h1 {
+    color: #003366;
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #666;
+    font-size: 1.1rem;
   }
 `;
 
-export const PageContainer = styled.div`
-  width: 100%;
-  min-height: 100vh;
+export const CardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  justify-content: center;
+`;
+
+export const ActionCardContainer = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 30px;
-  padding-bottom: 50px; /* Adicionado para dar espaço antes do footer */
-`;
-
-export const BackButton = styled.button`
-  background: #e2e8f0;
-  color: #1c2541;
-  border: none;
-  padding: 8px 14px;
-  font-size: 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
 
   &:hover {
-    background: #cfd8e3;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  h3 {
+    margin: 15px 0 10px;
+    color: #003366;
+  }
+
+  p {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    flex: 1;
   }
 `;
 
-export const FormCard = styled.form`
-  background: #ffffff;
-  width: 100%;
-  max-width: 700px;
-  padding: 30px;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e5e7eb;
-  animation: fadeIn .25s ease-in;
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+export const ActionCardIcon = styled.div`
+  color: #007bff;
+  font-size: 40px;
+  margin-bottom: 10px;
+  
+  svg {
+    width: 50px;
+    height: 50px;
   }
 `;
 
-export const SectionTitle = styled.h3`
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  margin-top: 5px;
-  color: #1c2541;
-  border-left: 4px solid #1c2541;
-  padding-left: 8px;
-`;
-
-export const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 14px;
-
-  label {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #334155;
-  }
-
-  input, textarea, select {
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
-    font-size: 15px;
-    outline: none;
-    transition: .2s;
-    background-color: white;
-
-    &:focus {
-      border-color: #1c2541;
-      box-shadow: 0 0 0 2px rgba(28,37,65,0.15);
-    }
-  }
-
-  textarea {
-    min-height: 90px;
-    resize: none;
-  }
-`;
-
-export const SubmitBtn = styled.button`
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  background: #1c2541;
-  color: #fff;
+export const ActionCardButton = styled.button`
+  background-color: #007bff;
+  color: white;
   border: none;
-  border-radius: 10px;
-  font-size: 17px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: bold;
   cursor: pointer;
-  font-weight: 600;
-  transition: .2s;
+  transition: background-color 0.2s;
+  width: 100%;
 
   &:hover {
-    background: #273469;
+    background-color: #0056b3;
   }
 `;
