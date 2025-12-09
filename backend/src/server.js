@@ -24,6 +24,7 @@ import recursosHumanosRoutes from "./routes/recursosHumanosRoutes.js"
 import perfilMedicoRoutes from "./routes/perfilMedicoRoutes.js";
 import solicitacaoMedicoCirurgiaRoutes from "./routes/solicitacaoMedicoCirurgiaRoutes.js";
 import pacienteRoutes from "./routes/pacienteRoutes.js";
+import enfermeiroRoutes from "./routes/enfermeiroRoutes.js";
 
 import pool from "./config/db.js"; 
 import consultaRoutes from "./routes/consultaRoutes.js";
@@ -60,6 +61,7 @@ app.use("/consultas", consultaRoutes);
 app.use("/perfilmedico", perfilMedicoRoutes);
 app.use("/solicitacaocirurgia", solicitacaoMedicoCirurgiaRoutes);
 
+app.use("/enfermeiro", enfermeiroRoutes);
 // ...
 app.use("/paciente", pacienteRoutes);
 app.listen(PORT, () => {

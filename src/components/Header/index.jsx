@@ -31,6 +31,9 @@ export default function Header() {
 
     // Enfermeiro
     "/plantao": "/homeenfermeiro",
+    "/editarperfil": "/homeenfermeiro",
+    "/cirurgiasenfermeiro": "/homeenfermeiro", 
+    "/leitos": "/homeenfermeiro",
 
     // Administrador
     "/cadastro_medico_paciente": "/homeadm",
