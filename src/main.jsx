@@ -35,7 +35,6 @@ import Plantao from './pages/Enfermeiro/Plantao/index'
 import PerfilPaciente from './pages/Paciente/PerfilPaciente/index'
 import PerfilMedico from './pages/Medico/Perfil/page'
 import EditarPerfil from './pages/Enfermeiro/EditarPerfil'
-import EditarPerilEnfermeiro from './pages/Enfermeiro/EditarPerfil'
 import MinhaEscala from './pages/Enfermeiro/MinhasCirurgias/index.jsx'
 import MeusLeitos from './pages/Enfermeiro/Leitos/index.jsx'
 
@@ -63,7 +62,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/plantao" element={<Plantao/>} />
       <Route path="/editarperfil" element={<EditarPerfil/>} />
       <Route path="/cirurgiasenfermeiro" element={<MinhaEscala/>} />
-       <Route path="/leitos" element={<MeusLeitos/>} />
+      <Route path="/leitos" element={<MeusLeitos/>} />
 
       <Route path="/homeadm" element={<HomeAdm/>} />
       <Route path="/cadastro_profissionais" element={<CadastroProfissional/>} />
