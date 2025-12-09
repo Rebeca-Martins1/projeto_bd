@@ -6,7 +6,8 @@ import {
     getMinhasCirurgias,
     getLeitos,
     assumirLeito,
-    registrarPlantao
+    registrarPlantao,
+    getProcedimentosDia // <--- 1. Importe a nova função aqui
 } from "../controllers/enfermeiroController.js";
 
 const router = express.Router();
@@ -15,17 +16,22 @@ const router = express.Router();
 router.post("/", cadastrarEnfermeiro);
 
 // 2. Rotas para telas 'Home' e 'EditarPerfil'
-router.get("/:cpf/perfil", getPerfil);      // Busca dados para preencher a Home e o formulário de edição
-router.put("/:cpf/perfil", updatePerfil);   // Salva as alterações do perfil
+router.get("/:cpf/perfil", getPerfil);      // Busca dados do perfil
+router.put("/:cpf/perfil", updatePerfil);   // Atualiza dados do perfil
 
 // 3. Rota para tela 'MinhasCirurgias'
-router.get("/:cpf/cirurgias", getMinhasCirurgias); // Lista cirurgias onde o enfermeiro foi alocado
+router.get("/:cpf/cirurgias", getMinhasCirurgias); 
 
 // 4. Rotas para tela 'Leitos'
-router.get("/leitos", getLeitos);                  // Lista todos os leitos do hospital (mapa geral)
-router.put("/:cpf/assumir-leito", assumirLeito);   // O enfermeiro clica para se responsabilizar por um leito
+router.get("/leitos", getLeitos);                 // Mapa geral dos leitos
+router.put("/:cpf/assumir-leito", assumirLeito);  // Assumir responsabilidade
 
-// 5. Rota para tela 'Plantao'
-router.put("/:cpf/plantao", registrarPlantao);     // Atualiza horário de início/fim e disponibilidade
+// 5. Rotas para tela 'Plantao'
+// Ajustado para bater com o axios.post do seu frontend
+router.post("/plantao/cadastrar", registrarPlantao); 
+
+// 6. NOVA ROTA: Lista os procedimentos (cirurgias) do dia
+// O frontend chama: axios.get(".../procedimentos/dia")
+router.get("/procedimentos/dia", getProcedimentosDia);
 
 export default router;

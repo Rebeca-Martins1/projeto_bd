@@ -246,3 +246,44 @@ export async function registrarPlantao(req, res) {
         res.status(500).json({ erro: "Erro ao atualizar plantão." });
     }
 }
+
+export async function getProcedimentosDia(req, res) {
+  try {
+    const query = `
+      SELECT 
+        -- Criamos um ID único combinando data e CPF (já que cirurgia usa chave composta)
+        c.data_hora || c.cpf_paciente as id,
+        
+        -- Formata a hora para HH:MM (Postgres)
+        to_char(c.data_hora, 'HH24:MI') as hora, 
+        
+        -- Pega o nome do paciente via Joins
+        pes.nome as paciente,
+        
+        -- Converte o número da sala para string para o front ler como "leito/sala"
+        CAST(c.n_sala AS VARCHAR) as leito, 
+        
+        -- Como estamos lendo da tabela cirurgia, o tipo é fixo ou concatenado
+        'Cirurgia (' || c.tipo_sala || ')' as tipo,
+        
+        -- Se o status for nulo, mostra 'Agendada'
+        COALESCE(c.status, 'Agendada') as status
+
+      FROM "CIRURGIA" c
+      JOIN "PACIENTE" pac ON c.cpf_paciente = pac.cpf
+      JOIN "PESSOA" pes ON pac.cpf = pes.cpf
+      
+      -- Filtra apenas para o dia de hoje
+      WHERE c.data_hora::date = CURRENT_DATE 
+      
+      ORDER BY c.data_hora ASC
+    `;
+
+    const result = await pool.query(query);
+    res.status(200).json(result.rows);
+
+  } catch (error) {
+    console.error("Erro ao buscar procedimentos:", error);
+    res.status(500).json({ erro: "Erro ao buscar cirurgias do dia." });
+  }
+}
