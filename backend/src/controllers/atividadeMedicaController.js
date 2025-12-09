@@ -53,7 +53,7 @@ export const atividadeMedica = async (req, res) => {
           CASE 
             WHEN COUNT(*) = 0 THEN 0
             ELSE ROUND(AVG(
-              EXTRACT(EPOCH FROM COALESCE(data_hora_fim, data_hora + INTERVAL '30 minutes') - data_hora)
+              EXTRACT(EPOCH FROM COALESCE(data_hora + INTERVAL '30 minutes') - data_hora)
             ) / 60, 1)
           END as tempoMedio
         FROM public."CONSULTA"
@@ -77,7 +77,7 @@ export const atividadeMedica = async (req, res) => {
             ${medico !== 'todos' ? `AND cpf_medico = $2` : ''}), 0)) as taxa_comparecimento
         FROM public."CONSULTA"
         WHERE data_hora >= NOW() - INTERVAL '${intervalo}'
-        AND status_consulta = 'REALIZADA'
+        AND tipo_consulta = 'REALIZADA'
         ${medico !== 'todos' ? `AND cpf_medico = $1` : ''}
       `,
       values: medico !== 'todos' ? [medico, medico] : []
@@ -108,7 +108,7 @@ export const atividadeMedica = async (req, res) => {
             ${medico !== 'todos' ? `AND cpf_medico = $2` : ''}), 0)) as taxa_remarcacao
         FROM public."CONSULTA"
         WHERE data_hora >= NOW() - INTERVAL '${intervalo}'
-        AND status_consulta = 'REMARCADA'
+        AND tipo_consulta = 'REMARCADA'
         ${medico !== 'todos' ? `AND cpf_medico = $1` : ''}
       `,
       values: medico !== 'todos' ? [medico, medico] : []
@@ -164,12 +164,12 @@ export const atividadeMedica = async (req, res) => {
           CASE 
             WHEN COUNT(c.data_hora) = 0 THEN 0
             ELSE ROUND(AVG(
-              EXTRACT(EPOCH FROM COALESCE(c.data_hora_fim, c.data_hora + INTERVAL '30 minutes') - c.data_hora)
+              EXTRACT(EPOCH FROM COALESCE(c.data_hora + INTERVAL '30 minutes') - c.data_hora)
             ) / 60, 1)
           END as tempoMedio,
-          COUNT(CASE WHEN c.status_consulta = 'REALIZADA' THEN 1 END) * 100.0 / 
+          COUNT(CASE WHEN c.tipo_consulta = 'REALIZADA' THEN 1 END) * 100.0 / 
             NULLIF(COUNT(c.data_hora), 0) as taxaComparecimento,
-          COUNT(CASE WHEN c.status_consulta = 'REMARCADA' THEN 1 END) * 100.0 / 
+          COUNT(CASE WHEN c.tipo_consulta = 'REMARCADA' THEN 1 END) * 100.0 / 
             NULLIF(COUNT(c.data_hora), 0) as taxaRemarcacao
         FROM public."ESPECIALIDADE_MEDICO" em
         LEFT JOIN public."MEDICO" m ON em.cpf_medico = m.cpf
@@ -222,10 +222,10 @@ export const atividadeMedica = async (req, res) => {
           CASE 
             WHEN COUNT(c.data_hora) = 0 THEN 0
             ELSE ROUND(AVG(
-              EXTRACT(EPOCH FROM COALESCE(c.data_hora_fim, c.data_hora + INTERVAL '30 minutes') - c.data_hora)
+              EXTRACT(EPOCH FROM COALESCE(c.data_hora + INTERVAL '30 minutes') - c.data_hora)
             ) / 60, 1)
           END as tempoMedio,
-          COUNT(CASE WHEN c.status_consulta = 'REALIZADA' THEN 1 END) * 100.0 / 
+          COUNT(CASE WHEN c.tipo_consulta = 'REALIZADA' THEN 1 END) * 100.0 / 
             NULLIF(COUNT(c.data_hora), 0) as taxaRealizacao,
           m.disponivel
         FROM public."MEDICO" m
