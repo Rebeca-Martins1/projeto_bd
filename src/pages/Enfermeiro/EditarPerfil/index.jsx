@@ -1,95 +1,169 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import {
-  GlobalStyles,
-  PageContainer,
-  FormCard,
-  SectionTitle,
-  InputGroup,
-  SubmitBtn
-} from "./styles";
-
-import Footer from "../../../components/Footer";
+  Container,
+  Content,
+  Error,
+  Success,
+  EditBtn,
+  InputGroup
+} from "./styles"; 
+import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
 
-const EditarPerilEnfermeiro = () => {
-  const [isEditing, setIsEditing] = useState(true); 
+export default function PerfilEnfermeiro() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   const navigate = useNavigate();
 
-  // Dados iniciais vazios
-  const [formData, setFormData] = useState({
+  // Estado inicial com COREN em vez de CRM
+  const [dados, setDados] = useState({
+    cpf: "",
     nome: "",
     telefone: "",
     email: "",
-    sexo: ""
+    senha: "",
+    coren: "" 
   });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [erro, setErro] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    console.log("Dados do Enfermeiro salvos no BD:", formData); 
-    
-    alert("✅ Atualização realizada com sucesso!"); 
-    setIsEditing(false); 
-  };
+  useEffect(() => {
+    async function carregarPerfil() {
+      if (!usuario || !usuario.cpf) return;
+
+      try {
+        // Rota ajustada para o backend do enfermeiro
+        const req = await fetch(`http://localhost:5000/enfermeiro/${usuario.cpf}/perfil`);
+
+        if (!req.ok) {
+          throw new Error("Erro ao buscar perfil");
+        }
+
+        const data = await req.json();
+        setDados(data);
+      } catch (error) {
+        console.error("ERRO NO FETCH:", error);
+        setErro("Erro ao carregar dados do servidor.");
+      }
+    }
+
+    carregarPerfil();
+  }, []); 
+
+  async function salvarAlteracoes() {
+    setErro("");
+    setSuccess("");
+
+    try {
+      // Envia as alterações para o backend
+      const req = await fetch(
+        `http://localhost:5000/enfermeiro/${usuario.cpf}/perfil`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        }
+      );
+
+      if (!req.ok) {
+        throw new Error("Erro ao atualizar perfil");
+      }
+
+      // Atualiza o localStorage para refletir mudança de nome no header imediatamente
+      const usuarioAtualizado = { ...usuario, nome: dados.nome };
+      localStorage.setItem("usuarioLogado", JSON.stringify(usuarioAtualizado));
+
+      setSuccess("Perfil atualizado com sucesso!");
+      
+      // Redireciona para a Home do Enfermeiro
+      setTimeout(() => {
+        navigate("/homeenfermeiro"); 
+      }, 1500);
+      
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      setErro("Erro ao salvar alterações.");
+    }
+  }
 
   return (
-    <>
-      <Header /> {/* O header agora tem o botão VOLTAR */}
-      <GlobalStyles />
-      <PageContainer>
-        <div style={{ padding: "20px", textAlign: "center" }}>
-          <h2>Editar Informações do Enfermeiro</h2> 
+    <Container>
+      <Header />
+      
+      <Content>
+        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
+          Perfil do Enfermeiro
+        </h1>
+
+        {erro && <Error>{erro}</Error>}
+        {success && <Success>{success}</Success>}
+
+        {/* Linha com CPF e COREN (Campos desabilitados) */}
+        <div style={{ display: "flex", gap: "20px" }}>
+            <InputGroup style={{ flex: 1 }}>
+                <label>CPF</label>
+                <input 
+                    type="text" 
+                    value={dados.cpf || ""} 
+                    disabled 
+                    style={{ backgroundColor: "#e9ecef" }} 
+                />
+            </InputGroup>
+
+            <InputGroup style={{ flex: 1 }}>
+                <label>COREN</label>
+                <input 
+                    type="text" 
+                    value={dados.coren || ""} 
+                    disabled 
+                    style={{ backgroundColor: "#e9ecef" }} 
+                />
+            </InputGroup>
         </div>
 
-        <FormCard onSubmit={handleSubmit}>
-          <SectionTitle>Dados para serem atualizados</SectionTitle>
+        <InputGroup>
+          <label>Nome Completo</label>
+          <input
+            type="text"
+            value={dados.nome || ""}
+            onChange={(e) => setDados({ ...dados, nome: e.target.value })}
+          />
+        </InputGroup>
 
-          {[
-            ["nome", "Nome do Enfermeiro"],
-            ["telefone", "Telefone"],
-            ["email", "Email"]
-          ].map(([field, label]) => (
-            <InputGroup key={field}>
-              <label>{label}</label>
-              <input
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-                disabled={!isEditing}
-                placeholder={`Digite o ${label.toLowerCase()}`}
-              />
-            </InputGroup>
-          ))}
+        <InputGroup>
+          <label>Telefone</label>
+          <input
+            type="text"
+            value={dados.telefone || ""}
+            onChange={(e) => setDados({ ...dados, telefone: e.target.value })}
+          />
+        </InputGroup>
 
-          {/* Campo Sexo (Select) */}
-          <InputGroup>
-            <label>Sexo</label>
-            <select
-              name="sexo"
-              value={formData.sexo}
-              onChange={handleChange}
-              disabled={!isEditing}
-            >
-              <option value="" disabled>Selecione o Sexo</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Feminino">Feminino</option>
-              <option value="Outro">Outro</option>
-              <option value="Prefiro não informar">Prefiro não informar</option>
-            </select>
-          </InputGroup>
-          
-          {/* Botão de Submissão para salvar os dados */}
-          {isEditing && <SubmitBtn type="submit">Salvar Alterações</SubmitBtn>}
-        </FormCard>
-      </PageContainer>
+        <InputGroup>
+          <label>Email</label>
+          <input
+            type="email"
+            value={dados.email || ""}
+            onChange={(e) => setDados({ ...dados, email: e.target.value })}
+          />
+        </InputGroup>
+
+        <InputGroup>
+          <label>Senha</label>
+          <input
+            type="text" 
+            value={dados.senha || ""}
+            onChange={(e) => setDados({ ...dados, senha: e.target.value })}
+          />
+        </InputGroup>
+
+        <EditBtn onClick={salvarAlteracoes}>
+          Salvar Alterações
+        </EditBtn>
+      </Content>
+
       <Footer />
-    </>
+    </Container>
   );
-};
-
-export default EditarPerilEnfermeiro;
+}
