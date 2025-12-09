@@ -90,7 +90,6 @@ export async function cadastrarEnfermeiro(req, res) {
   }
 }
 
-
 export async function getPerfil(req, res) {
   const { cpf } = req.params;
 
@@ -111,13 +110,12 @@ export async function getPerfil(req, res) {
       return res.status(404).json({ erro: "Enfermeiro não encontrado" });
     }
 
-    // Busca especialidades (já que você insere isso no cadastro, é importante mostrar)
     const espQuery = `SELECT especialidade FROM "ESPECIALIDADE_ENFERMEIRO" WHERE cpf_enfermeiro = $1`;
     const espResult = await pool.query(espQuery, [cpf]);
     
     const dados = {
         ...result.rows[0],
-        especialidades: espResult.rows.map(r => r.especialidade) // Retorna array ['UTI', 'Pediatria']
+        especialidades: espResult.rows.map(r => r.especialidade) 
     };
 
     res.status(200).json(dados);
@@ -129,13 +127,12 @@ export async function getPerfil(req, res) {
 
 export async function updatePerfil(req, res) {
   const { cpf } = req.params;
-  const { nome, telefone, email, senha, coren } = req.body; // Dados editáveis na tela de Perfil
+  const { nome, telefone, email, senha, coren } = req.body; 
 
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
 
-    // Atualiza PESSOA
     if (nome || telefone || email || senha) {
         await client.query(
             `UPDATE "PESSOA" SET 
@@ -148,7 +145,6 @@ export async function updatePerfil(req, res) {
         );
     }
 
-    // Atualiza ENFERMEIRO (Coren)
     if (coren) {
         await client.query(
             `UPDATE "ENFERMEIRO" SET coren = $1 WHERE cpf = $2`,
@@ -167,6 +163,9 @@ export async function updatePerfil(req, res) {
   }
 }
 
+// ---------------------------------------------------------
+// ESSA É A FUNÇÃO CORRIGIDA QUE EVITA DUPLICATAS
+// ---------------------------------------------------------
 export async function getMinhasCirurgias(req, res) {
     const { cpf } = req.params;
     try {
@@ -178,16 +177,20 @@ export async function getMinhasCirurgias(req, res) {
                 c.duracao_minutos,
                 c.status,
                 p.nome AS paciente_nome,
-                m.nome AS medico_responsavel
+                -- STRING_AGG junta múltiplos médicos em uma string só (Ex: "Dr. A, Dr. B")
+                -- COALESCE garante que se não tiver médico, aparece "A definir"
+                COALESCE(STRING_AGG(DISTINCT m.nome, ', '), 'A definir') AS medico_responsavel_nome
             FROM "ALOCA_ENFERMEIRO_CIRURGIA" aec
             JOIN "CIRURGIA" c ON aec.data_hora = c.data_hora AND aec.cpf_paciente = c.cpf_paciente
             JOIN "PACIENTE" pac ON c.cpf_paciente = pac.cpf
             JOIN "PESSOA" p ON pac.cpf = p.cpf
-            -- Busca o médico (opcional, mas útil para o enfermeiro saber com quem vai operar)
+            -- LEFT JOIN para trazer médicos se houver
             LEFT JOIN "ALOCA_MEDICO_CIRURGIA" amc ON c.data_hora = amc.data_hora AND c.cpf_paciente = amc.cpf_paciente
             LEFT JOIN "PESSOA" m ON amc.cpf_medico = m.cpf
             WHERE aec.cpf_enfermeiro = $1
-            ORDER BY c.data_hora DESC
+            -- Agrupamos pelos dados da cirurgia e paciente para evitar linhas repetidas
+            GROUP BY c.data_hora, c.cpf_paciente, c.n_sala, c.tipo_sala, c.duracao_minutos, c.status, p.nome
+            ORDER BY c.data_hora ASC
         `;
         const result = await pool.query(query, [cpf]);
         res.status(200).json(result.rows);
@@ -197,10 +200,8 @@ export async function getMinhasCirurgias(req, res) {
     }
 }
 
-// Lista todos os leitos para o enfermeiro visualizar o mapa
 export async function getLeitos(req, res) {
     try {
-        // Retorna todos os leitos e quantos pacientes tem neles
         const result = await pool.query(`SELECT * FROM "LEITOS" ORDER BY n_sala ASC`);
         res.status(200).json(result.rows);
     } catch (error) {
@@ -208,10 +209,9 @@ export async function getLeitos(req, res) {
     }
 }
 
-// O enfermeiro clica em um leito para dizer "Sou responsável por este aqui hoje"
 export async function assumirLeito(req, res) {
     const { cpf } = req.params;
-    const { n_sala, tipo } = req.body; // Ex: { n_sala: 101, tipo: 'UTI' }
+    const { n_sala, tipo } = req.body; 
 
     try {
         await pool.query(
@@ -251,31 +251,16 @@ export async function getProcedimentosDia(req, res) {
   try {
     const query = `
       SELECT 
-        -- Criamos um ID único combinando data e CPF (já que cirurgia usa chave composta)
         c.data_hora || c.cpf_paciente as id,
-        
-        -- Formata a hora para HH:MM (Postgres)
         to_char(c.data_hora, 'HH24:MI') as hora, 
-        
-        -- Pega o nome do paciente via Joins
         pes.nome as paciente,
-        
-        -- Converte o número da sala para string para o front ler como "leito/sala"
         CAST(c.n_sala AS VARCHAR) as leito, 
-        
-        -- Como estamos lendo da tabela cirurgia, o tipo é fixo ou concatenado
         'Cirurgia (' || c.tipo_sala || ')' as tipo,
-        
-        -- Se o status for nulo, mostra 'Agendada'
         COALESCE(c.status, 'Agendada') as status
-
       FROM "CIRURGIA" c
       JOIN "PACIENTE" pac ON c.cpf_paciente = pac.cpf
       JOIN "PESSOA" pes ON pac.cpf = pes.cpf
-      
-      -- Filtra apenas para o dia de hoje
       WHERE c.data_hora::date = CURRENT_DATE 
-      
       ORDER BY c.data_hora ASC
     `;
 
@@ -287,62 +272,37 @@ export async function getProcedimentosDia(req, res) {
     res.status(500).json({ erro: "Erro ao buscar cirurgias do dia." });
   }
 }
-export async function getEscalaEnfermeiro(req, res) {
+
+export async function getMeuLeitoResponsavel(req, res) {
     const { cpf } = req.params;
 
     try {
         const query = `
-            SELECT DISTINCT
-                -- Dados da Cirurgia
-                c.data_hora,
-                c.duracao_minutos,
-                c.status,
-                c.n_sala,
-                c.tipo_sala,
-                
-                -- Nome do Paciente
-                pes_paciente.nome AS paciente_nome,
-                
-                -- Nome do Médico Responsável
-                -- Se o JOIN encontrar um médico, mostra o nome. Se não, mostra 'A definir'.
-                COALESCE(pes_medico.nome, 'A definir') AS medico_responsavel_nome
-
-            FROM "ALOCA_ENFERMEIRO_CIRURGIA" aec
-            
-            -- 1. Trazemos os dados da cirurgia baseados na alocação do enfermeiro
-            JOIN "CIRURGIA" c 
-                ON aec.data_hora = c.data_hora 
-                AND aec.cpf_paciente = c.cpf_paciente
-            
-            -- 2. Buscamos o nome do Paciente
-            JOIN "PACIENTE" pac ON c.cpf_paciente = pac.cpf
-            JOIN "PESSOA" pes_paciente ON pac.cpf = pes_paciente.cpf
-            
-            -- 3. Buscamos o Médico ALOCADO (Aqui estava o ponto crítico)
-            -- Fazemos LEFT JOIN com a tabela de alocação de médicos usando a chave composta (data + paciente)
-            LEFT JOIN "ALOCA_MEDICO_CIRURGIA" amc 
-                ON c.data_hora = amc.data_hora 
-                AND c.cpf_paciente = amc.cpf_paciente
-            
-            -- 4. Buscamos o nome do Médico na tabela PESSOA usando o CPF da alocação
-            LEFT JOIN "PESSOA" pes_medico 
-                ON amc.cpf_medico = pes_medico.cpf
-            
-            -- Filtros: Apenas para este enfermeiro logado
-            WHERE aec.cpf_enfermeiro = $1
-            
-            -- Opcional: Ocultar cirurgias canceladas
-            AND (c.status IS NULL OR c.status NOT IN ('CANCELADO', 'RECUSADO'))
-            
-            ORDER BY c.data_hora ASC
+            SELECT 
+                l.n_sala,
+                l.tipo AS tipo_leito_responsavel, -- Alias para bater com seu frontend
+                l.capacidade,
+                l.quant_paciente,
+                l.ativo AS disponivel             -- Alias para bater com seu frontend
+            FROM "ENFERMEIRO" e
+            JOIN "LEITOS" l 
+                ON e.leito_responsavel = l.n_sala 
+                AND e.tipo_leito_responsavel = l.tipo
+            WHERE e.cpf = $1
         `;
 
-        const resultado = await pool.query(query, [cpf]);
+        const result = await pool.query(query, [cpf]);
 
-        res.status(200).json(resultado.rows);
+        if (result.rows.length > 0) {
+            // Retorna o objeto do leito encontrado
+            res.status(200).json(result.rows[0]);
+        } else {
+            // Se não achar (retorna null para o frontend tratar com "Você não possui leito")
+            res.status(200).json(null);
+        }
 
-    } catch (err) {
-        console.error("Erro ao buscar escala do enfermeiro:", err);
-        res.status(500).json({ error: "Erro interno ao buscar escala." });
+    } catch (error) {
+        console.error("Erro ao buscar leito do enfermeiro:", error);
+        res.status(500).json({ erro: "Erro ao buscar informações do leito." });
     }
 }

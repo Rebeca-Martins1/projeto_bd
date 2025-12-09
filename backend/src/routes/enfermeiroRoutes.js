@@ -3,11 +3,12 @@ import {
     cadastrarEnfermeiro,
     getPerfil,
     updatePerfil,
-    getMinhasCirurgias, // Certifique-se que essa função existe no controller
+    getMinhasCirurgias, 
     getLeitos,
     assumirLeito,
     registrarPlantao,
-    getProcedimentosDia 
+    getProcedimentosDia,
+    getMeuLeitoResponsavel 
 } from "../controllers/enfermeiroController.js";
 
 const router = express.Router();
@@ -24,7 +25,8 @@ router.put("/:cpf/perfil", updatePerfil);
 router.get("/:cpf/escala", getMinhasCirurgias); 
 
 // 4. Leitos
-router.get("/leitos", getLeitos);
+router.get("/leitos", getLeitos); // Essa traz TODOS (para o mapa geral)
+router.get("/:cpf/leitos", getMeuLeitoResponsavel); // <--- NOVA ROTA (Traz o leito específico do enfermeiro)
 router.put("/:cpf/assumir-leito", assumirLeito);
 
 // 5. Plantão

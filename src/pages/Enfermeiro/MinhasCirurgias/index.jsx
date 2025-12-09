@@ -4,7 +4,7 @@ import Footer from "../../../components/Footer";
 import Header from "../../../components/Header";
 import { useNavigate } from "react-router-dom"; 
 
-// Componente do Card (Botões removidos aqui)
+// Componente do Card (Botões removidos aqui conforme seu pedido)
 function EscalaCard({ procedimento }) {
     
     // Formatar data para ficar legível (DD/MM/AAAA HH:mm)
@@ -36,8 +36,6 @@ function EscalaCard({ procedimento }) {
                 <p><strong>Duração Estimada:</strong> {procedimento.duracao_minutos} min</p>
                 <p><strong>Local:</strong> Sala {procedimento.n_sala} ({procedimento.tipo_sala})</p>
             </S.CardDetalhes>
-            
-            {/* A área de botões (ActionArea) foi removida completamente aqui */}
 
         </S.CardContainer>
     );
@@ -49,6 +47,7 @@ export default function MinhaEscala() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate(); 
 
+    // Recupera dados do usuário logado
     const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
     const cpfEnfermeiro = usuario ? usuario.cpf : ""; 
 
@@ -57,12 +56,31 @@ export default function MinhaEscala() {
             if (!cpfEnfermeiro) return;
 
             try {
-                // Certifique-se que esta rota corresponde ao seu backend (Opção A ou B discutida anteriormente)
+                // Rota do backend
                 const resp = await fetch(`http://localhost:5000/enfermeiro/${cpfEnfermeiro}/escala`);
                 
                 if (resp.ok) {
                     const dados = await resp.json();
-                    setProcedimentos(dados);
+
+                    // --- INÍCIO DA CORREÇÃO DE DUPLICIDADE ---
+                    // Se o banco retornar 3 linhas para a mesma cirurgia, nós filtramos aqui.
+                    const cirurgiasUnicas = new Map();
+
+                    dados.forEach(item => {
+                        // Cria uma chave única baseada na hora e no paciente
+                        const chaveUnica = `${item.data_hora}-${item.cpf_paciente}`;
+
+                        // Se essa chave ainda não existe no Map, adiciona.
+                        // Se já existe, ignora (evita duplicata).
+                        if (!cirurgiasUnicas.has(chaveUnica)) {
+                            cirurgiasUnicas.set(chaveUnica, item);
+                        }
+                    });
+
+                    // Transforma o Map de volta em array para o React renderizar
+                    setProcedimentos(Array.from(cirurgiasUnicas.values()));
+                    // --- FIM DA CORREÇÃO ---
+
                 } else {
                     console.error("Erro ao buscar escala do enfermeiro");
                 }
@@ -90,7 +108,7 @@ export default function MinhaEscala() {
                         {loading ? (
                             <p>Carregando...</p>
                         ) : procedimentos.length > 0 ? (
-                            // Renderiza os cards sem os botões
+                            // Renderiza a lista filtrada
                             procedimentos.map((proc, index) => (
                                 <EscalaCard key={index} procedimento={proc} />
                             ))
