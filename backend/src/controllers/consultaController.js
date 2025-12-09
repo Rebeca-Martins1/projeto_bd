@@ -1,6 +1,5 @@
 import pool from "../config/db.js";
 
-// 1. Listar Especialidades
 export async function listarEspecialidades(req, res) {
   try {
     const query = `
@@ -18,7 +17,6 @@ export async function listarEspecialidades(req, res) {
   }
 }
 
-// 2. Listar Médicos por Especialidade
 export async function listarMedicosPorEspecialidade(req, res) {
   const { especialidade } = req.params;
   try {
@@ -37,7 +35,6 @@ export async function listarMedicosPorEspecialidade(req, res) {
   }
 }
 
-// 3. Marcar Consulta (A função que estava faltando!)
 export async function agendarConsulta(req, res) {
   const { data, hora, tipoConsulta, cpf_medico, cpf_paciente, observacoes } = req.body;
 
@@ -47,7 +44,6 @@ export async function agendarConsulta(req, res) {
   try {
     await client.query("BEGIN");
 
-    // A. Verifica se o MÉDICO já tem consulta
     const checkMedico = await client.query(
       `SELECT 1 FROM "CONSULTA" WHERE cpf_medico = $1 AND data_hora = $2`,
       [cpf_medico, dataHoraCombinada]
@@ -56,7 +52,6 @@ export async function agendarConsulta(req, res) {
       throw new Error("O médico selecionado já possui um agendamento neste horário.");
     }
 
-    // 🆕 B. Verifica se o PACIENTE já tem consulta (NOVA LÓGICA)
     const checkPaciente = await client.query(
       `SELECT 1 FROM "CONSULTA" WHERE cpf_paciente = $1 AND data_hora = $2`,
       [cpf_paciente, dataHoraCombinada]
@@ -65,7 +60,6 @@ export async function agendarConsulta(req, res) {
       throw new Error("Você já possui uma consulta marcada neste horário.");
     }
 
-    // C. Busca uma sala disponível (Lógica existente)
     const salaQuery = await client.query(
       `SELECT n_sala, tipo FROM "SALAS" WHERE tipo = 'CONSULTORIO' AND ativo = true LIMIT 1`
     );
@@ -76,7 +70,6 @@ export async function agendarConsulta(req, res) {
 
     const { n_sala, tipo: tipo_sala } = salaQuery.rows[0];
 
-    // D. Insere a consulta
     await client.query(
       `INSERT INTO "CONSULTA" 
       (data_hora, cpf_paciente, cpf_medico, n_sala, tipo_sala, tipo_consulta, observacoes)
@@ -90,7 +83,6 @@ export async function agendarConsulta(req, res) {
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Erro ao agendar:", error);
-    // O Frontend vai exibir a mensagem que colocamos no "throw new Error" acima
     res.status(400).json({ error: error.message || "Erro ao processar agendamento" });
   } finally {
     client.release();

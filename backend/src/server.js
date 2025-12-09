@@ -9,6 +9,7 @@ import cadastroenfermeiroRoutes from "./routes/enfermeiroRoutes.js"
 import desativarleitosRoutes from "./routes/desativarLeitosRoutes.js"
 import desativarsalasRoutes from "./routes/desativarSalasRoutes.js"
 import solicitacaoCirurgiaRoutes from "./routes/solicitacaoCirurgiaRoutes.js"
+import alocaLeitoEnfermeiroRoutes from "./routes/alocaLeitoEnfermeiroRoutes.js"
 import perfilRoutes from "./routes/perfilAdmRoutes.js"
 import desativarfuncionarioRoutes from "./routes/desativarFuncionarioRoutes.js"
 import plantaoRoutes from "./routes/plantaoRoutes.js"
@@ -52,6 +53,7 @@ app.use("/historicopacientes", historicoPacientesRoutes);
 app.use("/ocupacaoleitos", ocupacaoLeitosRoutes);
 app.use("/ocupacaosalas", ocupacaoSalasRoutes);
 app.use("/recursoshumanos", recursosHumanosRoutes);
+app.use("/alocaenfermeiro", alocaLeitoEnfermeiroRoutes);
 
 app.use("/plantao", plantaoRoutes);
 app.use("/consultas", consultaRoutes);
